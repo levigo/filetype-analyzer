@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<magic>
+	<type>
+		<mime-type>text/rtf</mime-type>
+		<extension>rtf</extension>
+		<description>Rich Text Format data</description>
+		<match-string offset="0">{\\rtf</match-string>
+		
+		<type>
+			<!-- Extract further RTF details -->
+			<match-custom>org.jadice.filetype.database.RTFMatcher</match-custom>
+		</type>
+	</type>
+
+	<!-- Global fallback. If nothing else matches, it is just binary. -->
+	<mime-type>application/octet-stream</mime-type>
+	<description>Binary data</description>
+</magic>
