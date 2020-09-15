@@ -1,4 +1,4 @@
-package org.jadice.filetype.database;
+package org.jadice.filetype.matchers;
 
 import java.io.IOException;
 import java.nio.ByteOrder;
@@ -8,20 +8,22 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlValue;
 
 import org.jadice.filetype.Context;
+import org.jadice.filetype.database.AbsoluteLocation;
 import org.jadice.filetype.io.SeekableInputStream;
 
 /**
- * Dummy implementation - move to extractor.
+ * Match a long (four-byte!) value at a given position.
  * 
  */
-@XmlRootElement(name = "match-date")
-public class DateMatcher extends NumericMatcher {
+@XmlRootElement(name = "match-long")
+public class LongMatcher extends NumericMatcher {
   private long value;
 
   @Override
   protected boolean matches(Context context, SeekableInputStream positionedStream) throws IOException {
     positionedStream.setByteOrder(order);
     int s = positionedStream.readShort();
+    s &= mask;
 
     return unsigned ? comparison.matches(value & 0xffffffff, s & 0xffffffff) : comparison.matches(value, s);
   }
@@ -60,12 +62,9 @@ public class DateMatcher extends NumericMatcher {
   }
 
   @Override
+  @XmlAttribute
   protected void setMask(String s) {
-    if (s.startsWith("0x")) {
-      this.mask = Long.parseLong(s.substring(2), 16);
-    } else {
-      this.mask = Long.parseLong(s);
-    }
+    super.setMask(s);
   }
 
   @Override
@@ -78,5 +77,4 @@ public class DateMatcher extends NumericMatcher {
   protected void setOffset(int offset) {
     this.location = new AbsoluteLocation(offset);
   }
-
 }

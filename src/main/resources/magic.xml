@@ -98,10 +98,10 @@
 
 		<type>
 			<!-- OpenDocument/OpenOffice/StarOffice/KOffice stuff -->
-			<match-custom>org.jadice.filetype.database.OpenDocumentMatcher</match-custom>
+			<match-custom>org.jadice.filetype.matchers.OpenDocumentMatcher</match-custom>
 		
 			<!--  Office Open XML files (i.e. MS Office 2007) -->
-			<match-custom>org.jadice.filetype.database.OfficeOpenXMLMatcher</match-custom>
+			<match-custom>org.jadice.filetype.matchers.OfficeOpenXMLMatcher</match-custom>
 
 			<!--  Password protected ZIPs -->
 			<type>
@@ -110,7 +110,7 @@
 				<mime-type>application/zip;protection=encrypted</mime-type>
 				<extension>zip</extension>
 				
-				<match-custom>org.jadice.filetype.database.EncryptedZIPMatcher</match-custom>
+				<match-custom>org.jadice.filetype.matchers.EncryptedZIPMatcher</match-custom>
 			</type>
 		</type>
 		
@@ -273,7 +273,7 @@
 
 		<type>
 			<!-- Details are determined by custom matcher using apache POI -->
-			<match-custom>org.jadice.filetype.database.POIFSMatcher</match-custom>
+			<match-custom>org.jadice.filetype.matchers.POIFSMatcher</match-custom>
 		</type>
 	</type>
 
@@ -543,7 +543,7 @@
 		
 		<type>
 			<!-- Extract further PDF details -->
-			<match-custom>org.jadice.filetype.database.PDFMatcher</match-custom>
+			<match-custom>org.jadice.filetype.matchers.PDFMatcher</match-custom>
 		</type>
 	</type>
 
@@ -562,7 +562,7 @@
 
 		<type>
 			<!-- Extract further PDF details -->
-			<match-custom>org.jadice.filetype.database.PDFMatcher</match-custom>
+			<match-custom>org.jadice.filetype.matchers.PDFMatcher</match-custom>
 		</type>
 	</type>
 	<type>
@@ -660,9 +660,15 @@
 
 		<type>
 			<!-- Extract further PDF details -->
-			<match-custom>org.jadice.filetype.database.PDFMatcher</match-custom>
+			<match-custom>org.jadice.filetype.matchers.PDFMatcher</match-custom>
 		</type>
 
+	</type>
+	<type>
+		<match-custom>org.jadice.filetype.matchers.modca.ModcaMatcher</match-custom>
+	</type>
+	<type>
+		<match-custom>org.jadice.filetype.matchers.modca.IocaMatcher</match-custom>
 	</type>
 	
 	<type>
@@ -673,7 +679,7 @@
 
 		<type>
 			<!-- Extracts RTF meta data -->
-			<match-custom>org.jadice.filetype.database.RTFMatcher</match-custom>
+			<match-custom>org.jadice.filetype.matchers.RTFMatcher</match-custom>
 		</type>
 
  		<type>
@@ -770,7 +776,7 @@
 	</type>
 
 	<type>
-		<match-custom>org.jadice.filetype.database.XMLMatcher</match-custom>
+		<match-custom>org.jadice.filetype.matchers.XMLMatcher</match-custom>
 	</type>
 	
 	<type>
@@ -801,7 +807,7 @@
 			<mime-type>text/plain</mime-type>
 		-->
 		<description>Text file</description>
-		<match-custom>org.jadice.filetype.database.TextMatcher</match-custom>
+		<match-custom>org.jadice.filetype.matchers.TextMatcher</match-custom>
 	</type>
 
 	<!-- Global fallback. If nothing else matches, it is just binary. -->

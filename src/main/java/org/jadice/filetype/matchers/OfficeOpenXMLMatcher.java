@@ -1,4 +1,4 @@
-package org.jadice.filetype.database;
+package org.jadice.filetype.matchers;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,6 +15,9 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.jadice.filetype.Context;
+import org.jadice.filetype.database.DescriptionAction;
+import org.jadice.filetype.database.ExtensionAction;
+import org.jadice.filetype.database.MimeTypeAction;
 import org.jadice.filetype.domutil.DOMUtil;
 import org.jadice.filetype.io.SeekableInputStream;
 import org.jadice.filetype.ziputil.ZipArchiveInput;

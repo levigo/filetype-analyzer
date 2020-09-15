@@ -9,6 +9,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
 import org.jadice.filetype.Context;
+import org.jadice.filetype.matchers.Matcher;
 
 /**
  * A {@link Type} represents a stream type consisting of a set of matchers, actions to perform when

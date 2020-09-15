@@ -1,4 +1,4 @@
-package org.jadice.filetype.database;
+package org.jadice.filetype.matchers;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -23,6 +23,9 @@ import org.apache.poi.poifs.filesystem.DocumentInputStream;
 import org.apache.poi.poifs.filesystem.Entry;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.jadice.filetype.Context;
+import org.jadice.filetype.database.DescriptionAction;
+import org.jadice.filetype.database.ExtensionAction;
+import org.jadice.filetype.database.MimeTypeAction;
 import org.jadice.filetype.io.SeekableInputStream;
 
 /**

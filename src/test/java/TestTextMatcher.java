@@ -10,9 +10,9 @@ import java.util.Locale;
 
 import org.jadice.filetype.AnalysisListener;
 import org.jadice.filetype.Context;
-import org.jadice.filetype.database.TextMatcher;
 import org.jadice.filetype.io.MemoryInputStream;
 import org.jadice.filetype.io.SeekableInputStream;
+import org.jadice.filetype.matchers.TextMatcher;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.integration.junit4.JUnitRuleMockery;

@@ -1,4 +1,4 @@
-package org.jadice.filetype.database;
+package org.jadice.filetype.matchers;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -10,6 +10,7 @@ import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlValue;
 
 import org.jadice.filetype.Context;
+import org.jadice.filetype.database.AbsoluteLocation;
 import org.jadice.filetype.io.SeekableInputStream;
 
 /**

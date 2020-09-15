@@ -114,7 +114,7 @@ public class Analyzer {
    */
   public static Analyzer getInstance(final String database) throws AnalyzerException {
     try {
-      Unmarshaller unmarshaller = createUnnmarshaller();
+      Unmarshaller unmarshaller = createUnmarshaller();
       return new Analyzer((Database) unmarshaller.unmarshal(Analyzer.class.getResource(database)));
     } catch (JAXBException e) {
       throw new AnalyzerException("Can't load magic database", e);
@@ -131,7 +131,7 @@ public class Analyzer {
    */
   public static Analyzer getInstance(final URL database) throws AnalyzerException {
     try {
-      Unmarshaller unmarshaller = createUnnmarshaller();
+      Unmarshaller unmarshaller = createUnmarshaller();
       return new Analyzer((Database) unmarshaller.unmarshal(database));
     } catch (JAXBException e) {
       throw new AnalyzerException("Can't load magic database", e);
@@ -148,7 +148,7 @@ public class Analyzer {
    */
   public static Analyzer getInstance(final File database) throws AnalyzerException {
     try {
-      Unmarshaller unmarshaller = createUnnmarshaller();
+      Unmarshaller unmarshaller = createUnmarshaller();
       return new Analyzer((Database) unmarshaller.unmarshal(database));
     } catch (JAXBException e) {
       throw new AnalyzerException("Can't load magic database", e);
@@ -165,7 +165,7 @@ public class Analyzer {
    */
   public static Analyzer getInstance(final InputStream is) throws AnalyzerException {
     try {
-      Unmarshaller unmarshaller = createUnnmarshaller();
+      Unmarshaller unmarshaller = createUnmarshaller();
       try {
         return new Analyzer((Database) unmarshaller.unmarshal(is));
       } finally {
@@ -180,8 +180,8 @@ public class Analyzer {
     }
   }
 
-  private static Unmarshaller createUnnmarshaller() throws JAXBException {
-    JAXBContext jc = JAXBContext.newInstance("org.jadice.filetype.database");
+  private static Unmarshaller createUnmarshaller() throws JAXBException {
+    JAXBContext jc = JAXBContext.newInstance("org.jadice.filetype.database:org.jadice.filetype.matchers:org.jadice.filetype.matchers.modca");
 
     Unmarshaller unmarshaller = jc.createUnmarshaller();
     unmarshaller.setEventHandler(new LoggingEventHandler());

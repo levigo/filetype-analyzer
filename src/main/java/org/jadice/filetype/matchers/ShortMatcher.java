@@ -1,4 +1,4 @@
-package org.jadice.filetype.database;
+package org.jadice.filetype.matchers;
 
 import java.io.IOException;
 import java.nio.ByteOrder;
@@ -8,22 +8,24 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlValue;
 
 import org.jadice.filetype.Context;
+import org.jadice.filetype.database.AbsoluteLocation;
 import org.jadice.filetype.io.SeekableInputStream;
 
 /**
- * Match a byte value at a given position.
+ * Match a short (two-byte) value at a given position.
  * 
  */
-@XmlRootElement(name = "match-byte")
-public class ByteMatcher extends NumericMatcher {
+@XmlRootElement(name = "match-short")
+public class ShortMatcher extends NumericMatcher {
   private int value;
 
   @Override
   protected boolean matches(Context context, SeekableInputStream positionedStream) throws IOException {
-    int s = positionedStream.read();
+    positionedStream.setByteOrder(order);
+    int s = positionedStream.readShort();
     s &= mask;
 
-    return unsigned ? comparison.matches(value & 0xff, s & 0xff) : comparison.matches(value, s);
+    return unsigned ? comparison.matches(value & 0xffff, s & 0xffff) : comparison.matches(value, s);
   }
 
   @XmlValue
@@ -75,5 +77,4 @@ public class ByteMatcher extends NumericMatcher {
   protected void setOffset(int offset) {
     this.location = new AbsoluteLocation(offset);
   }
-
 }

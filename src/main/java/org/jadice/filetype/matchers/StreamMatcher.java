@@ -1,10 +1,11 @@
-package org.jadice.filetype.database;
+package org.jadice.filetype.matchers;
 
 import java.io.IOException;
 
 import javax.xml.bind.annotation.XmlTransient;
 
 import org.jadice.filetype.Context;
+import org.jadice.filetype.database.Location;
 import org.jadice.filetype.io.SeekableInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

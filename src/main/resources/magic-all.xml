@@ -2811,7 +2811,7 @@
 
 		<type>
 			<!-- Extracts RTF meta data -->
-			<match-custom>org.jadice.filetype.database.RTFMatcher</match-custom>
+			<match-custom>org.jadice.filetype.matchers.RTFMatcher</match-custom>
 		</type>
 
 		<type>
@@ -3499,7 +3499,7 @@
 	</type>
 
 	<type>
-		<match-custom>org.jadice.filetype.database.XMLMatcher</match-custom>
+		<match-custom>org.jadice.filetype.matchers.XMLMatcher</match-custom>
 	</type>
 	
 	<type>
@@ -3530,7 +3530,7 @@
 			<mime-type>text/plain</mime-type>
 		-->
 		<description>Text file</description>
-		<match-custom>org.jadice.filetype.database.TextMatcher</match-custom>
+		<match-custom>org.jadice.filetype.matchers.TextMatcher</match-custom>
 	</type>
 
 	<!-- Global fallback. If nothing else matches, it is just binary. -->

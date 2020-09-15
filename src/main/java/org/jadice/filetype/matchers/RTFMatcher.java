@@ -1,4 +1,4 @@
-package org.jadice.filetype.database;
+package org.jadice.filetype.matchers;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Stack;
 
 import org.jadice.filetype.Context;
+import org.jadice.filetype.database.MimeTypeAction;
 import org.jadice.filetype.io.SeekableInputStream;
 
 import com.rtfparserkit.parser.RtfListenerAdaptor;

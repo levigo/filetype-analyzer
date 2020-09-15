@@ -1,4 +1,4 @@
-package org.jadice.filetype.database;
+package org.jadice.filetype.matchers;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -15,6 +15,9 @@ import javax.xml.parsers.SAXParserFactory;
 import org.apache.commons.io.ByteOrderMark;
 import org.apache.commons.io.input.BOMInputStream;
 import org.jadice.filetype.Context;
+import org.jadice.filetype.database.DescriptionAction;
+import org.jadice.filetype.database.ExtensionAction;
+import org.jadice.filetype.database.MimeTypeAction;
 import org.jadice.filetype.io.SeekableInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

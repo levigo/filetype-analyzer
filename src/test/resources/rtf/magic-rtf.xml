@@ -8,7 +8,7 @@
 		
 		<type>
 			<!-- Extract further RTF details -->
-			<match-custom>org.jadice.filetype.database.RTFMatcher</match-custom>
+			<match-custom>org.jadice.filetype.matchers.RTFMatcher</match-custom>
 		</type>
 	</type>
 

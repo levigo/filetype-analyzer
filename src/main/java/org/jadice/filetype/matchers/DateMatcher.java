@@ -1,4 +1,4 @@
-package org.jadice.filetype.database;
+package org.jadice.filetype.matchers;
 
 import java.io.IOException;
 import java.nio.ByteOrder;
@@ -8,35 +8,35 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlValue;
 
 import org.jadice.filetype.Context;
+import org.jadice.filetype.database.AbsoluteLocation;
 import org.jadice.filetype.io.SeekableInputStream;
 
 /**
- * Match a short (two-byte) value at a given position.
+ * Dummy implementation - move to extractor.
  * 
  */
-@XmlRootElement(name = "match-short")
-public class ShortMatcher extends NumericMatcher {
-  private int value;
+@XmlRootElement(name = "match-date")
+public class DateMatcher extends NumericMatcher {
+  private long value;
 
   @Override
   protected boolean matches(Context context, SeekableInputStream positionedStream) throws IOException {
     positionedStream.setByteOrder(order);
     int s = positionedStream.readShort();
-    s &= mask;
 
-    return unsigned ? comparison.matches(value & 0xffff, s & 0xffff) : comparison.matches(value, s);
+    return unsigned ? comparison.matches(value & 0xffffffff, s & 0xffffffff) : comparison.matches(value, s);
   }
 
   @XmlValue
-  protected void setValue(String s) {
+  protected void setReference(String s) {
     if (s.isEmpty()) {
       // special case: don't match, just extract
       // ignored for now.
       this.value = 0;
     } else if (s.startsWith("0x")) {
-      this.value = Integer.parseInt(s.substring(2), 16);
+      this.value = Long.parseLong(s.substring(2), 16);
     } else {
-      this.value = Integer.parseInt(s);
+      this.value = Long.parseLong(s);
     }
   }
 
@@ -61,9 +61,12 @@ public class ShortMatcher extends NumericMatcher {
   }
 
   @Override
-  @XmlAttribute
   protected void setMask(String s) {
-    super.setMask(s);
+    if (s.startsWith("0x")) {
+      this.mask = Long.parseLong(s.substring(2), 16);
+    } else {
+      this.mask = Long.parseLong(s);
+    }
   }
 
   @Override
@@ -76,4 +79,5 @@ public class ShortMatcher extends NumericMatcher {
   protected void setOffset(int offset) {
     this.location = new AbsoluteLocation(offset);
   }
+
 }

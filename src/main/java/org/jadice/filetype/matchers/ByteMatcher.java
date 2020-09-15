@@ -1,4 +1,4 @@
-package org.jadice.filetype.database;
+package org.jadice.filetype.matchers;
 
 import java.io.IOException;
 import java.nio.ByteOrder;
@@ -8,35 +8,35 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlValue;
 
 import org.jadice.filetype.Context;
+import org.jadice.filetype.database.AbsoluteLocation;
 import org.jadice.filetype.io.SeekableInputStream;
 
 /**
- * Match a long (four-byte!) value at a given position.
+ * Match a byte value at a given position.
  * 
  */
-@XmlRootElement(name = "match-long")
-public class LongMatcher extends NumericMatcher {
-  private long value;
+@XmlRootElement(name = "match-byte")
+public class ByteMatcher extends NumericMatcher {
+  private int value;
 
   @Override
   protected boolean matches(Context context, SeekableInputStream positionedStream) throws IOException {
-    positionedStream.setByteOrder(order);
-    int s = positionedStream.readShort();
+    int s = positionedStream.read();
     s &= mask;
 
-    return unsigned ? comparison.matches(value & 0xffffffff, s & 0xffffffff) : comparison.matches(value, s);
+    return unsigned ? comparison.matches(value & 0xff, s & 0xff) : comparison.matches(value, s);
   }
 
   @XmlValue
-  protected void setReference(String s) {
+  protected void setValue(String s) {
     if (s.isEmpty()) {
       // special case: don't match, just extract
       // ignored for now.
       this.value = 0;
     } else if (s.startsWith("0x")) {
-      this.value = Long.parseLong(s.substring(2), 16);
+      this.value = Integer.parseInt(s.substring(2), 16);
     } else {
-      this.value = Long.parseLong(s);
+      this.value = Integer.parseInt(s);
     }
   }
 
@@ -76,4 +76,5 @@ public class LongMatcher extends NumericMatcher {
   protected void setOffset(int offset) {
     this.location = new AbsoluteLocation(offset);
   }
+
 }

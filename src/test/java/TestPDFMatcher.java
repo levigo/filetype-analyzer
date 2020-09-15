@@ -17,7 +17,7 @@ import java.util.Map;
 import org.jadice.filetype.Analyzer;
 import org.jadice.filetype.AnalyzerException;
 import org.jadice.filetype.database.MimeTypeAction;
-import org.jadice.filetype.database.PDFMatcher;
+import org.jadice.filetype.matchers.PDFMatcher;
 import org.junit.BeforeClass;
 import org.junit.Test;
 

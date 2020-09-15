@@ -1,17 +1,6 @@
 Type
 Database
 
-Matcher
-ByteMatcher
-CustomMatcher
-NumericMatcher
-ShortMatcher
-StreamMatcher
-StringMatcher
-RegexpMatcher
-LongMatcher
-DateMatcher
-
 Action
 DescriptionAction
 ExtensionAction
