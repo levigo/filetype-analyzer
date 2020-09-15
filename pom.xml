@@ -39,8 +39,8 @@
 
 
   <scm>
-    <connection>scm:git:ssh://git@levigo.de:7999/js/filetype-analyzer.git</connection>
-    <developerConnection>scm:git:ssh://git@levigo.de:7999/js/filetype-analyzer.git</developerConnection>
+    <connection>https://github.com/levigo/filetype-analyzer</connection>
+    <developerConnection>git@github.com:levigo/filetype-analyzer.git</developerConnection>
     <tag>HEAD</tag>
   </scm>
 
