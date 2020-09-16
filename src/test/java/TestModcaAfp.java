@@ -1,3 +1,4 @@
+import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.junit.Assert.assertThat;
 
@@ -23,7 +24,7 @@ public class TestModcaAfp {
     Map<String, Object> result = analyzer.analyze(getClass().getResourceAsStream("/modca/mod_mit_annotation.mod"));
     
     assertThat(result, hasEntry("extension", "mod"));
-    assertThat(result, hasEntry("description", "MODCA Dokument"));
+    assertThat((String) result.get("description"), startsWith("MODCA"));
     
     System.out.println(result);
   }
