@@ -8,6 +8,42 @@
   <name>jadice filetype analyzer</name>
   <packaging>jar</packaging>
 
+  <url>https://github.com/levigo/filetype-analyzer</url>
+
+  <organization>
+    <name>levigo solutions GmbH</name>
+  </organization>
+
+  <contributors>
+    <contributor>
+      <organization>levigo solutions GmbH</organization>
+      <email>solutions@levigo.de</email>
+    </contributor>
+  </contributors>
+
+  <scm>
+    <url>https://github.com/levigo/filetype-analyzer</url>
+    <connection>https://github.com/levigo/filetype-analyzer</connection>
+    <developerConnection>git@github.com:levigo/filetype-analyzer.git</developerConnection>
+    <tag>HEAD</tag>
+  </scm>
+  
+  <licenses>
+    <license>
+      <name>BSD 3-Clause License</name>
+      <url>http://opensource.org/licenses/BSD-3-Clause</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <name>Jörg Henne</name>
+      <email>hennejg@gmail.com</email>
+      <organizationUrl>http://levigo.de</organizationUrl>
+    </developer>
+  </developers>
+
   <properties>
     <java.version>1.8</java.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -36,13 +72,6 @@
     <maven-enforcer-plugin.version>1.4.1</maven-enforcer-plugin.version>
     <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
   </properties>
-
-
-  <scm>
-    <connection>https://github.com/levigo/filetype-analyzer</connection>
-    <developerConnection>git@github.com:levigo/filetype-analyzer.git</developerConnection>
-    <tag>HEAD</tag>
-  </scm>
 
   <build>
     <plugins>
