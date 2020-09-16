@@ -8,6 +8,7 @@
   <name>jadice filetype analyzer</name>
   <packaging>jar</packaging>
 
+  <description>A library to identify file formats and to extract meta-data from those files</description>
   <url>https://github.com/levigo/filetype-analyzer</url>
 
   <organization>
