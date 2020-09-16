@@ -1,0 +1,110 @@
+name: Continuous Delivery
+
+on: 
+  push:
+    branches:
+      - master
+    paths-ignore:
+      # - '.github/**'
+      - '**/README.md'
+      
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Bump version and create tag
+      id: semanticversion
+      uses: hennejg/github-tag-action@v4.1.jh7
+      with:
+        release_branches: master
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Verify and print new build number
+      run: |
+        if echo '${{ steps.semanticversion.outputs.new_tag }}' |grep -Eq '^v[0-9]+[.][0-9]+[.][0-9]+$'; then 
+          echo Tag '${{ steps.semanticversion.outputs.new_tag }}', New version '${{ steps.semanticversion.outputs.new_version }}', Changelog '${{ steps.semanticversion.outputs.changelog }}'
+        else
+          echo 'unexpected tag format - aborting'
+          exit -1
+        fi
+
+    ## Enable Caching
+    - uses: actions/cache@v1
+      with:
+        path: ~/.m2/repository
+        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+        restore-keys: |
+          ${{ runner.os }}-maven-
+
+    ## Configure JDK 11
+    - name: Set up JDK 8
+      uses: actions/setup-java@v1
+      with:
+        java-version: 8
+
+    ## Build with maven
+    - name: Prepare maven settings
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        mkdir -p ~/.m2
+        echo "<settings><servers><server><id>github</id><username>x-access-token</username><password>${GITHUB_TOKEN}</password></server></servers></settings>" > ~/.m2/settings.xml 
+
+    - name: Set version
+      id: version
+      run: |
+        echo Releasing as ${{ steps.semanticversion.outputs.new_version }}
+        mvn versions:set -DnewVersion=${{ steps.semanticversion.outputs.new_version }}
+
+    - name: Perform build
+      run: mvn -B package --file pom.xml
+
+    ## Deploy
+    - name: Deploy package
+      env:
+            GPG_EXECUTABLE: gpg
+            GPG_SECRET_KEYS: ${{ secrets.LEVIGO_GPG_KEYS }}
+            GPG_OWNERTRUST: ${{ secrets.LEVIGO_GPG_OWNERTRUST }}
+            GPG_PASSPHRASE: ${{ secrets.LEVIGO_GPG_PASSPHRASE }}
+            SONATYPE_USERNAME: ${{ secrets.LEVIGO_SONATYPE_USERNAME }}
+            SONATYPE_PASSWORD: ${{ secrets.LEVIGO_SONATYPE_PASSWORD }}
+      run: |
+        echo "$GPG_SECRET_KEYS" | base64 --decode | $GPG_EXECUTABLE --import --no-tty --batch --yes
+        echo "$GPG_OWNERTRUST" | base64 --decode | $GPG_EXECUTABLE --import-ownertrust --no-tty --batch --yes
+        mvn deploy --settings .maven.xml -Dmaven.test.skip.exec=true -B -U -Prelease
+        
+    ## Update README.md
+    - name: Edit README.md to contain version number
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git checkout master
+        git reset --hard HEAD      
+
+        sed -ri "s,<version>.*</version>,<version>${{ steps.semanticversion.outputs.new_version }}</version>," README.md
+        sed -ri "s,version-[0-9a-z.]+-,version-${{ steps.semanticversion.outputs.new_version }}-," README.md 
+        sed -ri "s,neverpile-fusion/tree/[0-9a-z.]+,neverpile-fusion/tree/${{ steps.semanticversion.outputs.new_tag }}," README.md
+
+        git add README.md
+        git commit -m "Edit README.md to contain correct version"
+      
+    - name: Push changes
+      uses: ad-m/github-push-action@master
+      with:
+        branch: master
+        github_token: ${{ secrets.GITHUB_TOKEN }}    
+        
+    ## Notify Slack
+    - name: Notify slack
+      uses: hennejg/slack-build-notifier@v1.1
+      with:
+        username: GitHub
+        icon_emoji: octocat
+        text: Released new version `${{ steps.semanticversion.outputs.new_version }}` of *${{ github.repository }}* to maven central
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
