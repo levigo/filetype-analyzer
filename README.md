@@ -10,10 +10,22 @@ A library to identify file formats and to extract meta-data from those files.
 
 ## Usage
 
-**Maven dependency**
+### Maven dependency
 
     <dependency>
         <groupId>org.jadice.filetype</groupId>
         <artifactId>filetype-analyzer</artifactId>
         <version>0.0.0</version>
     </dependency>
+
+### Minimal usage
+
+    Map<String, Object> results =
+        Analyzer.getInstance("/magic.xml")
+            .analyze(new File("my-example-file.pdf"));
+
+    System.out.println("Extension: " + results.get(ExtensionAction.KEY));
+    System.out.println("Mime-Type: " + results.get(MimeTypeAction.KEY));
+
+    // some types have specialized matchers providing extra info
+    System.out.println("Details: " + results.get(PDFMatcher.DETAILS_KEY));
