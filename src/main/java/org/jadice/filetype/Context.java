@@ -24,7 +24,7 @@ public class Context {
 
   private final Locale locale;
 
-  public Context(SeekableInputStream sis, Map<String, Object> result, AnalysisListener listener, Locale locale) {
+  public Context(final SeekableInputStream sis, final Map<String, Object> result, final AnalysisListener listener, final Locale locale) {
     this.sis = sis;
     this.result = result;
     this.listener = listener;
@@ -37,14 +37,14 @@ public class Context {
    * @param name
    * @param value
    */
-  public void setProperty(String name, Object value) {
+  public void setProperty(final String name, final Object value) {
     result.put(name, value);
   }
 
   /**
    * Get the source data.
    *
-   * @return
+   * @return the source stream
    */
   public SeekableInputStream getStream() {
     return sis;
@@ -54,25 +54,25 @@ public class Context {
    * Get a result property.
    *
    * @param key
-   * @return
+   * @return the property value
    */
-  public Object getProperty(String key) {
+  public Object getProperty(final String key) {
     return result.get(key);
   }
 
-  public void error(Object src, String message, Throwable cause) {
+  public void error(final Object src, final String message, final Throwable cause) {
     if (null != listener) {
       listener.error(src, message, cause);
     }
   }
 
-  public void info(Object src, String message) {
+  public void info(final Object src, final String message) {
     if (null != listener) {
       listener.info(src, message);
     }
   }
 
-  public void warning(Object src, String message) {
+  public void warning(final Object src, final String message) {
     if (null != listener) {
       listener.warning(src, message);
     }

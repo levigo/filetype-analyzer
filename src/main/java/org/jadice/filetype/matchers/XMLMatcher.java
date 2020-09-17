@@ -64,10 +64,10 @@ public class XMLMatcher extends Matcher {
   /**
    * Feature which shall not be performed while analysis, especially loading of external resources!
    * 
-   * @see <a href="https://xerces.apache.org/xerces2-j/features.html">xerces documentation</a> and
-   *      <a href=
-   *      "http://sax.sourceforge.net/apidoc/org/xml/sax/package-summary.html#package_description">SAX
-   *      javadoc</a>
+   * See also the <a href="https://xerces.apache.org/xerces2-j/features.html">xerces
+   * documentation</a> and the <a href=
+   * "http://sax.sourceforge.net/apidoc/org/xml/sax/package-summary.html#package_description">SAX
+   * javadoc</a>
    */
   private static final String[] SAX_FACTORY_FEATURES_TO_DISABLE = new String[]{
       "http://xml.org/sax/features/external-general-entities", //
@@ -139,7 +139,8 @@ public class XMLMatcher extends Matcher {
     }
 
     @Override
-    public void startElement(final String uri, final String localName, final String qName, final Attributes attributes) {
+    public void startElement(final String uri, final String localName, final String qName,
+        final Attributes attributes) {
       if (!hitRoot) {
         hitRoot = true;
 

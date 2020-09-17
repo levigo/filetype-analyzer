@@ -15,7 +15,7 @@ public abstract class Location {
    * occur.
    * 
    * @param context
-   * @return
+   * @return a SeekableInputStream positioned where the next match should occur
    * @throws IOException
    */
   public abstract SeekableInputStream getPositionedStream(Context context) throws IOException;

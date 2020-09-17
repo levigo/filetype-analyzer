@@ -202,9 +202,7 @@ public class Analyzer {
     Map<String, Object> result = new HashMap<String, Object>();
 
 
-    // POI (3.1-Final) schliesst den Datenstrom bei der Analyse von Office-Dokumenten, andere
-    // Formate scheinen nicht davon betroffen zu sein, daher wird nun ein UncloseableInputStream
-    // verwendet (siehe JS-135)
+    // POI (3.1-Final) closes the stream during analyszs of office files - use an uncloseable stream wrapper
     final UncloseableSeekableInputStreamWrapper usis = new UncloseableSeekableInputStreamWrapper(sis);
     usis.lockClose(); // and don't unlock later as POI attempts to close asynchronously!
 
@@ -214,15 +212,12 @@ public class Analyzer {
 
     Object obj = ctx.getProperty(DescriptionAction.KEY);
     if (null != obj && obj instanceof DescriptionAction.Description) {
-      // FIXME: hack(?), Description-Klasse durch String-Klasse ersetzten, da der Marshaller
-      // sonst die Klasse parst, die Daten erscheinen dann in der Trennseite.
       DescriptionAction.Description desc = (DescriptionAction.Description) obj;
       String s = desc.toString();
       ctx.setProperty(DescriptionAction.KEY, s);
     }
-    // usis.unlockClose(); DON'T DO THIS!
-    return result;
 
+    return result;
   }
 
   /**
@@ -233,7 +228,7 @@ public class Analyzer {
    * @param is
    * @param listener an {@link AnalysisListener} to inform about the analysis progress. May be
    *          <code>null</code>.
-   * @return
+   * @return a map of analysis results
    * @throws IOException if there is a problem accessing the input data.
    */
   public Map<String, Object> analyze(final InputStream is, final AnalysisListener listener) throws IOException {
@@ -253,7 +248,7 @@ public class Analyzer {
    * @param file
    * @param listener an {@link AnalysisListener} to inform about the analysis progress. May be
    *          <code>null</code>.
-   * @return
+   * @return a map of analysis results
    * @throws IOException if there is a problem accessing the input data.
    */
   public Map<String, Object> analyze(final File file, final AnalysisListener listener) throws IOException {
@@ -286,7 +281,7 @@ public class Analyzer {
    * {@link SeekableInputStream} implementation or a {@link File} instead.
    * 
    * @param is
-   * @return
+   * @return a map of analysis results
    * @throws IOException if there is a problem accessing the input data.
    */
   public Map<String, Object> analyze(final InputStream is) throws IOException {
@@ -299,7 +294,7 @@ public class Analyzer {
    * analysis and will therefore be locked (ro) on some systems.
    * 
    * @param file
-   * @return
+   * @return a map of analysis results
    * @throws IOException if there is a problem accessing the input data.
    */
   public Map<String, Object> analyze(final File file) throws IOException {
@@ -309,7 +304,7 @@ public class Analyzer {
   /**
    * Get the locale for which results will be generated.
    * 
-   * @return
+   * @return the locale
    */
   public Locale getLocale() {
     return locale;

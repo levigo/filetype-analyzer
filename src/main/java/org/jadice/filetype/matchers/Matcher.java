@@ -16,49 +16,49 @@ import org.jadice.filetype.Context;
 public abstract class Matcher {
   public enum Comparison {
     EQUALS("=") {
-      public boolean matches(Object o1, Object o2) {
+      public boolean matches(final Object o1, final Object o2) {
         return o1 == o2 || o1 != null && o1.equals(o2);
       }
     },
     NOT_EQUALS("!") {
-      public boolean matches(Object o1, Object o2) {
+      public boolean matches(final Object o1, final Object o2) {
         return o1 != o2 && !(o1 != null && o1.equals(o2));
       }
     },
     GREATER(">") {
       @SuppressWarnings("unchecked")
-      public boolean matches(Object o1, Object o2) {
-        return o1 != null && o2 != null && o1 instanceof Comparable && ((Comparable) o1).compareTo(o2) > 0;
+      public boolean matches(final Object o1, final Object o2) {
+        return o1 != null && o2 != null && o1 instanceof Comparable && ((Comparable<Object>) o1).compareTo(o2) > 0;
       }
     },
     GREATER_OR_EQUAL(">=") {
       @SuppressWarnings("unchecked")
-      public boolean matches(Object o1, Object o2) {
-        return o1 != null && o2 != null && o1 instanceof Comparable && ((Comparable) o1).compareTo(o2) >= 0;
+      public boolean matches(final Object o1, final Object o2) {
+        return o1 != null && o2 != null && o1 instanceof Comparable && ((Comparable<Object>) o1).compareTo(o2) >= 0;
       }
     },
     LESS("<") {
       @SuppressWarnings("unchecked")
-      public boolean matches(Object o1, Object o2) {
-        return o1 != null && o2 != null && o1 instanceof Comparable && ((Comparable) o1).compareTo(o2) < 0;
+      public boolean matches(final Object o1, final Object o2) {
+        return o1 != null && o2 != null && o1 instanceof Comparable && ((Comparable<Object>) o1).compareTo(o2) < 0;
       }
     },
     LESS_OR_EQUAL("<=") {
       @SuppressWarnings("unchecked")
-      public boolean matches(Object o1, Object o2) {
-        return o1 != null && o2 != null && o1 instanceof Comparable && ((Comparable) o1).compareTo(o2) <= 0;
+      public boolean matches(final Object o1, final Object o2) {
+        return o1 != null && o2 != null && o1 instanceof Comparable && ((Comparable<Object>) o1).compareTo(o2) <= 0;
       }
     };
 
     private final String shortcut;
 
-    Comparison(String shortcut) {
+    Comparison(final String shortcut) {
       this.shortcut = shortcut;
     }
 
     public abstract boolean matches(Object o1, Object o2);
 
-    public static Comparison get(String s) {
+    public static Comparison get(final String s) {
       for (Comparison c : values()) {
         if (s.equals(c.shortcut)) {
           return c;

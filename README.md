@@ -6,7 +6,7 @@ A library to identify file formats and to extract meta-data from those files.
 
 - recognize common formats based on an XML-based matching description
 - extract meta-data from ceratin formats using specialized matchers and extractors
-- allow adding new recognited formats
+- allow adding new recognized formats
 
 ## Usage
 

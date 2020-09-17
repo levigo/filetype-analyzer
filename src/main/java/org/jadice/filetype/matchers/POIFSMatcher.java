@@ -16,7 +16,7 @@ import org.apache.poi.hpsf.PropertySet;
 import org.apache.poi.hpsf.PropertySetFactory;
 import org.apache.poi.hpsf.Section;
 import org.apache.poi.hpsf.SummaryInformation;
-import org.apache.poi.hpsf.wellknown.SectionIDMap;
+import org.apache.poi.hpsf.wellknown.PropertyIDMap;
 import org.apache.poi.poifs.filesystem.DirectoryEntry;
 import org.apache.poi.poifs.filesystem.DocumentEntry;
 import org.apache.poi.poifs.filesystem.DocumentInputStream;
@@ -87,20 +87,20 @@ public class POIFSMatcher extends Matcher {
     public final String extension;
 
 
-    private POIFS_TYPE(String identifier, String mimeType, String description, String extension) {
+    private POIFS_TYPE(final String identifier, final String mimeType, final String description, final String extension) {
       this(new String[]{
           identifier
       }, mimeType, description, extension);
     }
 
-    private POIFS_TYPE(String[] identifiers, String mimeType, String description, String extension) {
+    private POIFS_TYPE(final String[] identifiers, final String mimeType, final String description, final String extension) {
       this.identifiers = identifiers;
       this.mimeType = mimeType;
       this.description = description;
       this.extension = extension;
     }
 
-    public boolean matches(String identifier) {
+    public boolean matches(final String identifier) {
       // MK: A msg chunk contains a tag in a variable format, therefore i
       // changed the case to check if the constant header tag is present instead
       // of equal.
@@ -116,15 +116,16 @@ public class POIFSMatcher extends Matcher {
   }
 
   @Override
-  public boolean matches(Context context) {
+  public boolean matches(final Context context) {
     SeekableInputStream sis = context.getStream();
     try {
       sis.seek(0);
 
-      POIFSFileSystem fs = new POIFSFileSystem(sis);
-      DirectoryEntry root = fs.getRoot();
+      try (POIFSFileSystem fs = new POIFSFileSystem(sis)) {
+        DirectoryEntry root = fs.getRoot();
 
-      traverse(context, root);
+        traverse(context, root);
+      }
       return context.getProperty(MimeTypeAction.KEY) != null;
     } catch (IOException e) {
       context.error(this, "Exception analyzing OLE container file", e);
@@ -132,7 +133,7 @@ public class POIFSMatcher extends Matcher {
     return false;
   }
 
-  private void traverse(Context context, DirectoryEntry dir) throws IOException {
+  private void traverse(final Context context, final DirectoryEntry dir) throws IOException {
 
     // dir is an instance of DirectoryEntry ...
     for (Iterator<Entry> iter = dir.getEntries(); iter.hasNext();) {
@@ -156,7 +157,7 @@ public class POIFSMatcher extends Matcher {
     }
   }
 
-  private void detectFileFormat(Context context, Entry entry) {
+  private void detectFileFormat(final Context context, final Entry entry) {
     String name = entry.getName();
     for (POIFS_TYPE type : POIFS_TYPE.values()) {
       if (type.matches(name)) {
@@ -176,18 +177,16 @@ public class POIFSMatcher extends Matcher {
    * @throws UnsupportedEncodingException
    */
   @SuppressWarnings("unchecked")
-  private void handleSummaryInformation(Context context, Entry entry) throws IOException, HPSFException {
+  private void handleSummaryInformation(final Context context, final Entry entry) throws IOException, HPSFException {
     DocumentInputStream dis = new DocumentInputStream((DocumentEntry) entry);
     PropertySet dsi = PropertySetFactory.create(dis);
 
-    // XXX: Wuenschenswert: Map, die Einfuege-Reihenfolge beibehaelt. Aber: SD-Marshaller kann damit
-    // anscheinend nicht umgehen.
     Map<String, Object> details = new HashMap<String, Object>();
     for (Section s : (List<Section>) dsi.getSections()) {
       for (Property p : s.getProperties()) {
         String name = s.getPIDString(p.getID());
         String contextKey = (dsi.isSummaryInformation() ? "SUMMARY_" : "DOCUMENT_")
-            + (name != SectionIDMap.UNDEFINED ? name : "PID_" + p.getID());
+            + (name != PropertyIDMap.UNDEFINED ? name : "PID_" + p.getID());
         details.put(contextKey, p.getValue());
       }
     }
@@ -196,7 +195,7 @@ public class POIFSMatcher extends Matcher {
     Object savedProps = context.getProperty("OLE_DETAILS");
     if (savedProps != null && savedProps instanceof Map) {
       // Found already some other details -> merge them
-      ((Map) savedProps).putAll(details);
+      ((Map<String, Object>) savedProps).putAll(details);
     } else {
       context.setProperty("OLE_DETAILS", details);
     }
@@ -209,7 +208,7 @@ public class POIFSMatcher extends Matcher {
    * @param context {@link Context} to store the result
    * @param details The SUMMARY information
    */
-  private void detectMSProject(Context context, Map<String, Object> details) {
+  private void detectMSProject(final Context context, final Map<String, Object> details) {
     final Object appName = details.get("SUMMARY_PID_APPNAME");
     if (appName == null || !(appName instanceof String)) {
       return;
