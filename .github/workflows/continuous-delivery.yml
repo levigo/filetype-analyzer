@@ -18,7 +18,7 @@ jobs:
 
     - name: Bump version and create tag
       id: semanticversion
-      uses: hennejg/github-tag-action@v4.2.2
+      uses: hennejg/github-tag-action@v4.2.3
       with:
         release_branches: master
         github_token: ${{ secrets.GITHUB_TOKEN }}
