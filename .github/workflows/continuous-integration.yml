@@ -17,7 +17,14 @@ jobs:
     - uses: actions/checkout@v1
 
     ## Enable Caching
-    - uses: actions/cache@v1
+    - name: Cache SonarCloud packages
+      uses: actions/cache@v1
+      with:
+        path: ~/.sonar/cache
+        key: ${{ runner.os }}-sonar
+        restore-keys: ${{ runner.os }}-sonar
+    - name: Cache Maven package
+      uses: actions/cache@v1
       with:
         path: ~/.m2/repository
         key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -31,8 +38,11 @@ jobs:
         java-version: 8
 
     ## Build with maven
-    - name: Perform build
-      run: mvn verify
+    - name: Perform build and analysis
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
 
     ## Notify Slack
     - name: Notify slack

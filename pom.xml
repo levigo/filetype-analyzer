@@ -64,6 +64,11 @@
     <hamcrest-library.version>1.3</hamcrest-library.version>
     <jmock-junit4.version>2.12.0</jmock-junit4.version>
 
+    <!-- sonarcloud -->
+    <sonar.projectKey>levigo_filetype-analyzer</sonar.projectKey>
+    <sonar.organization>levigo</sonar.organization>
+    <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+
     <!-- maven plugins -->
     <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
     <jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
