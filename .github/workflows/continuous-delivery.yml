@@ -7,7 +7,7 @@ on:
     paths-ignore:
       # - '.github/**'
       - '**/README.md'
-      
+
 jobs:
   build:
 
@@ -33,7 +33,14 @@ jobs:
         fi
 
     ## Enable Caching
-    - uses: actions/cache@v1
+    - name: Cache SonarCloud packages
+      uses: actions/cache@v1
+      with:
+        path: ~/.sonar/cache
+        key: ${{ runner.os }}-sonar
+        restore-keys: ${{ runner.os }}-sonar
+    - name: Cache Maven package
+      uses: actions/cache@v1
       with:
         path: ~/.m2/repository
         key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -60,8 +67,11 @@ jobs:
         echo Releasing as ${{ steps.semanticversion.outputs.new_version }}
         mvn versions:set -DnewVersion=${{ steps.semanticversion.outputs.new_version }}
 
-    - name: Perform build
-      run: mvn -B package --file pom.xml
+    - name: Perform build and analysis
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      run: mvn -B package org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
 
     ## Deploy
     - name: Deploy package
