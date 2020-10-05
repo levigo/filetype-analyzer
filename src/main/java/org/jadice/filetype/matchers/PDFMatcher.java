@@ -63,6 +63,8 @@ public class PDFMatcher extends Matcher {
 
   public static final String VERSION_KEY = "version";
 
+  public static final String NUMBER_OF_PAGES_KEY = "number-of-pages";
+
   /*
    * (non-Javadoc)
    * 
@@ -78,6 +80,8 @@ public class PDFMatcher extends Matcher {
 
         Map<String, Object> pdfDetails = new HashMap<String, Object>();
         context.setProperty(DETAILS_KEY, pdfDetails);
+
+        pdfDetails.put(NUMBER_OF_PAGES_KEY, Integer.valueOf(document.getNumberOfPages()));
 
         PDDocumentInformation info = document.getDocumentInformation();
         if (null != info) {
