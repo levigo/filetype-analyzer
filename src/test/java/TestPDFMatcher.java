@@ -94,12 +94,48 @@ public class TestPDFMatcher {
     }
   }
 
+  @Test
+  public void numberOfPagesEncryptedPdf() throws IOException {
+    File f = new File(ENCRYPTED_PDFS_FOLDER, "11_enc128bit-aes_pw-owner.pdf");
+
+    final Map<String, Object> result = ANALYZER.analyze(f);
+    assertNotNull(f + " could not be analyzed", result);
+    assertValidDetails(result);
+    assertNumberOfPages(result, 1);
+  }
+
+  @Test
+  public void numberOfPagesUnencryptedPdf() throws IOException {
+    File f = new File(UNENCRYPTED_PDFS_FOLDER, "lorem-ipsum.pdf");
+
+    final Map<String, Object> result = ANALYZER.analyze(f);
+    assertNotNull(f + " could not be analyzed", result);
+    assertValidDetails(result);
+    assertNumberOfPages(result, 4);
+  }
+
+  @Test
+  public void numberOfPagesPortableCollectionPdf() throws IOException {
+    File f = new File(PORTABLE_COLLECTION_FOLDER, "portable-collection-1.pdf");
+
+    final Map<String, Object> result = ANALYZER.analyze(f);
+    assertNotNull(f + " could not be analyzed", result);
+    assertValidDetails(result);
+    assertNumberOfPages(result, 1);
+  }
 
   public static File[] nullSafe(final File[] filesOrNull) {
     if (filesOrNull == null) {
       return new File[0];
     }
     return filesOrNull;
+  }
+
+  private static void assertNumberOfPages(final Map<String, Object> result, final Integer expectedNumberOfPages) {
+    final Map<String, Object> details = (Map<String, Object>) result.get(PDFMatcher.DETAILS_KEY);
+    assertTrue(PDFMatcher.NUMBER_OF_PAGES_KEY + " not found",
+            details.containsKey(PDFMatcher.NUMBER_OF_PAGES_KEY) && details.get(PDFMatcher.NUMBER_OF_PAGES_KEY) instanceof Integer);
+    assertEquals(PDFMatcher.NUMBER_OF_PAGES_KEY + " not correct", expectedNumberOfPages, details.get(PDFMatcher.NUMBER_OF_PAGES_KEY));
   }
 
   private static void assertValidDetails(final Map<String, Object> result) {
