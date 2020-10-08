@@ -15,6 +15,7 @@ import javax.xml.bind.ValidationEvent;
 import javax.xml.bind.ValidationEventHandler;
 import javax.xml.bind.ValidationEventLocator;
 
+import org.apache.commons.io.FilenameUtils;
 import org.jadice.filetype.database.Database;
 import org.jadice.filetype.database.DescriptionAction;
 import org.jadice.filetype.database.Type;
@@ -47,12 +48,6 @@ public class Analyzer {
           }
           break;
         case ValidationEvent.ERROR :
-          if (event.getLinkedException() == null) {
-            LOGGER.error(msg, event.getLinkedException());
-          } else {
-            LOGGER.error(msg);
-          }
-          break;
         case ValidationEvent.FATAL_ERROR :
           if (event.getLinkedException() == null) {
             LOGGER.error(msg, event.getLinkedException());
@@ -181,7 +176,7 @@ public class Analyzer {
   }
 
   private static Unmarshaller createUnmarshaller() throws JAXBException {
-    JAXBContext jc = JAXBContext.newInstance("org.jadice.filetype.database:org.jadice.filetype.matchers:org.jadice.filetype.matchers.modca");
+    JAXBContext jc = JAXBContext.newInstance("org.jadice.filetype.database:org.jadice.filetype.matchers:org.jadice.filetype.matchers");
 
     Unmarshaller unmarshaller = jc.createUnmarshaller();
     unmarshaller.setEventHandler(new LoggingEventHandler());
@@ -199,14 +194,32 @@ public class Analyzer {
    * @throws IOException if there is a problem accessing the input data.
    */
   public Map<String, Object> analyze(final SeekableInputStream sis, final AnalysisListener listener) throws IOException {
-    Map<String, Object> result = new HashMap<String, Object>();
+
+    return analyze(sis, listener, null);
+  }
+
+  /**
+   * Analyze the stream supplied via a {@link SeekableInputStream}.
+   *
+   * @param sis The data to analyze
+   * @param listener an {@link AnalysisListener} to inform about the analysis progress. May be
+   *          <code>null</code>.
+   * @param fileName for the input
+   * @return analysis results.
+   * @throws IOException if there is a problem accessing the input data.
+   */
+  public Map<String, Object> analyze(final SeekableInputStream sis, final AnalysisListener listener, final String fileName)
+      throws IOException {
+    Map<String, Object> result = new HashMap<>();
 
 
     // POI (3.1-Final) closes the stream during analyszs of office files - use an uncloseable stream wrapper
     final UncloseableSeekableInputStreamWrapper usis = new UncloseableSeekableInputStreamWrapper(sis);
     usis.lockClose(); // and don't unlock later as POI attempts to close asynchronously!
 
-    Context ctx = new Context(usis, result, listener, locale);
+    String extension = FilenameUtils.getExtension(fileName);
+
+    Context ctx = new Context(usis, result, listener, locale, extension);
 
     database.analyze(ctx);
 
@@ -254,7 +267,8 @@ public class Analyzer {
   public Map<String, Object> analyze(final File file, final AnalysisListener listener) throws IOException {
     SeekableInputStream sis = new RandomAccessFileInputStream(file);
     try {
-      return analyze(sis, null);
+      String fileName = file.getName();
+      return analyze(sis, null, fileName);
     } finally {
       try {
         sis.close();
@@ -272,7 +286,12 @@ public class Analyzer {
    * @throws IOException if there is a problem accessing the input data.
    */
   public Map<String, Object> analyze(final SeekableInputStream sis) throws IOException {
-    return analyze(sis, DEFAULT_LISTENER);
+    return analyze(sis, DEFAULT_LISTENER, null);
+  }
+
+
+  public Map<String, Object> analyzeWithFilename(final SeekableInputStream sis,final String fileName) throws IOException {
+    return analyze(sis, DEFAULT_LISTENER, fileName);
   }
 
   /**

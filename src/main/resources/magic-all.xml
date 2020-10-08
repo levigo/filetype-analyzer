@@ -3516,7 +3516,9 @@
 		<description>High Efficiency Image Container</description>
 		<match-regexp offset="4">ftyp(heic|hevs|heis|hevm|hevc|heim|mif1)</match-regexp>
 	</type>
-
+	<type>
+		   <match-custom>org.jadice.filetype.matchers.CSVMatcher</match-custom>
+	</type>
 	<type>
 		<mime-type>text/plain</mime-type>
 		<extension>txt</extension>

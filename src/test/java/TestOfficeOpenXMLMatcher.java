@@ -36,7 +36,7 @@ public class TestOfficeOpenXMLMatcher {
 
   @Test
   public void testPPTXMatching() throws Exception {
-    final Context ctx = createContext();
+    final Context ctx = createContext("PowerPoint2007.pptx", false);
     final boolean matches = MATCHER.matches(ctx);
 
     assertTrue("Matcher must match the given file", matches);
@@ -47,8 +47,25 @@ public class TestOfficeOpenXMLMatcher {
 
   }
 
-  private static Context createContext() throws IOException {
-    final InputStream is = TestOfficeOpenXMLMatcher.class.getResourceAsStream("/various_types/PowerPoint2007.pptx");
-    return new Context(new MemoryInputStream(is), new HashMap<String, Object>(), null, Locale.ENGLISH);
+    @Test
+  public void testPPTXMatchingWithFileName() throws Exception {
+    final Context ctx = createContext("PowerPoint2007.pptx", true);
+    final boolean matches = MATCHER.matches(ctx);
+
+    assertTrue("Matcher must match the given file", matches);
+    assertEquals("PPTX MIME Type", "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+        ctx.getProperty(MimeTypeAction.KEY));
+    assertEquals("PPTX file extension", "pptx", ctx.getProperty(ExtensionAction.KEY));
+    assertEquals("PPTX MIME Type", "Microsoft PowerPoint 2007 Presentation", ctx.getProperty(DescriptionAction.KEY));
+
+  }
+
+  private static Context createContext(String fileName, boolean withFileName) throws IOException {
+    final InputStream is = TestOfficeOpenXMLMatcher.class.getResourceAsStream("/various_types/" + fileName);
+    if (withFileName) {
+      return new Context(new MemoryInputStream(is), new HashMap<String, Object>(), null, Locale.ENGLISH, fileName);
+    } else {
+      return new Context(new MemoryInputStream(is), new HashMap<String, Object>(), null, Locale.ENGLISH, null);
+    }
   }
 }

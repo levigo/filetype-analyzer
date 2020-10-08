@@ -144,7 +144,7 @@ public class TestXMLMatcher {
   }
 
   public Context createContext(SeekableInputStream sis, AnalysisListener listener) {
-    return new Context(sis, new HashMap<String, Object>(), listener, LOCALE);
+    return new Context(sis, new HashMap<String, Object>(), listener, LOCALE, null);
   }
 
   @Test
