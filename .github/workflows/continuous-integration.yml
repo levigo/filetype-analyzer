@@ -50,6 +50,7 @@ jobs:
       with:
         username: GitHub
         icon_emoji: octocat
+        channel: ci_js
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
