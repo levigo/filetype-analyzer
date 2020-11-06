@@ -1,14 +1,18 @@
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Map;
 
+import org.jadice.filetype.AnalysisListener;
 import org.jadice.filetype.Analyzer;
 import org.jadice.filetype.AnalyzerException;
 import org.jadice.filetype.database.MimeTypeAction;
+import org.jadice.filetype.io.MemoryInputStream;
 import org.jadice.filetype.matchers.CSVMatcher;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -54,6 +58,32 @@ public class TestCSVMatcher {
   public void testIncorrectFilename() throws IOException {
     File file = new File("src/test/resources/csv_incorrect/incorrectFilenamecsv");
     Map<String, Object> analyze = analyzer.analyze(file);
+    assertNotNull(file + " could not be analyzed", analyze);
+    // Tika at the moment cannot recognize this file as csv.
+    assertEquals(file + " is not recognized as text/plain", "text/plain", analyze.get(MimeTypeAction.KEY));
+  }
+
+  /**
+   * This test is used to assure that by not recognizing the file's extension the algorithm still
+   * works.
+   */
+  @Test
+  public void testIncorrectFilenameWithSeekableInputStream() throws IOException {
+    File file = new File("src/test/resources/csv_incorrect/incorrectFilenamecsv");
+    final Map<String, Object> analyze = analyzer.analyze(new MemoryInputStream(new FileInputStream(file)), new AnalysisListener() {
+      @Override
+      public void info(Object src, String message) {
+        //
+      }
+      @Override
+      public void warning(Object src, String message) {
+        //
+      }
+      @Override
+      public void error(Object src, String message, Throwable cause) {
+        fail("An error occurred." + cause.getMessage());
+      }
+    });
     assertNotNull(file + " could not be analyzed", analyze);
     // Tika at the moment cannot recognize this file as csv.
     assertEquals(file + " is not recognized as text/plain", "text/plain", analyze.get(MimeTypeAction.KEY));

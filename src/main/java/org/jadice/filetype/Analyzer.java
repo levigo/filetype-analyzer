@@ -198,7 +198,7 @@ public class Analyzer {
   @java.lang.SuppressWarnings("java:S1133")
   @Deprecated
   public Map<String, Object> analyze(final SeekableInputStream sis, final AnalysisListener listener) throws IOException {
-    return analyze(sis, listener);
+    return analyze((InputStream) sis, listener);
   }
 
   /**
