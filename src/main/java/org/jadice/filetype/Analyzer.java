@@ -188,6 +188,7 @@ public class Analyzer {
   /**
    * Analyze the stream supplied via a {@link SeekableInputStream}.
    *
+   * @deprecated Use analyze(final InputStream sis, final AnalysisListener listener) instead.
    * @param sis The data to analyze
    * @param listener an {@link AnalysisListener} to inform about the analysis progress. May be
    *          <code>null</code>.
