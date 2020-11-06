@@ -15,6 +15,7 @@ import javax.xml.bind.ValidationEvent;
 import javax.xml.bind.ValidationEventHandler;
 import javax.xml.bind.ValidationEventLocator;
 
+import opennlp.tools.util.model.UncloseableInputStream;
 import org.apache.commons.io.FilenameUtils;
 import org.jadice.filetype.database.Database;
 import org.jadice.filetype.database.DescriptionAction;
@@ -186,6 +187,22 @@ public class Analyzer {
 
   /**
    * Analyze the stream supplied via a {@link SeekableInputStream}.
+   *
+   * @deprecated Use analyze(final InputStream sis, final AnalysisListener listener) instead.
+   * @param sis The data to analyze
+   * @param listener an {@link AnalysisListener} to inform about the analysis progress. May be
+   *          <code>null</code>.
+   * @return analysis results.
+   * @throws IOException if there is a problem accessing the input data.
+   */
+  @java.lang.SuppressWarnings("java:S1133")
+  @Deprecated
+  public Map<String, Object> analyze(final SeekableInputStream sis, final AnalysisListener listener) throws IOException {
+    return analyze((InputStream) sis, listener);
+  }
+
+  /**
+   * Analyze the stream supplied via a {@link SeekableInputStream}.
    * 
    * @param sis The data to analyze
    * @param listener an {@link AnalysisListener} to inform about the analysis progress. May be
@@ -193,7 +210,7 @@ public class Analyzer {
    * @return analysis results.
    * @throws IOException if there is a problem accessing the input data.
    */
-  public Map<String, Object> analyze(final SeekableInputStream sis, final AnalysisListener listener) throws IOException {
+  public Map<String, Object> analyze(final InputStream sis, final AnalysisListener listener) throws IOException {
 
     return analyze(sis, listener, null);
   }
@@ -201,20 +218,21 @@ public class Analyzer {
   /**
    * Analyze the stream supplied via a {@link SeekableInputStream}.
    *
-   * @param sis The data to analyze
+   * @param is The data to analyze
    * @param listener an {@link AnalysisListener} to inform about the analysis progress. May be
    *          <code>null</code>.
    * @param fileName for the input
    * @return analysis results.
    * @throws IOException if there is a problem accessing the input data.
    */
-  public Map<String, Object> analyze(final SeekableInputStream sis, final AnalysisListener listener, final String fileName)
+  public Map<String, Object> analyze(final InputStream is, final AnalysisListener listener, final String fileName)
       throws IOException {
     Map<String, Object> result = new HashMap<>();
 
 
     // POI (3.1-Final) closes the stream during analyszs of office files - use an uncloseable stream wrapper
-    final UncloseableSeekableInputStreamWrapper usis = new UncloseableSeekableInputStreamWrapper(sis);
+    final UncloseableInputStream uis = new UncloseableInputStream(is);
+    final UncloseableSeekableInputStreamWrapper usis = new UncloseableSeekableInputStreamWrapper(new MemoryInputStream(uis));
     usis.lockClose(); // and don't unlock later as POI attempts to close asynchronously!
 
     String extension = FilenameUtils.getExtension(fileName);
@@ -231,26 +249,6 @@ public class Analyzer {
     }
 
     return result;
-  }
-
-  /**
-   * Analyze the stream supplied via an {@link InputStream}. <br>
-   * Caveat: the data will be buffered in memory. If you don't like this, supply a
-   * {@link SeekableInputStream} implementation or a {@link File} instead.
-   * 
-   * @param is
-   * @param listener an {@link AnalysisListener} to inform about the analysis progress. May be
-   *          <code>null</code>.
-   * @return a map of analysis results
-   * @throws IOException if there is a problem accessing the input data.
-   */
-  public Map<String, Object> analyze(final InputStream is, final AnalysisListener listener) throws IOException {
-    SeekableInputStream sis = new MemoryInputStream(is);
-    try {
-      return analyze(sis, listener);
-    } finally {
-      sis.close();
-    }
   }
 
   /**
