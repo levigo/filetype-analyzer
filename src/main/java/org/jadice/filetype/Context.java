@@ -24,11 +24,14 @@ public class Context {
 
   private final Locale locale;
 
-  public Context(final SeekableInputStream sis, final Map<String, Object> result, final AnalysisListener listener, final Locale locale) {
+  private final String statedExtension;
+
+  public Context(final SeekableInputStream sis, final Map<String, Object> result, final AnalysisListener listener, final Locale locale, final String statedExtension) {
     this.sis = sis;
     this.result = result;
     this.listener = listener;
     this.locale = locale;
+    this.statedExtension = statedExtension;
   }
 
   /**
@@ -58,6 +61,15 @@ public class Context {
    */
   public Object getProperty(final String key) {
     return result.get(key);
+  }
+
+  /**
+   * Get the statedExtension.
+   *
+   * @return the extension String
+   */
+  public String getStatedExtension() {
+    return statedExtension;
   }
 
   public void error(final Object src, final String message, final Throwable cause) {

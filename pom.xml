@@ -52,10 +52,10 @@
     <truezip.version>7.7.10</truezip.version>
     <slf4j.version>1.7.25</slf4j.version>
 
-    <!-- requires poi version 3.x -->
     <poi.version>4.1.2</poi.version>
     <rtfparserkit.version>1.15.0</rtfparserkit.version>
     <commons.io.version>2.6</commons.io.version>
+    <tika-parsers.version>1.24.1</tika-parsers.version>
 
     <pdfbox.version>2.0.20</pdfbox.version>
 
@@ -261,6 +261,12 @@
       <groupId>de.schlichtherle.truezip</groupId>
       <artifactId>truezip-driver-zip</artifactId>
       <version>${truezip.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.commons</groupId>
+          <artifactId>commons-compress</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
@@ -292,19 +298,58 @@
       <artifactId>jmock-junit4</artifactId>
       <version>${jmock-junit4.version}</version>
       <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.tika</groupId>
+      <artifactId>tika-parsers</artifactId>
+      <version>${tika-parsers.version}</version>
       <exclusions>
-        <!-- jUnit provides newer versions -->
+        <!-- could cause problems with docp image processing -->
         <exclusion>
-          <groupId>junit</groupId>
-          <artifactId>junit-dep</artifactId>
+          <groupId>com.github.jai-imageio</groupId>
+          <artifactId>jai-imageio-core</artifactId>
+        </exclusion>
+        <!-- unnecessary -->
+        <exclusion>
+          <groupId>org.apache.cxf</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+        <!-- these are included in JRE 8, and already defined in jadice server for JRE 11 -->
+        <exclusion>
+          <groupId>org.glassfish.jaxb</groupId>
+          <artifactId>jaxb-runtime</artifactId>
         </exclusion>
         <exclusion>
-          <groupId>org.hamcrest</groupId>
-          <artifactId>hamcrest-library</artifactId>
+          <groupId>com.sun.activation</groupId>
+          <artifactId>jakarta.activation</artifactId>
+        </exclusion>
+        <!-- library for reading from and writing to MS Access databases. -->
+        <exclusion>
+          <groupId>com.healthmarketscience.jackcess</groupId>
+          <artifactId>*</artifactId>
         </exclusion>
         <exclusion>
-          <groupId>org.hamcrest</groupId>
-          <artifactId>hamcrest-core</artifactId>
+          <groupId>org.quartz-scheduler</groupId>
+          <artifactId>quartz</artifactId>
+        </exclusion>
+        <!-- Apache Spatial Information System (SIS) = library for developing geospatial applications -->
+        <exclusion>
+          <groupId>org.apache.sis.core</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.sis.storage</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+        <!-- could cause problems -->
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.fasterxml.jackson.core</groupId>
+          <artifactId>*</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
