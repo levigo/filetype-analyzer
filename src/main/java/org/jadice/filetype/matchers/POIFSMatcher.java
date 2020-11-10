@@ -186,7 +186,7 @@ public class POIFSMatcher extends Matcher {
       for (Property p : s.getProperties()) {
         String name = s.getPIDString(p.getID());
         String contextKey = (dsi.isSummaryInformation() ? "SUMMARY_" : "DOCUMENT_")
-            + (name != PropertyIDMap.UNDEFINED ? name : "PID_" + p.getID());
+            + (PropertyIDMap.UNDEFINED.equals(name) ? name : "PID_" + p.getID());
         details.put(contextKey, p.getValue());
       }
     }
