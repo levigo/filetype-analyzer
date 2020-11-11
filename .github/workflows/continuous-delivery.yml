@@ -5,7 +5,7 @@ on:
     branches:
       - master
     paths-ignore:
-      # - '.github/**'
+      - '.github/**'
       - '**/README.md'
 
 jobs:
@@ -15,6 +15,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+      with:
+        token: ${{ secrets.REPO_PTA }}
 
     - name: Bump version and create tag
       id: semanticversion
@@ -106,7 +108,7 @@ jobs:
       uses: ad-m/github-push-action@master
       with:
         branch: master
-        github_token: ${{ secrets.GITHUB_TOKEN }}    
+        github_token: ${{ secrets.REPO_PTA }}
         
     ## Notify Slack
     - name: Notify slack
