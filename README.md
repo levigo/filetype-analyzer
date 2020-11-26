@@ -14,7 +14,7 @@ A library to identify file formats and to extract meta-data from those files.
 
     <dependency>
         <groupId>org.jadice.filetype</groupId>
-        <artifactId>filetype-analyzer</artifactId>
+        <artifactId>analyzer</artifactId>
         <version>1.2.2</version>
     </dependency>
 
