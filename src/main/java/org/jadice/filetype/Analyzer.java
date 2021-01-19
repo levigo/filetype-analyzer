@@ -235,7 +235,8 @@ public class Analyzer {
     final UncloseableSeekableInputStreamWrapper usis = new UncloseableSeekableInputStreamWrapper(new MemoryInputStream(uis));
     usis.lockClose(); // and don't unlock later as POI attempts to close asynchronously!
 
-    String extension = FilenameUtils.getExtension(fileName);
+    final String sanitizedFileName = fileName != null ? fileName.replaceAll("[:\\\\/*?|<>]", "_") : null;
+    String extension = FilenameUtils.getExtension(sanitizedFileName);
 
     Context ctx = new Context(usis, result, listener, locale, extension);
 
