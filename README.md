@@ -29,3 +29,46 @@ A library to identify file formats and to extract meta-data from those files.
 
     // some types have specialized matchers providing extra info
     System.out.println("Details: " + results.get(PDFMatcher.DETAILS_KEY));
+
+### Recognized formats
+
+	application/msexcel
+	application/ms-tnef
+	application/msvisio
+	application/msword
+	application/octet-stream
+	application/pdf
+	application/postscript
+	application/x-7z-compressed
+	application/x-bash
+	application/x-bzip2
+	application/x-csh
+	application/x-gzip
+	application/x-ksh
+	application/x-miff
+	application/x-rar-compressed
+	application/x-sh
+	application/x-shockwave-flash
+	application/x-tar
+	application/zip
+	application/zip;protection=encrypted
+	application/zip-spanned
+	image/g3fax
+	image/gif
+	image/heic
+	image/heif
+	image/jpeg
+	image/png
+	image/tiff
+	image/x-emf
+	image/x-portable-bitmap
+	image/x-wmf
+	text/html
+	text/plain
+	text/rtf
+	text/sgml
+	text/x-c
+	text/x-java
+	text/x-perl
+	video/mpeg
+	video/quicktime
