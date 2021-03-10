@@ -15,7 +15,7 @@ A library to identify file formats and to extract meta-data from those files.
     <dependency>
         <groupId>org.jadice.filetype</groupId>
         <artifactId>analyzer</artifactId>
-        <version>1.2.2</version>
+        <version>1.3.0</version>
     </dependency>
 
 ### Minimal usage
@@ -32,8 +32,8 @@ A library to identify file formats and to extract meta-data from those files.
 
 ### Recognized formats
 
-	application/msexcel
 	application/ms-tnef
+	application/msexcel
 	application/msvisio
 	application/msword
 	application/octet-stream
@@ -51,8 +51,8 @@ A library to identify file formats and to extract meta-data from those files.
 	application/x-shockwave-flash
 	application/x-tar
 	application/zip
-	application/zip;protection=encrypted
 	application/zip-spanned
+	application/zip;protection=encrypted
 	image/g3fax
 	image/gif
 	image/heic
