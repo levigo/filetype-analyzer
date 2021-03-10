@@ -36,6 +36,7 @@ public class Type {
     // try matchers, return if one of them fails
     for (Matcher matcher : matchers) {
       if (!matcher.matches(ctx)) {
+        ctx.getStream().seek(0);
         return false;
       }
     }
@@ -52,6 +53,7 @@ public class Type {
       }
     }
 
+    ctx.getStream().seek(0);
     return true;
   }
 
