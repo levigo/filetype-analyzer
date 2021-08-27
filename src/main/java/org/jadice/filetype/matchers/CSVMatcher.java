@@ -6,9 +6,8 @@ import org.apache.tika.config.TikaConfig;
 import org.apache.tika.detect.Detector;
 import org.apache.tika.io.TikaInputStream;
 import org.apache.tika.metadata.Metadata;
-import org.apache.tika.metadata.TikaMetadataKeys;
+import org.apache.tika.metadata.TikaCoreProperties;
 import org.apache.tika.mime.MediaType;
-import org.apache.tika.parser.Parser;
 import org.apache.tika.parser.txt.CharsetDetector;
 import org.apache.tika.parser.txt.CharsetMatch;
 import org.jadice.filetype.Context;
@@ -45,7 +44,7 @@ public class CSVMatcher extends Matcher {
     Metadata metadata = new Metadata();
     String extension = context.getStatedExtension();
     if (extension != null) {
-      metadata.add(TikaMetadataKeys.RESOURCE_NAME_KEY, "file." + extension);
+      metadata.add(TikaCoreProperties.RESOURCE_NAME_KEY, "file." + extension);
     }
     MediaType mediaType = detector.detect(stream, metadata);
     LOGGER.info("MediaType detected: {}", mediaType);
