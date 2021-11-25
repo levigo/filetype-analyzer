@@ -20,11 +20,8 @@ public class EncryptedZIPMatcher extends Matcher {
     SeekableInputStream sis = context.getStream();
     try {
       sis.seek(0);
-      ZipInputStream zis = new ZipInputStream(sis);
-      try {
+      try (ZipInputStream zis = new ZipInputStream(sis)) {
         return detect(zis);
-      } finally {
-        zis.close();
       }
     } catch (Exception e) {
       context.error(this, "Exception analyzing ZIP Container", e);
@@ -45,6 +42,12 @@ public class EncryptedZIPMatcher extends Matcher {
         return true;
       } else {
         throw e;
+      }
+    } catch (IllegalArgumentException iae){
+      if (iae.getMessage().contains("malformed input")){
+        return true;
+      } else {
+        throw iae;
       }
     }
   }
