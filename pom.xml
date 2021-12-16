@@ -50,17 +50,17 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
     <truezip.version>7.7.10</truezip.version>
-    <slf4j.version>1.7.30</slf4j.version>
+    <slf4j.version>1.7.32</slf4j.version>
 
     <poi.version>5.0.0</poi.version>
     <rtfparserkit.version>1.16.0</rtfparserkit.version>
-    <commons.io.version>2.8.0</commons.io.version>
+    <commons.io.version>2.11.0</commons.io.version>
     <tika-parsers.version>1.25</tika-parsers.version>
 
     <pdfbox.version>2.0.22</pdfbox.version>
 
     <jaxb-api.version>2.3.1</jaxb-api.version>
-    <jaxb-runtime.version>2.3.3</jaxb-runtime.version>
+    <jaxb-runtime.version>2.3.5</jaxb-runtime.version>
 
     <!-- testing -->
     <junit.version>4.13.2</junit.version>
