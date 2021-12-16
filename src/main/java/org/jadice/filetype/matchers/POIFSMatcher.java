@@ -9,7 +9,6 @@ import java.util.Map;
 
 import org.apache.poi.hpsf.DocumentSummaryInformation;
 import org.apache.poi.hpsf.HPSFException;
-import org.apache.poi.hpsf.MarkUnsupportedException;
 import org.apache.poi.hpsf.NoPropertySetStreamException;
 import org.apache.poi.hpsf.Property;
 import org.apache.poi.hpsf.PropertySet;
@@ -173,7 +172,6 @@ public class POIFSMatcher extends Matcher {
    * @param entry
    * @throws IOException
    * @throws NoPropertySetStreamException
-   * @throws MarkUnsupportedException
    * @throws UnsupportedEncodingException
    */
   @SuppressWarnings("unchecked")
