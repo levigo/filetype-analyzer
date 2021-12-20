@@ -103,6 +103,205 @@
         </configuration>
       </plugin>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>3.2.4</version>
+        <configuration>
+<!--          <minimizeJar>true</minimizeJar>-->
+          <relocations>
+            <!-- direct dependencies -->
+            <relocation>
+              <pattern>org.slf4j</pattern>
+              <shadedPattern>org.shaded.slf4j</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>org.apache</pattern>
+              <shadedPattern>org.shaded.apache</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>commons-io</pattern>
+              <shadedPattern>commons-io.shaded</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>de.schlichtherle</pattern>
+              <shadedPattern>de.shaded.schlichtherle</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>com.github</pattern>
+              <shadedPattern>org.shaded.github</shadedPattern>
+            </relocation>
+            <!-- transitive dependencies -->
+            <!-- poi -->
+            <relocation>
+              <pattern>commons-codec</pattern>
+              <shadedPattern>commons-codec.shaded</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>com.zaxxer</pattern>
+              <shadedPattern>com.shaded.zaxxer</shadedPattern>
+            </relocation>
+            <!-- truezip -->
+            <relocation>
+              <pattern>com.google</pattern>
+              <shadedPattern>com.shaded.google</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>org.bouncycastle</pattern>
+              <shadedPattern>org.shaded.bouncycastle</shadedPattern>
+            </relocation>
+            <!-- tika -->
+            <relocation>
+              <pattern>commons-logging</pattern>
+              <shadedPattern>commons-logging.shaded</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>xerces</pattern>
+              <shadedPattern>xerces.shaded</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>xml-apis</pattern>
+              <shadedPattern>xml-apis.shaded</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>com.fasterxml.woodstox</pattern>
+              <shadedPattern>com.shaded.fasterxml.woodstox</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>org.codehaus.woodstox</pattern>
+              <shadedPattern>org.shaded.codehaus.woodstox</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>jakarta.annotation</pattern>
+              <shadedPattern>jakarta.shaded.annotation</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>org.gagravarr</pattern>
+              <shadedPattern>org.shaded.gagravarr</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>org.tallison</pattern>
+              <shadedPattern>org.shaded.tallison</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>com.googlecode</pattern>
+              <shadedPattern>com.shaded.googlecode</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>org.tukaani</pattern>
+              <shadedPattern>org.shaded.tukaani</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>com.epam</pattern>
+              <shadedPattern>com.shaded.epam</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>org.brotli</pattern>
+              <shadedPattern>org.shaded.brotli</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>org.brotli</pattern>
+              <shadedPattern>org.shaded.brotli</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>org.ow2.asm</pattern>
+              <shadedPattern>org.shaded.ow2.asm</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>org.ccil.cowan.tagsoup</pattern>
+              <shadedPattern>org.shaded.ccil.cowan.tagsoup</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>de.l3s.boilerpipe</pattern>
+              <shadedPattern>de.shaded.l3s.boilerpipe</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>com.rometools</pattern>
+              <shadedPattern>com.shaded.rometools</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>org.codelibs</pattern>
+              <shadedPattern>org.shaded.codelibs</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>com.pff</pattern>
+              <shadedPattern>com.shaded.pff</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>edu.ucar</pattern>
+              <shadedPattern>edu.shaded.ucar</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>org.jdom</pattern>
+              <shadedPattern>org.shaded.jdom</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>org.checkerframework</pattern>
+              <shadedPattern>org.shaded.checkerframework</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>org.itadaki</pattern>
+              <shadedPattern>org.shaded.itadaki</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>net.jcip</pattern>
+              <shadedPattern>net.shaded.jcip</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>com.beust</pattern>
+              <shadedPattern>com.shaded.beust</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>net.java.dev.jna</pattern>
+              <shadedPattern>net.shaded.java.dev.jna</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>org.jsoup</pattern>
+              <shadedPattern>org.shaded.jsoup</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>joda-time</pattern>
+              <shadedPattern>joda-time.shaded</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>net.sf.ehcache</pattern>
+              <shadedPattern>net.shaded.sf.ehcache</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>com.mchange</pattern>
+              <shadedPattern>com.shaded.mchange</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>org.opengis</pattern>
+              <shadedPattern>org.shaded.opengis</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>javax.measure</pattern>
+              <shadedPattern>javax.shaded.measure</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>edu.usc.ir</pattern>
+              <shadedPattern>edu.shaded.usc.ir</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>jakarta.xml.bind</pattern>
+              <shadedPattern>jakarta.shaded.xml.bind</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>jakarta.activation</pattern>
+              <shadedPattern>jakarta.shaded.activation</shadedPattern>
+            </relocation>
+          </relocations>
+        </configuration>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
         <!-- Calculating the test coverage -->
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
@@ -298,6 +497,7 @@
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
       <version>${commons.io.version}</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>de.schlichtherle.truezip</groupId>
@@ -417,11 +617,13 @@
       <groupId>javax.xml.bind</groupId>
       <artifactId>jaxb-api</artifactId>
       <version>${jaxb-api.version}</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.glassfish.jaxb</groupId>
       <artifactId>jaxb-runtime</artifactId>
       <version>${jaxb-runtime.version}</version>
+      <scope>provided</scope>
     </dependency>
   </dependencies>
 
