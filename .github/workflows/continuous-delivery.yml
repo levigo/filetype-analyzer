@@ -5,7 +5,7 @@ on:
     branches:
       - master
     paths-ignore:
-      # - '.github/**'
+      - '.github/**'
       - '**/README.md'
 env:
   # This will suppress any download for dependencies and plugins or upload messages which would clutter the console log.
@@ -109,12 +109,9 @@ jobs:
 
         git add README.md
         git commit -m "Edit README.md to contain correct version"
-      
-    - name: Push changes
-      uses: ad-m/github-push-action@master
-      with:
-        branch: master
-        github_token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Create Pull Request
+      uses: peter-evans/create-pull-request@v3
 
     - name: Create Release
       id: create_release
