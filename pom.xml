@@ -52,7 +52,7 @@
     <truezip.version>7.7.10</truezip.version>
     <slf4j.version>1.7.36</slf4j.version>
 
-    <poi.version>5.0.0</poi.version>
+    <poi.version>5.2.2</poi.version>
     <rtfparserkit.version>1.16.0</rtfparserkit.version>
     <commons.io.version>2.11.0</commons.io.version>
     <tika-parsers.version>1.28.1</tika-parsers.version>
