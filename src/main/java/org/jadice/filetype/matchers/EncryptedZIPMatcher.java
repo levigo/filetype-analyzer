@@ -1,19 +1,20 @@
 package org.jadice.filetype.matchers;
 
 import java.io.IOException;
-import java.util.zip.ZipException;
-import java.util.zip.ZipInputStream;
 
 import org.jadice.filetype.Context;
 import org.jadice.filetype.io.SeekableInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.lingala.zip4j.exception.ZipException;
+import net.lingala.zip4j.io.inputstream.ZipInputStream;
+
 public class EncryptedZIPMatcher extends Matcher {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(EncryptedZIPMatcher.class);
 
-  private static final String NEEDLE = "encrypted ZIP".toLowerCase();
+  private static final String NEEDLE = "Wrong password".toLowerCase();
 
   @Override
   public boolean matches(final Context context) throws IOException {
@@ -42,12 +43,6 @@ public class EncryptedZIPMatcher extends Matcher {
         return true;
       } else {
         throw e;
-      }
-    } catch (IllegalArgumentException iae){
-      if (iae.getMessage().contains("malformed input")){
-        return true;
-      } else {
-        throw iae;
       }
     }
   }
