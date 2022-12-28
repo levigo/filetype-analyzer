@@ -7,6 +7,8 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.jadice.filetype.Context;
+import org.jadice.filetype.database.DescriptionAction;
+import org.jadice.filetype.database.ExtensionAction;
 import org.jadice.filetype.database.MimeTypeAction;
 import org.jadice.filetype.io.SeekableInputStream;
 import org.slf4j.Logger;
@@ -40,7 +42,7 @@ public class TextMatcher extends Matcher {
    * 
    * @see Pattern
    */
-  private static final Set<Character> PUNCTUATION = new HashSet<Character>();
+  private static final Set<Character> PUNCTUATION = new HashSet<>();
 
   static {
     // We use a precalculated hash set here because the lookup will
@@ -103,12 +105,24 @@ public class TextMatcher extends Matcher {
 
       final boolean matches = ratio > ACCEPTANCE_RATIO;
 
+      boolean isCSV = false;
+      String mimeType = "text/plain";
+      final String statedExtension = context.getStatedExtension();
+      if(matches && statedExtension != null && statedExtension.equals("csv")) {
+        isCSV = true;
+        mimeType = "text/csv";
+      }
+
       if (matches && bom != null) {
         // Inject charset in MIME type for later usage
-        context.setProperty(MimeTypeAction.KEY, "text/plain;charset=" + bom.charset.name());
+        context.setProperty(MimeTypeAction.KEY, mimeType + ";charset=" + bom.charset.name());
         context.info(this, String.format("Determined charset: %s", bom.charset.name()));
+        if(isCSV){
+          context.setProperty(ExtensionAction.KEY, "csv");
+          context.setProperty(DescriptionAction.KEY, "Comma-separated values (CSV)");
+        }
       } else {
-        context.setProperty(MimeTypeAction.KEY, "text/plain");
+        context.setProperty(MimeTypeAction.KEY, mimeType);
       }
       return matches;
     } catch (IOException e) {
