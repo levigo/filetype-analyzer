@@ -41,7 +41,7 @@
     <developer>
       <name>Jörg Henne</name>
       <email>hennejg@gmail.com</email>
-      <organizationUrl>http://levigo.de</organizationUrl>
+      <organizationUrl>https://levigo.de</organizationUrl>
     </developer>
   </developers>
 
@@ -50,13 +50,14 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
     <truezip.version>7.7.10</truezip.version>
-    <zip4j.version>2.10.0</zip4j.version>
+    <zip4j.version>2.11.1</zip4j.version>
     <slf4j.version>1.7.36</slf4j.version>
 
     <poi.version>5.2.2</poi.version>
     <rtfparserkit.version>1.16.0</rtfparserkit.version>
     <commons.io.version>2.11.0</commons.io.version>
-    <tika-parsers.version>1.28.2</tika-parsers.version>
+    <commons-compress.version>1.22</commons-compress.version>
+    <opennlp-tools.version>1.9.4</opennlp-tools.version>
 
     <pdfbox.version>2.0.26</pdfbox.version>
 
@@ -112,7 +113,7 @@
       </plugin>
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>3.0.0-M6</version>
+        <version>3.0.0-M7</version>
         <configuration>
           <!-- Sets the VM argument line as defined by the JaCoCo plugin. -->
           <argLine>${jacocoAgentArgLine}</argLine>
@@ -128,12 +129,12 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
-        <version>3.0.0</version>
+        <version>3.1.0</version>
         <dependencies>
           <dependency>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>extra-enforcer-rules</artifactId>
-            <version>1.5.1</version>
+            <version>1.6.1</version>
           </dependency>
         </dependencies>
         <executions>
@@ -230,7 +231,7 @@
     <plugins>
       <plugin>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>3.4.0</version>
+        <version>3.4.1</version>
         <configuration>
           <!-- <excludePackageNames>*.internal*</excludePackageNames> -->
           <!-- the javadoc footer may not contain any newline characters 
@@ -347,61 +348,6 @@
       <version>${jmock-junit4.version}</version>
       <scope>test</scope>
     </dependency>
-
-    <dependency>
-      <groupId>org.apache.tika</groupId>
-      <artifactId>tika-parsers</artifactId>
-      <version>${tika-parsers.version}</version>
-      <exclusions>
-        <!-- could cause problems with docp image processing -->
-        <exclusion>
-          <groupId>com.github.jai-imageio</groupId>
-          <artifactId>jai-imageio-core</artifactId>
-        </exclusion>
-        <!-- unnecessary -->
-        <exclusion>
-          <groupId>org.apache.cxf</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-        <!-- these are included in JRE 8, and already defined in jadice server for JRE 11 -->
-        <exclusion>
-          <groupId>org.glassfish.jaxb</groupId>
-          <artifactId>jaxb-runtime</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>com.sun.activation</groupId>
-          <artifactId>jakarta.activation</artifactId>
-        </exclusion>
-        <!-- library for reading from and writing to MS Access databases. -->
-        <exclusion>
-          <groupId>com.healthmarketscience.jackcess</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.quartz-scheduler</groupId>
-          <artifactId>quartz</artifactId>
-        </exclusion>
-        <!-- Apache Spatial Information System (SIS) = library for developing geospatial applications -->
-        <exclusion>
-          <groupId>org.apache.sis.core</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.apache.sis.storage</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-        <!-- could cause problems -->
-        <exclusion>
-          <groupId>org.slf4j</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>com.fasterxml.jackson.core</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-
     <dependency>
       <groupId>javax.xml.bind</groupId>
       <artifactId>jaxb-api</artifactId>
@@ -411,6 +357,18 @@
       <groupId>org.glassfish.jaxb</groupId>
       <artifactId>jaxb-runtime</artifactId>
       <version>${jaxb-runtime.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-compress</artifactId>
+      <version>${commons-compress.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.opennlp</groupId>
+      <artifactId>opennlp-tools</artifactId>
+      <version>${opennlp-tools.version}</version>
+      <scope>compile</scope>
     </dependency>
   </dependencies>
 

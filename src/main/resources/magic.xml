@@ -795,9 +795,6 @@
 	</type>
 	
 	<type>
-		   <match-custom>org.jadice.filetype.matchers.CSVMatcher</match-custom>
-	</type>
-	<type>
 		<mime-type>text/plain</mime-type>
 		<extension>txt</extension>
 		<description>ASCII Text Document</description>
