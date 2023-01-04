@@ -362,6 +362,12 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-params</artifactId>
+      <version>${junit.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.jmock</groupId>
       <artifactId>jmock-junit5</artifactId>
       <version>${jmock-junit5.version}</version>
