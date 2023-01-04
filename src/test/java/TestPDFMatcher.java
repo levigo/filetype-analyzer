@@ -1,12 +1,12 @@
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasEntry;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,11 +18,11 @@ import org.jadice.filetype.Analyzer;
 import org.jadice.filetype.AnalyzerException;
 import org.jadice.filetype.database.MimeTypeAction;
 import org.jadice.filetype.matchers.PDFMatcher;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 
-public class TestPDFMatcher {
+class TestPDFMatcher {
 
   private static final File INPUT_FOLDER = new File("src/test/resources/pdf");
 
@@ -34,26 +34,26 @@ public class TestPDFMatcher {
 
   private static Analyzer ANALYZER;
 
-  @BeforeClass
+  @BeforeAll
   public static void init() throws AnalyzerException {
     ANALYZER = Analyzer.getInstance("/magic.xml");
   }
 
   @Test
-  public void testUnencryptedPDFs() throws IOException {
+  void testUnencryptedPDFs() throws IOException {
     for (File f : nullSafe(UNENCRYPTED_PDFS_FOLDER.listFiles())) {
       final Map<String, Object> result = ANALYZER.analyze(f);
-      assertNotNull(f + " could not be analyzed", result);
-      assertEquals(f + " is recognized as PDF", "application/pdf", result.get(MimeTypeAction.KEY));
+      assertNotNull(result, f + " could not be analyzed");
+      assertEquals("application/pdf", result.get(MimeTypeAction.KEY),  f + " is recognized as PDF");
       assertValidDetails(result);
-      assertFalse(f + " is not recognized as unencrypted PDF", isEncrypted(result));
-      assertFalse(f + " has no embedded documents", hasEmbeddedDocuments(result));
+      assertFalse(isEncrypted(result), f + " is not recognized as unencrypted PDF");
+      assertFalse(hasEmbeddedDocuments(result), f + " has no embedded documents");
     }
   }
 
   @Test
   @SuppressWarnings("unchecked")
-  public void test_PDF_testdoc_1_3_Karte() throws IOException {
+  void test_PDF_testdoc_1_3_Karte() throws IOException {
     final Map<String, Object> result = ANALYZER.analyze(
         getClass().getResourceAsStream("pdf/normal/PDF-testdoc-1.3-Karte.pdf"));
     Map<String, Object> details = (Map<String, Object>) result.get(PDFMatcher.DETAILS_KEY);
@@ -69,83 +69,87 @@ public class TestPDFMatcher {
   }
 
   @Test
-  public void testPDFPortfolios() throws IOException {
+  void testPDFPortfolios() throws IOException {
     for (File f : nullSafe(PORTABLE_COLLECTION_FOLDER.listFiles())) {
       final Map<String, Object> result = ANALYZER.analyze(f);
-      assertNotNull(f + " could not be analyzed", result);
-      assertEquals(f + " is recognized as PDF", "application/pdf", result.get(MimeTypeAction.KEY));
+      assertNotNull(result, f + " could not be analyzed");
+      assertEquals("application/pdf", result.get(MimeTypeAction.KEY), f + " is recognized as PDF");
       assertValidDetails(result);
-      assertFalse(f + " is not recognized as unencrypted PDF", isEncrypted(result));
-      assertTrue(f + " has embedded documents, but none were found", hasEmbeddedDocuments(result));
+      assertFalse(isEncrypted(result), f + " is not recognized as unencrypted PDF");
+      assertTrue(hasEmbeddedDocuments(result), f + " has embedded documents, but none were found");
     }
   }
 
   @Test
-  public void testEncryptedPDFs() throws IOException {
+  void testEncryptedPDFs() throws IOException {
     for (File f : nullSafe(ENCRYPTED_PDFS_FOLDER.listFiles())) {
       final Map<String, Object> result = ANALYZER.analyze(f);
       System.out.println(f + ": -> \n" + result);
 
-      assertNotNull(f + " could not be analyzed", result);
-      assertEquals(f + " is recognized as PDF", "application/pdf", result.get(MimeTypeAction.KEY));
+      assertNotNull(result, f + " could not be analyzed");
+      assertEquals("application/pdf", result.get(MimeTypeAction.KEY), f + " is recognized as PDF");
       assertValidDetails(result);
-      assertTrue(f + " is not recognized as encrypted PDF", isEncrypted(result));
-      assertFalse(f + " has no embedded documents", hasEmbeddedDocuments(result));
+      assertTrue(isEncrypted(result),f + " is not recognized as encrypted PDF");
+      assertFalse(hasEmbeddedDocuments(result), f + " has no embedded documents");
     }
   }
 
   @Test
-  public void numberOfPagesEncryptedPdf() throws IOException {
+  void numberOfPagesEncryptedPdf() throws IOException {
     File f = new File(ENCRYPTED_PDFS_FOLDER, "11_enc128bit-aes_pw-owner.pdf");
 
     final Map<String, Object> result = ANALYZER.analyze(f);
-    assertNotNull(f + " could not be analyzed", result);
+    assertNotNull(result, f + " could not be analyzed");
     assertValidDetails(result);
     assertNumberOfPages(result, 1);
   }
 
   @Test
-  public void numberOfPagesUnencryptedPdf() throws IOException {
+  void numberOfPagesUnencryptedPdf() throws IOException {
     File f = new File(UNENCRYPTED_PDFS_FOLDER, "lorem-ipsum.pdf");
 
     final Map<String, Object> result = ANALYZER.analyze(f);
-    assertNotNull(f + " could not be analyzed", result);
+    assertNotNull(result, f + " could not be analyzed");
     assertValidDetails(result);
     assertNumberOfPages(result, 4);
   }
 
   @Test
-  public void numberOfPagesPortableCollectionPdf() throws IOException {
+  void numberOfPagesPortableCollectionPdf() throws IOException {
     File f = new File(PORTABLE_COLLECTION_FOLDER, "portable-collection-1.pdf");
 
     final Map<String, Object> result = ANALYZER.analyze(f);
-    assertNotNull(f + " could not be analyzed", result);
+    assertNotNull(result, f + " could not be analyzed");
     assertValidDetails(result);
     assertNumberOfPages(result, 1);
   }
 
-  public static File[] nullSafe(final File[] filesOrNull) {
+  private static File[] nullSafe(final File[] filesOrNull) {
     if (filesOrNull == null) {
       return new File[0];
     }
     return filesOrNull;
   }
 
+  @SuppressWarnings("unchecked")
   private static void assertNumberOfPages(final Map<String, Object> result, final Integer expectedNumberOfPages) {
     final Map<String, Object> details = (Map<String, Object>) result.get(PDFMatcher.DETAILS_KEY);
-    assertTrue(PDFMatcher.NUMBER_OF_PAGES_KEY + " not found",
-            details.containsKey(PDFMatcher.NUMBER_OF_PAGES_KEY) && details.get(PDFMatcher.NUMBER_OF_PAGES_KEY) instanceof Integer);
-    assertEquals(PDFMatcher.NUMBER_OF_PAGES_KEY + " not correct", expectedNumberOfPages, details.get(PDFMatcher.NUMBER_OF_PAGES_KEY));
+    assertTrue(
+        details.containsKey(PDFMatcher.NUMBER_OF_PAGES_KEY)
+            && details.get(PDFMatcher.NUMBER_OF_PAGES_KEY) instanceof Integer,
+        PDFMatcher.NUMBER_OF_PAGES_KEY + " not found");
+    assertEquals(expectedNumberOfPages, details.get(PDFMatcher.NUMBER_OF_PAGES_KEY),
+        PDFMatcher.NUMBER_OF_PAGES_KEY + " not correct");
   }
 
   private static void assertValidDetails(final Map<String, Object> result) {
-    assertTrue("No PDF details were found", result.containsKey(PDFMatcher.DETAILS_KEY));
+    assertTrue(result.containsKey(PDFMatcher.DETAILS_KEY), "No PDF details were found");
     final Object object = result.get(PDFMatcher.DETAILS_KEY);
-    assertTrue("PDF details are not a map, but " + object.getClass(), object instanceof Map);
+    assertTrue(object instanceof Map, "PDF details are not a map, but " + object.getClass());
   }
 
   @SuppressWarnings("unchecked")
-  public static boolean isEncrypted(final Map<String, Object> result) {
+  private static boolean isEncrypted(final Map<String, Object> result) {
     final Map<String, Object> details = (Map<String, Object>) result.get(PDFMatcher.DETAILS_KEY);
     return details.containsKey(PDFMatcher.IS_ENCRYPTED_KEY) && (Boolean) details.get(PDFMatcher.IS_ENCRYPTED_KEY);
   }
@@ -156,9 +160,8 @@ public class TestPDFMatcher {
     if (!details.containsKey(PDFMatcher.EMBEDDED_FILE_NAMES_KEY)) {
       return false;
     }
-    ;
-    assertTrue("PDF embedded file names is not a list",
-        details.get(PDFMatcher.EMBEDDED_FILE_NAMES_KEY) instanceof List);
+    assertTrue(details.get(PDFMatcher.EMBEDDED_FILE_NAMES_KEY) instanceof List,
+            "PDF embedded file names is not a list");
 
     return !((List<String>) details.get(PDFMatcher.EMBEDDED_FILE_NAMES_KEY)).isEmpty();
   }

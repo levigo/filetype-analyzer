@@ -1,9 +1,10 @@
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
@@ -17,20 +18,27 @@ import org.jadice.filetype.io.MemoryInputStream;
 import org.jadice.filetype.io.SeekableInputStream;
 import org.jadice.filetype.matchers.XMLMatcher;
 import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JUnitRuleMockery;
-import org.junit.Test;
+import org.jmock.junit5.JUnit5Mockery;
+import org.jmock.lib.concurrent.Synchroniser;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class TestXMLMatcher {
+class TestXMLMatcher {
 
-  public final Mockery context = new JUnitRuleMockery();
+  @RegisterExtension
+  public JUnit5Mockery context = new JUnit5Mockery() {
+    {
+      // See http://jmock.org/threading-synchroniser.html
+      setThreadingPolicy(new Synchroniser());
+    }
+  };
 
   private static final XMLMatcher MATCHER = new XMLMatcher();
 
   private final static Locale LOCALE = Locale.ENGLISH;
 
   @Test
-  public void testXML_withoutNS_match() throws IOException {
+  void testXML_withoutNS_match() throws IOException {
     final AnalysisListener listener = context.mock(AnalysisListener.class);
     final String expMimeType = "application/xml;charset=UTF-8";
     final String expectedRootName = "project";
@@ -40,12 +48,12 @@ public class TestXMLMatcher {
 
     final Context ctx = createContext(load("/xml/build.xml"), listener);
 
-    assertTrue("XML Matcher shall match on XML", MATCHER.matches(ctx));
+    assertTrue(MATCHER.matches(ctx), "XML Matcher shall match on XML");
     verifyContext(ctx, expMimeType, null, expectedRootName, "1.0");
   }
 
   @Test
-  public void testXML_withNS_match() throws IOException {
+  void testXML_withNS_match() throws IOException {
     final AnalysisListener listener = context.mock(AnalysisListener.class);
     final String expMimeType = "application/xml;charset=UTF-8";
     final String expNamespaceURI = "http://jakarta.apache.org/log4j/";
@@ -56,12 +64,12 @@ public class TestXMLMatcher {
     }});
     final Context ctx = createContext(load("/xml/log4j.xml"), listener);
 
-    assertTrue("XML Matcher shall match on XML", MATCHER.matches(ctx));
+    assertTrue(MATCHER.matches(ctx), "XML Matcher shall match on XML");
     verifyContext(ctx, expMimeType, expNamespaceURI, expRootName, "1.0");
   }
 
   @Test
-  public void testXML_With_UTF16() throws Exception {
+  void testXML_With_UTF16() throws Exception {
     final AnalysisListener listener = context.mock(AnalysisListener.class);
     final String expMimeType = "application/xml;charset=UTF-16BE";
     final String expNamespaceURI = "http://jakarta.apache.org/log4j/";
@@ -72,27 +80,27 @@ public class TestXMLMatcher {
     }});
     final Context ctx = createContext(load("/xml/log4j-utf-16.xml"), listener);
 
-    assertTrue("XML Matcher shall match on UTF-16 encoded XML", MATCHER.matches(
-        ctx));
+    assertTrue(MATCHER.matches(
+            ctx), "XML Matcher shall match on UTF-16 encoded XML");
     verifyContext(ctx, expMimeType, expNamespaceURI, expRootName, "1.0");
   }
 
   @SuppressWarnings("unchecked")
   private void verifyContext(Context ctx, String expMimeType, String expNamespaceURI, String expRootName, String expXmlVersion) {
-    assertEquals("Wrong MIME type detected", expMimeType, ctx.getProperty(MimeTypeAction.KEY));
+    assertEquals(expMimeType, ctx.getProperty(MimeTypeAction.KEY), "Wrong MIME type detected");
     final Object xmlPropertiesRaw = ctx.getProperty(XMLMatcher.DETAILS_KEY);
-    assertNotNull("No XML details found", xmlPropertiesRaw);
-    assertTrue("XML details must be a map", xmlPropertiesRaw instanceof Map);
+    assertNotNull(xmlPropertiesRaw, "No XML details found");
+    assertTrue(xmlPropertiesRaw instanceof Map, "XML details must be a map");
     Map<String, String> xmlProperties = (Map<String, String>) xmlPropertiesRaw;
 
-    assertEquals("Wrong NS URI detected", expNamespaceURI, xmlProperties.get(XMLMatcher.NAMESPACE_URI_KEY));
-    assertEquals("Wrong root element detected", expRootName, xmlProperties.get(XMLMatcher.ROOT_ELEMENT_NAME_KEY));
-    assertEquals("Wrong XML version detected", expXmlVersion, xmlProperties.get(XMLMatcher.DOCUMENT_XML_VERSION_KEY));
+    assertEquals(expNamespaceURI, xmlProperties.get(XMLMatcher.NAMESPACE_URI_KEY), "Wrong NS URI detected");
+    assertEquals(expRootName, xmlProperties.get(XMLMatcher.ROOT_ELEMENT_NAME_KEY), "Wrong root element detected");
+    assertEquals(expXmlVersion, xmlProperties.get(XMLMatcher.DOCUMENT_XML_VERSION_KEY), "Wrong XML version detected");
   }
 
   @Test
-  public void testXML_withoutProlog_match() throws Exception {
-    final AnalysisListener listener = context.mock(AnalysisListener.class);
+  void testXML_withoutProlog_match() throws Exception {
+     AnalysisListener listener = context.mock(AnalysisListener.class);
     final String xmlNoProlog = "<x/>";
 
     final String expMimeType = "application/xml;charset=UTF-8";
@@ -100,43 +108,42 @@ public class TestXMLMatcher {
     context.checking(new Expectations() {{
       oneOf(listener).info(with(same(MATCHER)), with(Matchers.containsString(expRootName)));
     }});
-    final Context ctx = createContext(new MemoryInputStream(xmlNoProlog.getBytes("UTF-8")), listener);
+    final Context ctx = createContext(new MemoryInputStream(xmlNoProlog.getBytes(StandardCharsets.UTF_8)), listener);
     final boolean matches = MATCHER.matches(ctx);
-    assertTrue("Matcher shall match on XML without prolog", matches);
+    assertTrue(matches, "Matcher shall match on XML without prolog");
 
     verifyContext(ctx, expMimeType, null, expRootName, "1.0");
 
   }
 
   @Test
-  public void testNoInput() throws Exception {
+  void testNoInput() throws Exception {
     final AnalysisListener listener = context.mock(AnalysisListener.class);
     final boolean matches = MATCHER.matches(createContext(new MemoryInputStream(new byte[0]), listener));
-    assertFalse("Matcher shall not match on empty input", matches);
-
+    assertFalse(matches, "Matcher shall not match on empty input");
   }
 
   @Test
-  public void testPDF_noMatch() throws IOException {
+  void testPDF_noMatch() throws IOException {
     final AnalysisListener listener = context.mock(AnalysisListener.class);
 
     final Context ctx = createContext(load("/pdf/normal/lorem-ipsum.pdf"), listener);
-    assertFalse("Matcher shall not match on a pdf file", MATCHER.matches(ctx));
+    assertFalse(MATCHER.matches(ctx), "Matcher shall not match on a pdf file");
     context.assertIsSatisfied();
   }
 
   @Test
-  public void testTXT_noMatch() throws IOException {
+  void testTXT_noMatch() throws IOException {
     final AnalysisListener listener = context.mock(AnalysisListener.class);
     final Context ctx = createContext(load("/txt/Latin1.txt"), listener);
-    assertFalse("Matcher shall not match on a pdf file", MATCHER.matches(ctx));
+    assertFalse(MATCHER.matches(ctx), "Matcher shall not match on a pdf file");
   }
 
   @Test
-  public void testTXT_with_LT_GT_noMatch() throws Exception {
+  void testTXT_with_LT_GT_noMatch() throws Exception {
     final AnalysisListener listener = context.mock(AnalysisListener.class);
     final Context ctx = createContext(load("/txt/text-no-xml.txt"), listener);
-    assertFalse("Matcher shall not match on a Text file with arbitrary < and >", MATCHER.matches(ctx));
+    assertFalse(MATCHER.matches(ctx), "Matcher shall not match on a Text file with arbitrary < and >");
   }
 
   private static SeekableInputStream load(String resource) throws IOException {
@@ -144,11 +151,11 @@ public class TestXMLMatcher {
   }
 
   public Context createContext(SeekableInputStream sis, AnalysisListener listener) {
-    return new Context(sis, new HashMap<String, Object>(), listener, LOCALE, null);
+    return new Context(sis, new HashMap<>(), listener, LOCALE, null);
   }
 
   @Test
-  public void testMatchXMLWithLeadingWhitespaces() throws Exception {
+  void testMatchXMLWithLeadingWhitespaces() throws Exception {
     final AnalysisListener listener = context.mock(AnalysisListener.class);
     final Context ctx = createContext(new MemoryInputStream("         <empty/>".getBytes()), listener);
 
@@ -161,7 +168,7 @@ public class TestXMLMatcher {
   }
 
   @Test
-  public void testDoNotMatchWhenExceedingLookahead() throws Exception {
+  void testDoNotMatchWhenExceedingLookahead() throws Exception {
 
     byte[] buf = new byte[XMLMatcher.LOOK_AHEAD + 10];
     // fill everything with whitespaces

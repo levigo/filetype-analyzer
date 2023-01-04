@@ -1,6 +1,6 @@
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,13 +14,20 @@ import org.jadice.filetype.io.MemoryInputStream;
 import org.jadice.filetype.io.SeekableInputStream;
 import org.jadice.filetype.matchers.TextMatcher;
 import org.jmock.Expectations;
-import org.jmock.Mockery;
-import org.jmock.integration.junit4.JUnitRuleMockery;
-import org.junit.Test;
+import org.jmock.junit5.JUnit5Mockery;
+import org.jmock.lib.concurrent.Synchroniser;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-public class TestTextMatcher {
-  
-  public final Mockery context = new JUnitRuleMockery();
+class TestTextMatcher {
+
+  @RegisterExtension
+  public JUnit5Mockery context = new JUnit5Mockery() {
+    {
+      // See http://jmock.org/threading-synchroniser.html
+      setThreadingPolicy(new Synchroniser());
+    }
+  };
   
   private final static Locale LOCALE = Locale.ENGLISH;
   
@@ -33,90 +40,89 @@ public class TestTextMatcher {
   private final static String TEST_PUNCTUATION_STRING = "Hallo Welt" + TEST_PUNCTUATION_ONLY;
 
   @Test
-  public void testBinary() throws Exception {
+  void testBinary() throws Exception {
     final AnalysisListener listener = context.mock(AnalysisListener.class);
     context.checking(new Expectations() {{
       oneOf(listener).info(with(same(THE_MATCHER)), with(containsString(ACCEPTED_MESSAGE)));
     }});
     final boolean matches = THE_MATCHER.matches(createContext(load("/various_types/datenmuell.xyz"), listener));
-    assertFalse("TextMatcher must not match on binary data", matches);
+    assertFalse(matches, "TextMatcher must not match on binary data");
     context.assertIsSatisfied();
   }
   
   @Test
-  public void testShortText() throws Exception {
+  void testShortText() throws Exception {
     final AnalysisListener listener = context.mock(AnalysisListener.class);
     context.checking(new Expectations() {{
       oneOf(listener).info(with(same(THE_MATCHER)), with(containsString(ACCEPTED_MESSAGE)));
     }});
     final boolean matches = THE_MATCHER.matches(createContext(load("/txt/short.txt"), listener));
-    assertTrue("TextMatcher must match on a short text", matches);
+    assertTrue(matches, "TextMatcher must match on a short text");
     context.assertIsSatisfied();
   }
-  
+
   @Test
-  public void testUFT8() throws Exception {
+  void testUFT8() throws Exception {
     final AnalysisListener listener = context.mock(AnalysisListener.class);
     context.checking(new Expectations() {{
       oneOf(listener).info(with(same(THE_MATCHER)), with(containsString(ACCEPTED_MESSAGE)));
       oneOf(listener).info(THE_MATCHER, "Determined charset: UTF-8");
     }});
     final boolean matches = THE_MATCHER.matches(createContext(load("/txt/UTF-8.txt"), listener));
-    assertTrue("TextMatcher must match on UTF-8 text", matches);
+    assertTrue(matches, "TextMatcher must match on UTF-8 text");
     context.assertIsSatisfied();
   }
   
   @Test
-  public void testLatin1() throws Exception {
+  void testLatin1() throws Exception {
     final AnalysisListener listener = context.mock(AnalysisListener.class);
     context.checking(new Expectations() {{
       oneOf(listener).info(with(same(THE_MATCHER)), with(containsString(ACCEPTED_MESSAGE)));
     }});
     final boolean matches = THE_MATCHER.matches(createContext(load("/txt/Latin1.txt"), listener));
-    assertTrue("TextMatcher must match on UTF-16 text", matches);
+    assertTrue(matches, "TextMatcher must match on UTF-16 text");
     context.assertIsSatisfied();
   }
   
   @Test
-  public void testUFT16() throws Exception {
+  void testUFT16() throws Exception {
     final AnalysisListener listener = context.mock(AnalysisListener.class);
     context.checking(new Expectations() {{
       oneOf(listener).info(with(same(THE_MATCHER)), with(containsString(ACCEPTED_MESSAGE)));
       oneOf(listener).info(THE_MATCHER, "Determined charset: UTF-16LE");
     }});
     final boolean matches = THE_MATCHER.matches(createContext(load("/txt/UTF-16.txt"), listener));
-    assertTrue("TextMatcher must match on UTF-16 text", matches);
+    assertTrue(matches, "TextMatcher must match on UTF-16 text");
     context.assertIsSatisfied();
   }
 
   @Test
-  public void testMatchPunctuationString() throws Exception {
-    
+  void testMatchPunctuationString() {
     final AnalysisListener listener = context.mock(AnalysisListener.class);
     context.checking(new Expectations() {{
       oneOf(listener).info(with(same(THE_MATCHER)), with(containsString(ACCEPTED_MESSAGE)));
     }});
     final boolean matches = THE_MATCHER.matches(createContext(fromString(TEST_PUNCTUATION_STRING), listener));
-    assertTrue("TextMatcher must match on " + TEST_PUNCTUATION_STRING, matches);
+    assertTrue(matches, "TextMatcher must match on " + TEST_PUNCTUATION_STRING);
     context.assertIsSatisfied();
   }
   
   @Test
-  public void testMatchPunctuationOnly()  throws Exception {
+  void testMatchPunctuationOnly() {
     final AnalysisListener listener = context.mock(AnalysisListener.class);
     context.checking(new Expectations() {{
       oneOf(listener).info(with(same(THE_MATCHER)), with(containsString(ACCEPTED_MESSAGE)));
     }});
     final boolean matches = THE_MATCHER.matches(createContext(fromString(TEST_PUNCTUATION_ONLY), listener));
-    assertFalse("TextMatcher must not match on " + TEST_PUNCTUATION_ONLY, matches);
+    assertFalse(matches, "TextMatcher must not match on " + TEST_PUNCTUATION_ONLY);
     context.assertIsSatisfied();
   }
   
   @Test
-  public void testMatchEmptyString()  throws Exception {
+  void testMatchEmptyString() {
     final AnalysisListener listener = context.mock(AnalysisListener.class);
     final boolean matches = THE_MATCHER.matches(createContext(fromString(""), listener));
-    assertFalse("TextMatcher must match on empty String", matches);
+    assertFalse(matches, "TextMatcher must match on empty String");
   }  
   
   private static SeekableInputStream fromString(String input) {
@@ -128,7 +134,7 @@ public class TestTextMatcher {
     return new MemoryInputStream(s);
   }
 
-  public static Context createContext(SeekableInputStream sis, AnalysisListener listener) {
-    return new Context(sis, new HashMap<String, Object>(), listener, LOCALE,null);
+  private static Context createContext(SeekableInputStream sis, AnalysisListener listener) {
+    return new Context(sis, new HashMap<>(), listener, LOCALE,null);
   }
 }

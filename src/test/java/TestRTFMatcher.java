@@ -1,7 +1,7 @@
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,11 +12,11 @@ import org.jadice.filetype.Analyzer;
 import org.jadice.filetype.AnalyzerException;
 import org.jadice.filetype.database.MimeTypeAction;
 import org.jadice.filetype.matchers.RTFMatcher;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 
-public class TestRTFMatcher {
+class TestRTFMatcher {
 
   private static final File INPUT_FOLDER = new File("src/test/resources/rtf");
   
@@ -26,34 +26,34 @@ public class TestRTFMatcher {
   
   private static Analyzer ANALYZER;
   
-  @BeforeClass
+  @BeforeAll
   public static void init() throws AnalyzerException {
       ANALYZER = Analyzer.getInstance("/magic.xml");
   }
   
   @Test
-  public void testRtfEmbeddedFiles() throws IOException {
+  void testRtfEmbeddedFiles() throws IOException {
     for (File f : nullSafe(EMBEDDED_FILES_FOLDER.listFiles())) {
       final Map<String, Object> result = ANALYZER.analyze(f);
-      assertNotNull(f + " could not be analyzed", result);
-      assertEquals(f + " is recognized as RTF", "text/rtf", result.get(MimeTypeAction.KEY));
+      assertNotNull(result, f + " could not be analyzed");
+      assertEquals("text/rtf", result.get(MimeTypeAction.KEY), f + " is recognized as RTF");
       assertValidDetails(result); 
-      assertTrue(f + " has embedded documents, but none were found", hasEmbeddedDocuments(result));
+      assertTrue(hasEmbeddedDocuments(result), f + " has embedded documents, but none were found");
     }
   }
   
   @Test
-  public void testNormalRtfFiles() throws IOException {
+  void testNormalRtfFiles() throws IOException {
     for (File f : nullSafe(NORMAL_FOLDER.listFiles())) {
       final Map<String, Object> result = ANALYZER.analyze(f);
-      assertNotNull(f + " could not be analyzed", result);
-      assertEquals(f + " is recognized as RTF", "text/rtf", result.get(MimeTypeAction.KEY));
+      assertNotNull(result, f + " could not be analyzed");
+      assertEquals("text/rtf", result.get(MimeTypeAction.KEY), f + " is recognized as RTF");
       assertValidDetails(result); 
-      assertFalse(f + " has no embedded documents, but some were found", hasEmbeddedDocuments(result));
+      assertFalse(hasEmbeddedDocuments(result), f + " has no embedded documents, but some were found");
     }
   }
   
-  public static File[] nullSafe(File[] filesOrNull) {
+  private static File[] nullSafe(File[] filesOrNull) {
     if (filesOrNull == null) {
       return new File[0];
     }
@@ -61,9 +61,9 @@ public class TestRTFMatcher {
   }
   
   private static void assertValidDetails(Map<String, Object> result) {
-    assertTrue("No RTF details were found", result.containsKey(RTFMatcher.DETAILS_KEY));
+    assertTrue(result.containsKey(RTFMatcher.DETAILS_KEY), "No RTF details were found");
     final Object object = result.get(RTFMatcher.DETAILS_KEY);
-    assertTrue("RTF details are not a map, but " + object.getClass(), object instanceof Map);
+    assertTrue(object instanceof Map, "RTF details are not a map, but " + object.getClass());
   }
 
   @SuppressWarnings("unchecked")
@@ -71,8 +71,8 @@ public class TestRTFMatcher {
     final Map<String, Object> details = (Map<String, Object>) result.get(RTFMatcher.DETAILS_KEY);
     if (!details.containsKey(RTFMatcher.EMBEDDED_FILE_CLASSES_KEY)) {
       return false;
-    };
-    assertTrue("RTF Files classes is not a list", details.get(RTFMatcher.EMBEDDED_FILE_CLASSES_KEY) instanceof List);
+    }
+    assertTrue(details.get(RTFMatcher.EMBEDDED_FILE_CLASSES_KEY) instanceof List, "RTF Files classes is not a list");
     
     return !((List<String>)details.get(RTFMatcher.EMBEDDED_FILE_CLASSES_KEY)).isEmpty();
   }

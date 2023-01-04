@@ -1,6 +1,6 @@
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,10 +10,10 @@ import java.util.Map;
 import org.jadice.filetype.Analyzer;
 import org.jadice.filetype.AnalyzerException;
 import org.jadice.filetype.database.MimeTypeAction;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
-public class TestArchives {
+class TestArchives {
 
   private static Analyzer analyzer;
 
@@ -26,27 +26,27 @@ public class TestArchives {
     expectedMimeTypes.put("unencrypted.zip","application/zip");
   }
 
-  @BeforeClass
+  @BeforeAll
   public static void createAnalyzer() throws AnalyzerException {
     analyzer = Analyzer.getInstance("/magic.xml");
   }
 
   @Test
-  public void testArchiveFiles() throws IOException {
+  void testArchiveFiles() throws IOException {
     for (File f : nullSafe(INPUT_FOLDER.listFiles())) {
         final Map<String, Object> result = analyzer.analyze(f);
-        assertNotNull(f + " could not be analyzed", result);
-        assertEquals(f + " is not recognized as archive", expectedMimeTypes.get(f.getName()), result.get(MimeTypeAction.KEY));
+        assertNotNull(result, f + " could not be analyzed");
+        assertEquals(expectedMimeTypes.get(f.getName()), result.get(MimeTypeAction.KEY), f + " is not recognized as archive");
     }
   }
 
   @Test
-  public void testNonArchiveFiles() throws IOException {
+  void testNonArchiveFiles() throws IOException {
     for (File f : nullSafe(INPUT_FOLDER_FALSE_POSITIVE.listFiles())) {
         final Map<String, Object> result = analyzer.analyze(f);
-        assertNotNull(f + " could not be analyzed", result);
-        assertNotEquals("false positive:  " + f + " is recognized as archive", "application/zip",
-            result.get(MimeTypeAction.KEY));
+        assertNotNull(result, f + " could not be analyzed");
+        assertNotEquals("application/zip", result.get(MimeTypeAction.KEY),
+            "false positive:  " + f + " is recognized as archive");
     }
   }
 
