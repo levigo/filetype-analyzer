@@ -1,6 +1,6 @@
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,42 +9,42 @@ import java.util.Map;
 import org.jadice.filetype.Analyzer;
 import org.jadice.filetype.AnalyzerException;
 import org.jadice.filetype.database.MimeTypeAction;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
-public class TestHeicImages {
+class TestHeicImages {
 
   private static Analyzer analyzer;
 
   private static final File INPUT_FOLDER = new File("src/test/resources/heic");
   private static final File INPUT_FOLDER_FALSE_POSITIVE = new File("src/test/resources/various_types");
 
-  @BeforeClass
+  @BeforeAll
   public static void createAnalyzer() throws AnalyzerException {
     analyzer = Analyzer.getInstance("/magic.xml");
   }
 
   @Test
-  public void testHeicFiles() throws IOException {
+  void testHeicFiles() throws IOException {
     for (File f : nullSafe(INPUT_FOLDER.listFiles())) {
       final Map<String, Object> result = analyzer.analyze(f);
-      assertNotNull(f + " could not be analyzed", result);
-      assertEquals(f + " is not recognized as heic", "image/heic", result.get(MimeTypeAction.KEY));
+      assertNotNull(result, f + " could not be analyzed");
+      assertEquals("image/heic", result.get(MimeTypeAction.KEY), f + " is not recognized as heic");
 
     }
   }
 
   @Test
-  public void testNonHeicFiles() throws IOException {
+  void testNonHeicFiles() throws IOException {
     for (File f : nullSafe(INPUT_FOLDER_FALSE_POSITIVE.listFiles())) {
       final Map<String, Object> result = analyzer.analyze(f);
-      assertNotNull(f + " could not be analyzed", result);
-      assertNotEquals("false positive:  " + f + " is recognized as heic", "image/heic", result.get(MimeTypeAction.KEY));
+      assertNotNull(result, f + " could not be analyzed");
+      assertNotEquals("image/heic", result.get(MimeTypeAction.KEY), "false positive:  " + f + " is recognized as heic");
 
     }
   }
 
-  public static File[] nullSafe(File[] filesOrNull) {
+  private static File[] nullSafe(File[] filesOrNull) {
     if (filesOrNull == null) {
       return new File[0];
     }

@@ -34,10 +34,10 @@ import de.schlichtherle.truezip.zip.ZipFile;
 
 /**
  * A {@link Matcher} for Office Open XML (i.e. MS Office 2007) documents.
- * 
+ * <p>
  * Caveat: for performance reasons, the {@link OpenDocumentMatcher} should only be called from a
- * context where the stream has already be identified as a ZIP file/stream.
- * 
+ * context where the stream has already been identified as a ZIP file/stream.
+ * </p>
  * @see <a href=
  *      "http://www.ecma-international.org/news/TC45_current_work/Office%20Open%20XML%20Part%202%20-%20Open%20Packaging%20Conventions_final.docx"
  *      >Office Open XML Specification (Ecma TC45) / Part 2: Open Packaging Conventions</a>
@@ -57,6 +57,8 @@ public class OfficeOpenXMLMatcher extends Matcher {
 
   private static final String XPS_REL_TYPE_SCHEMA = "http://schemas.microsoft.com/xps/2005/06/fixedrepresentation";
 
+  private static final String VISIO_REL_TYPE_SCHEMA = "http://schemas.microsoft.com/visio/2010/relationships/document";
+
   private static final String CORE_PROPERTIES_SCHEMA = "http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties";
 
   private static final class Relationship implements Comparable<Relationship> {
@@ -67,7 +69,6 @@ public class OfficeOpenXMLMatcher extends Matcher {
     public Relationship(final String id, final String type, final String target) {
       this.id = id;
       this.type = type;
-      // TODO: target korrekt auflösen (relative vs absolute Pfade)
       this.target = target.startsWith("/") ? target.substring(1) : target;
     }
 
@@ -78,7 +79,7 @@ public class OfficeOpenXMLMatcher extends Matcher {
 
     @Override
     public boolean equals(final Object other) {
-      return other != null && other instanceof Relationship //
+      return other instanceof Relationship //
           && id.equals(((Relationship) other).id);
     }
 
@@ -93,10 +94,10 @@ public class OfficeOpenXMLMatcher extends Matcher {
     }
   }
 
-  static interface ContentType {
-    public boolean matches(String partName);
+  interface ContentType {
+    boolean matches(String partName);
 
-    public String getMimeType();
+    String getMimeType();
   }
 
   private static final class DefaultContentType implements ContentType {
@@ -130,7 +131,6 @@ public class OfficeOpenXMLMatcher extends Matcher {
 
     public OverrideContentType(final String mimeType, final String partName) {
       this.mimeType = mimeType;
-      // TODO: target korrekt auflösen (relative vs absolute Pfade)
       this.partName = partName.startsWith("/") ? partName.substring(1) : partName;
     }
 
@@ -176,7 +176,20 @@ public class OfficeOpenXMLMatcher extends Matcher {
     POWERPOINT_SLIDESHOW("application/vnd.openxmlformats-officedocument.presentationml.slideshow",
         "Microsoft PowerPoint 2007 Slideshow", "ppsx"),
     XPS_DOCUMENT("application/vnd.ms-xpsdocument", "XPS (XML Paper Specification) Document", "xps",
-        "application/vnd.ms-package.xps-fixeddocumentsequence+xml");
+        "application/vnd.ms-package.xps-fixeddocumentsequence+xml"),
+    VISIO_DRAWING("application/vnd.ms-visio.drawing", "Microsoft Visio 2013 Drawing", "vsdx",
+        "application/vnd.ms-visio.drawing.main+xml"),
+    VISIO_DRAWING_MACRO_ENABLED("application/vnd.ms-visio.drawing.macroEnabled.12",
+        "Microsoft Visio 2013 macro-enabled Drawing", "vsdm", "application/vnd.ms-visio.drawing.macroEnabled.main+xml"),
+    VISIO_STENCIL("application/vnd.ms-visio.stencil", "Microsoft Visio 2013 Stencil", "vssx",
+        "application/vnd.ms-visio.stencil.main+xml"),
+    VISIO_STENCIL_MACRO_ENABLED("application/vnd.ms-visio.stencil.macroEnabled.12",
+        "Microsoft Visio 2013 macro-enabled Stencil", "vssm", "application/vnd.ms-visio.stencil.macroEnabled.main+xml"),
+    VISIO_TEMPLATE("application/vnd.ms-visio.template", "Microsoft Visio 2013 Template", "vstx",
+        "application/vnd.ms-visio.template.main+xml"),
+    VISIO_TEMPLATE_MACRO_ENABLED("application/vnd.ms-visio.template.macroEnabled.12",
+        "Microsoft Visio 2013 macro-enabled Template", "vstm",
+        "application/vnd.ms-visio.template.macroEnabled.main+xml");
 
 
     final String mimeType;
@@ -190,14 +203,14 @@ public class OfficeOpenXMLMatcher extends Matcher {
     /**
      * Constr. w/ mimeType == xmlIdentifier
      */
-    private OfficeOpenType(final String mimeType, final String description, final String extension) {
+    OfficeOpenType(final String mimeType, final String description, final String extension) {
       this.mimeType = mimeType;
       this.description = description;
       this.extension = extension;
       this.xmlIdentifier = mimeType;
     }
 
-    private OfficeOpenType(final String mimeType, final String description, final String extension, final String xmlIdentifier) {
+    OfficeOpenType(final String mimeType, final String description, final String extension, final String xmlIdentifier) {
       this.mimeType = mimeType;
       this.description = description;
       this.extension = extension;
@@ -220,13 +233,9 @@ public class OfficeOpenXMLMatcher extends Matcher {
     try {
       sis.seek(0);
 
-      ZipFile archive = ZipArchiveInput.createZipFile(sis, context);
-      try {
+      try (ZipFile archive = ZipArchiveInput.createZipFile(sis, context)) {
         detect(context, archive);
-      } finally {
-        archive.close();
       }
-
       return context.getProperty(MimeTypeAction.KEY) != null;
     } catch (IOException e) {
       context.error(this, "Exception analyzing Office Open XML Container", e);
@@ -237,12 +246,12 @@ public class OfficeOpenXMLMatcher extends Matcher {
   private void detect(final Context ctx, final ZipFile archive) throws IOException {
     final SortedSet<Relationship> rels = getRelationships(archive);
     final List<ContentType> contentTypes = getContentTypes(archive);
-    if (rels == null || rels.isEmpty() || contentTypes == null || contentTypes.isEmpty()) {
+    if (rels.isEmpty() || contentTypes.isEmpty()) {
       return;
     }
 
     final OfficeOpenType mimeType = findDocumentType(rels, contentTypes);
-    LOGGER.debug("Detected OfficeOpenType: " + mimeType);
+    LOGGER.debug("Detected OfficeOpenType: {}", mimeType);
     if (mimeType == null) {
       return;
     }
@@ -251,10 +260,10 @@ public class OfficeOpenXMLMatcher extends Matcher {
     ctx.setProperty(DescriptionAction.KEY, mimeType.description);
     ctx.setProperty(ExtensionAction.KEY, mimeType.extension);
 
-    Map<String, Object> metaData = null;
+    Map<String, Object> metaData;
     try {
       metaData = findMetaData(rels, archive);
-      if (metaData != null && !metaData.isEmpty()) {
+      if (!metaData.isEmpty()) {
         ctx.setProperty("OLE_DETAILS", metaData);
       }
     } catch (Exception e) {
@@ -291,7 +300,8 @@ public class OfficeOpenXMLMatcher extends Matcher {
 
   private Relationship getMainDocument(final SortedSet<Relationship> rels) {
     for (Relationship r : rels) {
-      if (OFFICE_DOCUMENT_REL_TYPE_SCHEMA.equalsIgnoreCase(r.type) || XPS_REL_TYPE_SCHEMA.equalsIgnoreCase(r.type)) {
+      if (OFFICE_DOCUMENT_REL_TYPE_SCHEMA.equalsIgnoreCase(r.type) || XPS_REL_TYPE_SCHEMA.equalsIgnoreCase(r.type)
+          || VISIO_REL_TYPE_SCHEMA.equalsIgnoreCase(r.type)) {
         return r;
       }
     }
@@ -306,15 +316,15 @@ public class OfficeOpenXMLMatcher extends Matcher {
         if (is == null) {
           continue;
         }
-        LOGGER.debug("Parsing document meta data from " + r.target);
+        LOGGER.debug("Parsing document meta data from {}", r.target);
         return readXMLMetaData(is);
       }
     }
-    return null;
+    return Collections.emptyMap();
   }
 
   private Map<String, Object> readXMLMetaData(final InputStream inputStream) throws IOException {
-    Map<String, Object> result = new HashMap<String, Object>();
+    Map<String, Object> result = new HashMap<>();
     final Document doc;
     try {
       DocumentBuilder builder = DOMUtil.createSimpleDocumentBuilder();
@@ -343,8 +353,14 @@ public class OfficeOpenXMLMatcher extends Matcher {
     return result;
   }
 
+  /**
+   * Get the content types from an OfficeOpenXML archive
+   * @param archive an OfficeOpenXML archive
+   * @return a list of content types or an empty {@link List<ContentType>}
+   * @throws IOException if parsing of the content types fails
+   */
   private List<ContentType> getContentTypes(final ZipFile archive) throws IOException {
-    List<ContentType> result = new LinkedList<ContentType>();
+    List<ContentType> result = new LinkedList<>();
     final InputStream typesIS = getSafeInputStream(CONTENT_TYPES_FILENAME, archive);
     if (typesIS == null) {
       return result;
@@ -367,7 +383,7 @@ public class OfficeOpenXMLMatcher extends Matcher {
         Element e = (Element) nNode;
         final OverrideContentType ct = new OverrideContentType(e.getAttribute("ContentType"),
             e.getAttribute("PartName"));
-        LOGGER.debug("Detected override content type: " + ct);
+        LOGGER.debug("Detected override content type: {}", ct);
         result.add(ct);
       }
     }
@@ -380,7 +396,7 @@ public class OfficeOpenXMLMatcher extends Matcher {
         Element e = (Element) nNode;
         final DefaultContentType ct = new DefaultContentType(e.getAttribute("ContentType"),
             e.getAttribute("Extension"));
-        LOGGER.debug("Detected default content type: " + ct);
+        LOGGER.debug("Detected default content type: {}", ct);
         result.add(ct);
       }
     }
@@ -388,8 +404,14 @@ public class OfficeOpenXMLMatcher extends Matcher {
     return result;
   }
 
+  /**
+   * Get the relationships from an OfficeOpenXML archive
+   * @param archive an OfficeOpenXML archive
+   * @return a set of relationships or an empty {@link SortedSet<Relationship>}
+   * @throws IOException if parsing of the relationship part fails
+   */
   private SortedSet<Relationship> getRelationships(final ZipFile archive) throws IOException {
-    SortedSet<Relationship> result = new TreeSet<Relationship>();
+    SortedSet<Relationship> result = new TreeSet<>();
     final InputStream relationsIS = getSafeInputStream(RELATIONSSHIP_FILENAME, archive);
     if (relationsIS == null) {
       return result;
@@ -412,7 +434,7 @@ public class OfficeOpenXMLMatcher extends Matcher {
         Element e = (Element) nNode;
         final Relationship rel = new Relationship(e.getAttribute("Id"), e.getAttribute("Type"),
             e.getAttribute("Target"));
-        LOGGER.debug("Detected relationship: " + rel);
+        LOGGER.debug("Detected relationship: {}", rel);
         result.add(rel);
       }
     }
@@ -426,16 +448,14 @@ public class OfficeOpenXMLMatcher extends Matcher {
 
     final ZipEntry entry = archive.getEntry(fileName);
     if (entry != null && !entry.isDirectory()) {
-      LOGGER.debug("Get '" + fileName + "' from 1 piece");
+      LOGGER.debug("Get '{}' from 1 piece", fileName);
       return archive.getInputStream(entry);
     }
 
-    // <pre>
     // try directory browsing:
     // Assemble stream from "[0].piece"..."[$n].last.piece";
     // see Office Open XML, Part 2: Open Packaging Conventions, sec 9.1.3.1 Logical Item Names
-    // </pre>
-    List<InputStream> streams = new LinkedList<InputStream>();
+    List<InputStream> streams = new LinkedList<>();
     int i = 0;
     ZipEntry piece;
     while ((piece = archive.getEntry(fileName + "/[" + i + "].piece")) != null) {
@@ -459,7 +479,7 @@ public class OfficeOpenXMLMatcher extends Matcher {
     }
     streams.add(is);
 
-    LOGGER.debug("Get '" + fileName + "' from " + streams.size() + " pieces");
+    LOGGER.debug("Get '{}' from {} pieces", fileName, streams.size());
     return new SequenceInputStream(Collections.enumeration(streams));
   }
 }
