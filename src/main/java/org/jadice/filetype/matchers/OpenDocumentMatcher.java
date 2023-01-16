@@ -3,7 +3,8 @@ package org.jadice.filetype.matchers;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Enumeration;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -17,15 +18,15 @@ import org.jadice.filetype.database.ExtensionAction;
 import org.jadice.filetype.database.MimeTypeAction;
 import org.jadice.filetype.domutil.DOMUtil;
 import org.jadice.filetype.io.SeekableInputStream;
-import org.jadice.filetype.ziputil.ZipArchiveInput;
+import org.jadice.filetype.ziputil.ZipUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
-import de.schlichtherle.truezip.zip.ZipEntry;
-import de.schlichtherle.truezip.zip.ZipFile;
+import net.lingala.zip4j.ZipFile;
+import net.lingala.zip4j.model.FileHeader;
 
 /**
  * A matcher for OpenDocument-based formats and their fore-runners. In particular, the following
@@ -38,7 +39,7 @@ import de.schlichtherle.truezip.zip.ZipFile;
  * </ul>
  * <p>
  * The {@link OpenDocumentMatcher} not only sets the MIME type and description appropriately, but
- * also tries to provide the stream meta data.
+ * also tries to provide the stream metadata.
  * <p>
  * Caveat: for performance reasons, the {@link OpenDocumentMatcher} should only be called from a
  * context where the stream has already been identified as a ZIP file/stream.
@@ -142,10 +143,13 @@ public class OpenDocumentMatcher extends Matcher {
     try {
       sis.seek(0);
 
-      ZipFile archive = ZipArchiveInput.createZipFile(sis, context);
-
-      detect(context, archive);
-      archive.close();
+      ZipFile archive = ZipUtil.createZipFile(sis, context);
+      try {
+        detect(context, archive);
+      } finally {
+        archive.close();
+        Files.delete(archive.getFile().toPath());
+      }
 
       return context.getProperty(MimeTypeAction.KEY) != null;
     } catch (Exception e) {
@@ -160,30 +164,29 @@ public class OpenDocumentMatcher extends Matcher {
     boolean gotMetaData = false;
 
     try {
-      Map<String, Object> results = new HashMap<String, Object>();
-      Enumeration<? extends ZipEntry> en = archive.entries();
-      while (en.hasMoreElements()) {
-        ZipEntry entry = en.nextElement();
-
-        if ("mimetype".equals(entry.getName())) {
-          detectMimeType(ctx, results, archive.getInputStream(entry));
+      Map<String, Object> results = new HashMap<>();
+      
+      for(FileHeader fileHeader : archive.getFileHeaders()){
+        // consider the uuid directory name
+        String fileName = fileHeader.getFileName().replace(archive.getFile().getName() + "/", "");
+        if ("mimetype".equals(fileName)) {
+          detectMimeType(ctx, results, archive.getInputStream(fileHeader));
           gotMimeType = true;
-        } else if ("meta.xml".equals(entry.getName())) {
+        } else if ("meta.xml".equals(fileName)) {
           try {
-            readMetaXml(results, archive.getInputStream(entry));
+            readMetaXml(results, archive.getInputStream(fileHeader));
             gotMetaData = true;
           } catch (Exception e) {
             ctx.error(this, "Exception parsing meta.xml", e);
           }
-        } else if ("META-INF/manifest.xml".equals(entry.getName())) {
+        } else if ("META-INF/manifest.xml".equals(fileName)) {
           try {
-            readManifestXml(ctx, results, archive.getInputStream(entry));
+            readManifestXml(ctx, results, archive.getInputStream(fileHeader));
             gotMimeType = true;
           } catch (Exception e) {
             ctx.error(this, "Exception parsing manifest.xml", e);
           }
         }
-
         if (gotMetaData && gotMimeType) {
           break;
         }
@@ -213,7 +216,7 @@ public class OpenDocumentMatcher extends Matcher {
     int read = 0;
     byte[] buffer = new byte[1024];
     while ((read = is.read(buffer)) > 0) {
-      sb.append(new String(buffer, 0, read, "ASCII"));
+      sb.append(new String(buffer, 0, read, StandardCharsets.US_ASCII));
     }
 
     // parse mime type

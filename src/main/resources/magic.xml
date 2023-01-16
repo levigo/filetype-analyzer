@@ -97,19 +97,20 @@
 		<match-string offset="0">PK\003\004</match-string>
 
 		<type>
-			<!-- OpenDocument/OpenOffice/StarOffice/KOffice stuff -->
-			<match-custom>org.jadice.filetype.matchers.OpenDocumentMatcher</match-custom>
-		
-			<!--  Office Open XML files (i.e. MS Office 2007) -->
-			<match-custom>org.jadice.filetype.matchers.OfficeOpenXMLMatcher</match-custom>
-
-			<!--  Password protected ZIPs -->
+			<!-- office ZIPs -->
+			<type>
+				<!-- OpenDocument/OpenOffice/StarOffice/KOffice stuff -->
+				<match-custom>org.jadice.filetype.matchers.OpenDocumentMatcher</match-custom>
+				<!--  Office Open XML files (i.e. MS Office 2007) -->
+				<match-custom>org.jadice.filetype.matchers.OfficeOpenXMLMatcher</match-custom>
+			</type>
+			<!--  Password-protected ZIPs -->
 			<type>
 				<description>password protected ZIP archive data</description>
 				<description lang="de">passwortgeschützte ZIP Archivdatei</description>
 				<mime-type>application/zip;protection=encrypted</mime-type>
 				<extension>zip</extension>
-				
+
 				<match-custom>org.jadice.filetype.matchers.EncryptedZIPMatcher</match-custom>
 			</type>
 		</type>

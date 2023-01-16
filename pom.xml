@@ -49,8 +49,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-    <truezip.version>7.7.10</truezip.version>
-    <zip4j.version>2.11.1</zip4j.version>
+    <zip4j.version>2.11.2</zip4j.version>
     <slf4j.version>1.7.36</slf4j.version>
 
     <poi.version>5.2.2</poi.version>
@@ -302,28 +301,7 @@
       <artifactId>commons-io</artifactId>
       <version>${commons.io.version}</version>
     </dependency>
-    <dependency>
-      <groupId>de.schlichtherle.truezip</groupId>
-      <artifactId>truezip-file</artifactId>
-      <version>${truezip.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>de.schlichtherle.truezip</groupId>
-      <artifactId>truezip-kernel</artifactId>
-      <version>${truezip.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>de.schlichtherle.truezip</groupId>
-      <artifactId>truezip-driver-zip</artifactId>
-      <version>${truezip.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.apache.commons</groupId>
-          <artifactId>commons-compress</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <!-- for encrypted ZIPs -->
+
     <dependency>
       <groupId>net.lingala.zip4j</groupId>
       <artifactId>zip4j</artifactId>
