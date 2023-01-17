@@ -1,5 +1,6 @@
 package org.jadice.filetype.matchers;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.SequenceInputStream;
@@ -234,7 +235,7 @@ public class OfficeOpenXMLMatcher extends Matcher {
     try {
       sis.seek(0);
 
-      ZipFile archive = ZipUtil.createZipFile(sis, context);
+      ZipFile archive = ZipUtil.createZipFile(sis);
       try {
         detect(context, archive);
       } finally {
@@ -453,7 +454,7 @@ public class OfficeOpenXMLMatcher extends Matcher {
     }
 
     // consider the uuid directory name
-    fileName = archive.getFile().getName() + "/" + fileName;
+    fileName = archive.getFile().getName() + File.separator + fileName;
 
     final FileHeader entry = archive.getFileHeader(fileName);
     if (entry != null && !entry.isDirectory()) {

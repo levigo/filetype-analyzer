@@ -143,7 +143,7 @@ public class OpenDocumentMatcher extends Matcher {
     try {
       sis.seek(0);
 
-      ZipFile archive = ZipUtil.createZipFile(sis, context);
+      ZipFile archive = ZipUtil.createZipFile(sis);
       try {
         detect(context, archive);
       } finally {

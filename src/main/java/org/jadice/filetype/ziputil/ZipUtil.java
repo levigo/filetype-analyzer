@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.jadice.filetype.Context;
 import org.jadice.filetype.io.SeekableInputStream;
 
 import net.lingala.zip4j.ZipFile;
@@ -19,7 +18,11 @@ public class ZipUtil {
 
   private static final File TEMP_DIRECTORY = new File(System.getProperty("java.io.tmpdir"));
 
-  public static ZipFile createZipFile(SeekableInputStream sis, Context ctx) throws IOException {
+  private ZipUtil() {
+    // utility class
+  }
+
+  public static ZipFile createZipFile(SeekableInputStream sis) throws IOException {
 
     final UUID uuid = UUID.randomUUID();
     final File tmpDir = new File(TEMP_DIRECTORY + File.separator + uuid);
@@ -29,11 +32,12 @@ public class ZipUtil {
     int readLen;
     byte[] readBuffer = new byte[4096];
 
-    try (ZipInputStream zipInputStream = new ZipInputStream(sis)) {
+    try (ZipInputStream zipInputStream = new ZipInputStream(sis); ZipFile zipFile = new ZipFile(uuid.toString())) {
       List<File> files = new ArrayList<>();
       while ((localFileHeader = zipInputStream.getNextEntry()) != null) {
-        if (localFileHeader != null && !localFileHeader.isDirectory()) {
-          final File extractedFile = new File(tmpDir.getAbsolutePath() + File.separator + localFileHeader.getFileName());
+        if (!localFileHeader.isDirectory()) {
+          final File extractedFile = new File(
+              tmpDir.getAbsolutePath() + File.separator + localFileHeader.getFileName());
           File parentFolder = new File(extractedFile.getParent());
           parentFolder.mkdirs();
           try (OutputStream outputStream = new FileOutputStream(extractedFile)) {
@@ -45,7 +49,6 @@ public class ZipUtil {
         }
       }
       sis.seek(fp);
-      final ZipFile zipFile = new ZipFile(uuid.toString());
       zipFile.addFolder(tmpDir);
       return zipFile;
     }
