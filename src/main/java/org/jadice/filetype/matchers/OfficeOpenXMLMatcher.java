@@ -240,7 +240,11 @@ public class OfficeOpenXMLMatcher extends Matcher {
         detect(context, archive);
       } finally {
         archive.close();
-        Files.delete(archive.getFile().toPath());
+        try {
+          Files.delete(archive.getFile().toPath());
+        } catch (IOException ioe) {
+          LOGGER.debug("failed to delete temporary zip file", ioe);
+        }
       }
 
       return context.getProperty(MimeTypeAction.KEY) != null;

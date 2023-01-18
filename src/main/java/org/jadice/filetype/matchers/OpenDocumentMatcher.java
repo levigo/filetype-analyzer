@@ -19,6 +19,8 @@ import org.jadice.filetype.database.MimeTypeAction;
 import org.jadice.filetype.domutil.DOMUtil;
 import org.jadice.filetype.io.SeekableInputStream;
 import org.jadice.filetype.ziputil.ZipUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -46,6 +48,8 @@ import net.lingala.zip4j.model.FileHeader;
  *
  */
 public class OpenDocumentMatcher extends Matcher {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(OpenDocumentMatcher.class);
 
   static final class DontCloseFilter extends FilterInputStream {
     DontCloseFilter(InputStream in) {
@@ -148,7 +152,11 @@ public class OpenDocumentMatcher extends Matcher {
         detect(context, archive);
       } finally {
         archive.close();
-        Files.delete(archive.getFile().toPath());
+        try {
+          Files.delete(archive.getFile().toPath());
+        } catch (IOException ioe) {
+          LOGGER.debug("failed to delete temporary zip file", ioe);
+        }
       }
 
       return context.getProperty(MimeTypeAction.KEY) != null;
