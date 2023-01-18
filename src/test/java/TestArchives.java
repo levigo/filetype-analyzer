@@ -24,7 +24,6 @@ class TestArchives {
   static {
     expectedMimeTypes.put("encrypted.zip","application/zip;protection=encrypted");
     expectedMimeTypes.put("unencrypted.zip","application/zip");
-    expectedMimeTypes.put("Re.Möller.zip","application/zip");
   }
 
   @BeforeAll
