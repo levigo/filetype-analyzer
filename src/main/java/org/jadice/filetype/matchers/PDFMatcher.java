@@ -35,6 +35,7 @@ import org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotationFileAttachme
 import org.jadice.filetype.Context;
 import org.jadice.filetype.database.MimeTypeAction;
 import org.jadice.filetype.io.SeekableInputStream;
+import org.jadice.filetype.pdfutil.SignatureUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -120,6 +121,7 @@ public class PDFMatcher extends Matcher {
 
         if (!filenames.isEmpty())
           pdfDetails.put(EMBEDDED_FILE_NAMES_KEY, filenames);
+        SignatureUtil.addSignatureInfo(pdfDetails, document, sis.length());
       }
 
       return true;

@@ -1,8 +1,7 @@
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasEntry;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -10,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Map;
@@ -18,8 +18,11 @@ import org.jadice.filetype.Analyzer;
 import org.jadice.filetype.AnalyzerException;
 import org.jadice.filetype.database.MimeTypeAction;
 import org.jadice.filetype.matchers.PDFMatcher;
+import org.jadice.filetype.pdfutil.SignatureUtil;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvFileSource;
 
 
 class TestPDFMatcher {
@@ -122,6 +125,34 @@ class TestPDFMatcher {
     assertNotNull(result, f + " could not be analyzed");
     assertValidDetails(result);
     assertNumberOfPages(result, 1);
+  }
+
+  @ParameterizedTest
+  @CsvFileSource(resources = "/pdf/signed.csv", numLinesToSkip = 1)
+  void testSignedPDFs(final String urlString, final int expectedSignatureCount) throws IOException {
+    final Map<String, Object> result = ANALYZER.analyze(new URL(urlString).openStream());
+    assertNotNull(result);
+    assertThat(result, hasKey(PDFMatcher.DETAILS_KEY));
+    final Map<String, Object> details = (Map<String, Object>) result.get(PDFMatcher.DETAILS_KEY);
+    assertThat(details, hasKey(SignatureUtil.IS_SIGNED_KEY));
+    assertEquals(expectedSignatureCount != 0, details.get(SignatureUtil.IS_SIGNED_KEY));
+    if (expectedSignatureCount != 0) {
+      assertThat(details, hasKey(SignatureUtil.SIGNATURE_DETAILS_KEY));
+      final Object signatureDetails = details.get(SignatureUtil.SIGNATURE_DETAILS_KEY);
+      assertThat(signatureDetails, instanceOf(List.class));
+      final List<Map<String,Object>> signatureList = (List<Map<String,Object>>) signatureDetails;
+      assertThat(signatureList.size(), equalTo(expectedSignatureCount));
+      for (Map<String, Object> signature : signatureList) {
+        assertThat(signature, hasKey("document-coverage"));
+        assertThat(signature, hasKey("page"));
+        assertThat(signature, hasKey("number"));
+        assertThat(signature.get("page"), notNullValue());
+        if (expectedSignatureCount == 1) {
+          assertThat(signature.get("document-coverage"), equalTo("WHOLE_DOCUMENT"));
+          assertThat(signature.get("number"), equalTo(1));
+        }
+      }
+    }
   }
 
   private static File[] nullSafe(final File[] filesOrNull) {
