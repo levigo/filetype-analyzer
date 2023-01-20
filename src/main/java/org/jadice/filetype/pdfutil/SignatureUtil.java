@@ -24,6 +24,10 @@ public class SignatureUtil {
 
   public static final String SIGNATURE_DETAILS_KEY = "SIGNATURE_DETAILS";
 
+  private SignatureUtil() {
+    // static utility class
+  }
+
   public static void addSignatureInfo(final Map<String, Object> pdfDetails, final PDDocument document, final long fileLen) {
     int counter = 0;
     try {
@@ -79,7 +83,8 @@ public class SignatureUtil {
             return i + 1;
         }
       }
-    } catch (Exception ignored) {
+    } catch (Exception e) {
+      LOGGER.error("Failed to determine page of signature at first try.", e);
     }
     // second try to find out page
     final PDPage page = widget.getPage();
