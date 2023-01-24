@@ -57,7 +57,7 @@ public class Context {
    * Get a result property.
    *
    * @param key
-   * @return the property value
+   * @return the property value or null
    */
   public Object getProperty(final String key) {
     return result.get(key);

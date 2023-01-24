@@ -13,8 +13,6 @@ import org.jadice.filetype.database.ExtensionAction;
 import org.jadice.filetype.database.MimeTypeAction;
 import org.jadice.filetype.io.MemoryInputStream;
 import org.jadice.filetype.matchers.OfficeOpenXMLMatcher;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -23,20 +21,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 class TestOfficeOpenXMLMatcher {
 
   private static final OfficeOpenXMLMatcher MATCHER = new OfficeOpenXMLMatcher();
-
-  private static int blockSizeMemento;
-
-  @BeforeAll
-  public static void storeMemoryStreamBlocksize() {
-    // [JS-1491] Enforce a MemoryInputStream with blocks that are smaller than TrueZIP will read
-    blockSizeMemento = MemoryInputStream.getDefaultBlockSize();
-    MemoryInputStream.setDefaultBlockSize(1024);
-  }
-
-  @AfterAll
-  public static void restoreMemoryStreamBlocksize() {
-    MemoryInputStream.setDefaultBlockSize(blockSizeMemento);
-  }
 
   @Test
   void testPPTXMatching() throws Exception {

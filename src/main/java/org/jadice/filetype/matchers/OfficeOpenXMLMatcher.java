@@ -1,8 +1,10 @@
 package org.jadice.filetype.matchers;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.SequenceInputStream;
+import java.nio.file.Files;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -20,7 +22,7 @@ import org.jadice.filetype.database.ExtensionAction;
 import org.jadice.filetype.database.MimeTypeAction;
 import org.jadice.filetype.domutil.DOMUtil;
 import org.jadice.filetype.io.SeekableInputStream;
-import org.jadice.filetype.ziputil.ZipArchiveInput;
+import org.jadice.filetype.ziputil.ZipUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -29,8 +31,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import de.schlichtherle.truezip.zip.ZipEntry;
-import de.schlichtherle.truezip.zip.ZipFile;
+import net.lingala.zip4j.ZipFile;
+import net.lingala.zip4j.model.FileHeader;
 
 /**
  * A {@link Matcher} for Office Open XML (i.e. MS Office 2007) documents.
@@ -41,7 +43,7 @@ import de.schlichtherle.truezip.zip.ZipFile;
  * @see <a href=
  *      "http://www.ecma-international.org/news/TC45_current_work/Office%20Open%20XML%20Part%202%20-%20Open%20Packaging%20Conventions_final.docx"
  *      >Office Open XML Specification (Ecma TC45) / Part 2: Open Packaging Conventions</a>
- * 
+ *
  */
 public class OfficeOpenXMLMatcher extends Matcher {
 
@@ -152,7 +154,7 @@ public class OfficeOpenXMLMatcher extends Matcher {
 
   /**
    * Types that this Matcher can handle.
-   * 
+   *
    */
   public enum OfficeOpenType {
     WORD_DOCUMENT("application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -224,7 +226,7 @@ public class OfficeOpenXMLMatcher extends Matcher {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see org.jadice.filetype.database.Matcher#matches(org.jadice.filetype.Context)
    */
   @Override
@@ -233,9 +235,18 @@ public class OfficeOpenXMLMatcher extends Matcher {
     try {
       sis.seek(0);
 
-      try (ZipFile archive = ZipArchiveInput.createZipFile(sis, context)) {
+      ZipFile archive = ZipUtil.createZipFile(sis);
+      try {
         detect(context, archive);
+      } finally {
+        archive.close();
+        try {
+          Files.delete(archive.getFile().toPath());
+        } catch (IOException ioe) {
+          LOGGER.debug("failed to delete temporary zip file", ioe);
+        }
       }
+
       return context.getProperty(MimeTypeAction.KEY) != null;
     } catch (IOException e) {
       context.error(this, "Exception analyzing Office Open XML Container", e);
@@ -446,7 +457,10 @@ public class OfficeOpenXMLMatcher extends Matcher {
       fileName = fileName.substring(1);
     }
 
-    final ZipEntry entry = archive.getEntry(fileName);
+    // consider the uuid directory name
+    fileName = archive.getFile().getName() + File.separator + fileName;
+
+    final FileHeader entry = archive.getFileHeader(fileName);
     if (entry != null && !entry.isDirectory()) {
       LOGGER.debug("Get '{}' from 1 piece", fileName);
       return archive.getInputStream(entry);
@@ -457,8 +471,8 @@ public class OfficeOpenXMLMatcher extends Matcher {
     // see Office Open XML, Part 2: Open Packaging Conventions, sec 9.1.3.1 Logical Item Names
     List<InputStream> streams = new LinkedList<>();
     int i = 0;
-    ZipEntry piece;
-    while ((piece = archive.getEntry(fileName + "/[" + i + "].piece")) != null) {
+    FileHeader piece;
+    while ((piece = archive.getFileHeader(fileName + "/[" + i + "].piece")) != null) {
       final InputStream is = archive.getInputStream(piece);
       if (is == null) {
         break;
@@ -468,7 +482,7 @@ public class OfficeOpenXMLMatcher extends Matcher {
       i++;
     }
 
-    final ZipEntry last = archive.getEntry(fileName + "/[" + i + "].last.piece");
+    final FileHeader last = archive.getFileHeader(fileName + "/[" + i + "].last.piece");
     if (last == null) {
       return null;
     }
