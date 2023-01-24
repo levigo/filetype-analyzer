@@ -9,10 +9,8 @@ import org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotationWidget;
 import org.apache.pdfbox.pdmodel.interactive.digitalsignature.PDSignature;
 import org.apache.pdfbox.pdmodel.interactive.form.PDSignatureField;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Signature utility class that uses PDFBox to analyse PDFs.
@@ -36,6 +34,8 @@ public class PDFBoxSignatureUtil extends SignatureUtil {
       for (final PDSignatureField signatureField : document.getSignatureFields()) {
         final PDSignature sig = signatureField.getSignature();
 
+        final List<Integer> byteRange = Arrays.stream(sig.getByteRange()).boxed().collect(Collectors.toList());
+
         Map<String,Object> signatureDetails = new HashMap<>();
         signatureDetails.put(SIGNATURE_NUMBER_KEY, ++counter);
         signatureDetails.put(SIGNATURE_NAME_KEY, sig.getName());
@@ -43,7 +43,7 @@ public class PDFBoxSignatureUtil extends SignatureUtil {
         signatureDetails.put(SIGNATURE_CONTACT_INFO_KEY, sig.getContactInfo());
         signatureDetails.put(SIGNATURE_LOCATION_KEY, sig.getLocation());
         signatureDetails.put(SIGNATURE_REASON_KEY, sig.getReason());
-        signatureDetails.put(SIGNATURE_DOCUMENT_COVERAGE_KEY, determineCoverageOfSignature(sig.getByteRange(), sig.getContents().length, fileLen));
+        signatureDetails.put(SIGNATURE_DOCUMENT_COVERAGE_KEY, determineCoverageOfSignature(byteRange, sig.getContents().length, fileLen));
         signatureDetails.put(SIGNATURE_PAGE_KEY, determinePageOfSignature(signatureField, document));
         signatureDetails.put(SIGNATURE_SUB_FILTER_KEY, sig.getSubFilter());
         signatures.add(signatureDetails);

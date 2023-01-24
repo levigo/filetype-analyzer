@@ -4,6 +4,8 @@ import org.apache.pdfbox.pdmodel.interactive.digitalsignature.PDSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+
 /**
  * Abstract base class for signature util classes that declares the map keys
  * for subclasses and implements default generic functions.
@@ -37,19 +39,19 @@ public abstract class SignatureUtil {
    * <p>
    * <a href="https://stackoverflow.com/a/48185913/535646">Here</a> is explained why "PARTS" as result doesn't necessarily mean that the PDF is a fake.
    *
-   * @param byteRange byterange integer array, e.g. retrieved by {@link PDSignature#getByteRange()}
+   * @param byteRange byterange integer List, e.g. retrieved by {@link PDSignature#getByteRange()} and casted to List
    * @param signatureLength length of the signature's content, e.g. retrieved by the length attribute of {@link PDSignature#getContents()}
    * @param fileLen length of PDF file
    * @return signature coverage
    */
-  public static String determineCoverageOfSignature(int[] byteRange, final int signatureLength, final long fileLen) {
-    if (byteRange.length != 4) {
+  public static String determineCoverageOfSignature(List<Integer> byteRange, final int signatureLength, final long fileLen) {
+    if (byteRange.size() != 4) {
       return "NOT_DETERMINED";
     }
-    long rangeMax = byteRange[2] + (long) byteRange[3];
+    long rangeMax = byteRange.get(2) + (long) byteRange.get(3);
     // multiply content length with 2 (because it is in hex in the PDF) and add 2 for < and >
     int contentLen = signatureLength * 2 + 2;
-    if (fileLen != rangeMax || byteRange[0] != 0 || byteRange[1] + contentLen != byteRange[2]) {
+    if (fileLen != rangeMax || byteRange.get(0) != 0 || byteRange.get(1) + contentLen != byteRange.get(2)) {
       return "PARTS";
     } else {
       return "WHOLE_DOCUMENT";
