@@ -75,6 +75,7 @@ public class PDFMatcher extends Matcher {
   public boolean matches(final Context context) {
     SeekableInputStream sis = context.getStream();
     try {
+      long fileLength = getFileLength(sis);
       sis.seek(0);
       try (PDDocument document = PDDocument.load(sis)) {
         context.setProperty(MimeTypeAction.KEY, PDF_MIME_TYPE);
@@ -121,7 +122,7 @@ public class PDFMatcher extends Matcher {
 
         if (!filenames.isEmpty())
           pdfDetails.put(EMBEDDED_FILE_NAMES_KEY, filenames);
-        PDFBoxSignatureUtil.addSignatureInfo(pdfDetails, document, sis.length());
+        PDFBoxSignatureUtil.addSignatureInfo(pdfDetails, document, fileLength);
       }
 
       return true;
@@ -230,5 +231,29 @@ public class PDFMatcher extends Matcher {
       }
     }
     return embeddedFile;
+  }
+
+  /**
+   * Reads the whole stream to determine the length of it.
+   * @param sis stream
+   * @return length of given stream or -1 if any error occurred
+   */
+  private static long getFileLength(final SeekableInputStream sis) {
+    try {
+      sis.seek(0);
+      int read = 0;
+      final byte[] buffer = new byte[4096];
+      do {
+        synchronized (sis) { // perform synchronization inside while loop! See DOCPV-932
+          read = sis.read(buffer);
+        }
+      } while (read != -1);
+
+      // whole sis is read now
+      return sis.length();
+    } catch (Exception e) {
+      LOGGER.warn("Failed to determine file length.", e);
+      return -1;
+    }
   }
 }
