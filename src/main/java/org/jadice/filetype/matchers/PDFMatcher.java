@@ -36,7 +36,6 @@ import org.jadice.filetype.Context;
 import org.jadice.filetype.database.MimeTypeAction;
 import org.jadice.filetype.io.SeekableInputStream;
 import org.jadice.filetype.pdfutil.PDFBoxSignatureUtil;
-import org.jadice.filetype.pdfutil.SignatureUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
