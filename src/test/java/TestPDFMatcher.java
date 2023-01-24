@@ -143,13 +143,13 @@ class TestPDFMatcher {
       final List<Map<String,Object>> signatureList = (List<Map<String,Object>>) signatureDetails;
       assertThat(signatureList.size(), equalTo(expectedSignatureCount));
       for (Map<String, Object> signature : signatureList) {
-        assertThat(signature, hasKey("document-coverage"));
-        assertThat(signature, hasKey("page"));
-        assertThat(signature, hasKey("number"));
-        assertThat(signature.get("page"), notNullValue());
+        assertThat(signature, hasKey(SignatureUtil.SIGNATURE_DOCUMENT_COVERAGE_KEY));
+        assertThat(signature, hasKey(SignatureUtil.SIGNATURE_PAGE_KEY));
+        assertThat(signature, hasKey(SignatureUtil.SIGNATURE_NUMBER_KEY));
+        assertThat(signature.get(SignatureUtil.SIGNATURE_PAGE_KEY), notNullValue());
         if (expectedSignatureCount == 1) {
-          assertThat(signature.get("document-coverage"), equalTo("WHOLE_DOCUMENT"));
-          assertThat(signature.get("number"), equalTo(1));
+          assertThat(signature.get(SignatureUtil.SIGNATURE_DOCUMENT_COVERAGE_KEY), equalTo("WHOLE_DOCUMENT"));
+          assertThat(signature.get(SignatureUtil.SIGNATURE_NUMBER_KEY), equalTo(1));
         }
       }
     }
