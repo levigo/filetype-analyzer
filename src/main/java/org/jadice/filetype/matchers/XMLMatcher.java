@@ -75,8 +75,7 @@ public class XMLMatcher extends Matcher {
    * "http://sax.sourceforge.net/apidoc/org/xml/sax/package-summary.html#package_description">SAX
    * javadoc</a>
    */
-  public static final Map<String, Boolean> SAX_FACTORY_FEATURES;
-
+  static final Map<String, Boolean> SAX_FACTORY_FEATURES;
   static {
     SAX_FACTORY_FEATURES = new HashMap<>();
     SAX_FACTORY_FEATURES.put(XMLConstants.FEATURE_SECURE_PROCESSING, true);
@@ -94,7 +93,7 @@ public class XMLMatcher extends Matcher {
    *
    * https://cheatsheetseries.owasp.org/cheatsheets/XML_External_Entity_Prevention_Cheat_Sheet.html#xmlinputfactory-a-stax-parser
    */
-  protected static final String[] JAPX_EXTERNALS_TO_DISABLE = new String[]{
+  static final String[] JAPX_EXTERNALS_TO_DISABLE = new String[]{
           XMLConstants.ACCESS_EXTERNAL_DTD, // "http://javax.xml.XMLConstants/property/accessExternalDTD"
           XMLConstants.ACCESS_EXTERNAL_SCHEMA, // "http://javax.xml.XMLConstants/property/accessExternalSchema"
           XMLConstants.ACCESS_EXTERNAL_STYLESHEET // "http://javax.xml.XMLConstants/property/accessExternalStylesheet"
@@ -253,7 +252,24 @@ public class XMLMatcher extends Matcher {
    * @throws ParserConfigurationException
    * @throws SAXException
    */
-  public static SAXParser createSAXParser() throws ParserConfigurationException, SAXException {
+  static SAXParser createSAXParser() throws ParserConfigurationException, SAXException {
+    SAXParserFactory spf = getSaxParserFactory();
+
+    final SAXParser parser = spf.newSAXParser();
+    for (String feature : JAPX_EXTERNALS_TO_DISABLE) {
+      disableExternalSafely(parser, feature);
+    }
+    trySetXercesSecurityManager(parser);
+    return parser;
+  }
+
+  /**
+   * Creates a pre-configures SAXParserFactory
+   *
+   * @return {@link SAXParserFactory}
+   */
+  @SuppressWarnings("java:S2755") // compliant settings are applied, but in another method
+  static SAXParserFactory getSaxParserFactory() {
     SAXParserFactory spf = saxFactoryReference.get();
     if (spf == null) {
       spf = SAXParserFactory.newInstance();
@@ -264,13 +280,7 @@ public class XMLMatcher extends Matcher {
       }
       saxFactoryReference = new SoftReference<>(spf);
     }
-
-    final SAXParser parser = spf.newSAXParser();
-    for (String feature : JAPX_EXTERNALS_TO_DISABLE) {
-      disableExternalSafely(parser, feature);
-    }
-    trySetXercesSecurityManager(parser);
-    return parser;
+    return spf;
   }
 
   /**
