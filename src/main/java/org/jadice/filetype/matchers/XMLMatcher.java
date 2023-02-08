@@ -3,11 +3,14 @@ package org.jadice.filetype.matchers;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.ref.SoftReference;
+import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -19,16 +22,12 @@ import org.jadice.filetype.database.DescriptionAction;
 import org.jadice.filetype.database.ExtensionAction;
 import org.jadice.filetype.database.MimeTypeAction;
 import org.jadice.filetype.io.SeekableInputStream;
+import org.jadice.filetype.matchers.xml.SAXAnalysisHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.Attributes;
-import org.xml.sax.InputSource;
-import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
-import org.xml.sax.ext.Locator2;
-import org.xml.sax.helpers.DefaultHandler;
 
 /**
  * A matcher that matches well-formated XML documents. It also detects some content information of
@@ -61,6 +60,13 @@ public class XMLMatcher extends Matcher {
 
   public static final String DOCUMENT_XML_VERSION_KEY = "document_xml_version";
 
+  public static final int DEFAULT_MAX_ENTITY_EXPANSIONS = 20;
+  private static final String JAXP_ENTITY_EXPANSION_LIMIT_KEY = "jdk.xml.entityExpansionLimit";
+  private static volatile int MAX_ENTITY_EXPANSIONS = determineMaxEntityExpansions();
+  private static final String XERCES_SECURITY_MANAGER = "org.apache.xerces.util.SecurityManager";
+  private static final String XERCES_SECURITY_MANAGER_PROPERTY = "http://apache.org/xml/properties/security-manager";
+  private static long LAST_LOG = -1;
+
   /**
    * Feature which shall not be performed while analysis, especially loading of external resources!
    * 
@@ -69,107 +75,33 @@ public class XMLMatcher extends Matcher {
    * "http://sax.sourceforge.net/apidoc/org/xml/sax/package-summary.html#package_description">SAX
    * javadoc</a>
    */
-  private static final String[] SAX_FACTORY_FEATURES_TO_DISABLE = new String[]{
-      "http://xml.org/sax/features/external-general-entities", //
-      "http://xml.org/sax/features/external-parameter-entities", //
-      "http://xml.org/sax/features/resolve-dtd-uris", //
-      "http://xml.org/sax/features/validation", //
-      "http://apache.org/xml/features/nonvalidating/load-dtd-grammar", //
-      "http://apache.org/xml/features/nonvalidating/load-external-dtd",
-      "http://apache.org/xml/features/validation/schema", //
-  };
+  static final Map<String, Boolean> SAX_FACTORY_FEATURES;
+  static {
+    SAX_FACTORY_FEATURES = new HashMap<>();
+    SAX_FACTORY_FEATURES.put(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+    SAX_FACTORY_FEATURES.put("http://xml.org/sax/features/external-general-entities", false);
+    SAX_FACTORY_FEATURES.put("http://xml.org/sax/features/external-parameter-entities", false);
+    SAX_FACTORY_FEATURES.put("http://xml.org/sax/features/resolve-dtd-uris", false);
+    SAX_FACTORY_FEATURES.put("http://xml.org/sax/features/validation", false);
+    SAX_FACTORY_FEATURES.put("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
+    SAX_FACTORY_FEATURES.put("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+    SAX_FACTORY_FEATURES.put("http://apache.org/xml/features/validation/schema", false);
+  }
 
   /**
    * Disable any external resource resolution.
-   * 
-   * These values are available as constants since jdk 1.7_u40, but we require u7 only. So we need
-   * to inject the constant values
+   *
+   * https://cheatsheetseries.owasp.org/cheatsheets/XML_External_Entity_Prevention_Cheat_Sheet.html#xmlinputfactory-a-stax-parser
    */
-  private static final String[] JAPX_EXTERNALS_TO_DISABLE = new String[]{
-      "http://javax.xml.XMLConstants/property/accessExternalDTD", // =
-                                                                  // XMLConstants.ACCESS_EXTERNAL_DTD
-      "http://javax.xml.XMLConstants/property/accessExternalSchema", // =
-                                                                     // XMLConstants.ACCESS_EXTERNAL_SCHEMA
-      "http://javax.xml.XMLConstants/property/accessExternalStylesheet" // =
-                                                                        // XMLConstants.ACCESS_EXTERNAL_STYLESHEET
+  static final String[] JAPX_EXTERNALS_TO_DISABLE = new String[]{
+          XMLConstants.ACCESS_EXTERNAL_DTD, // "http://javax.xml.XMLConstants/property/accessExternalDTD"
+          XMLConstants.ACCESS_EXTERNAL_SCHEMA, // "http://javax.xml.XMLConstants/property/accessExternalSchema"
+          XMLConstants.ACCESS_EXTERNAL_STYLESHEET // "http://javax.xml.XMLConstants/property/accessExternalStylesheet"
   };
+
   public static final int LOOK_AHEAD = 500;
 
   private static SoftReference<SAXParserFactory> saxFactoryReference = new SoftReference<>(null);
-
-  private final class SAXAnalysisHandler extends DefaultHandler {
-
-    private final Context context;
-
-    boolean hitRoot = false;
-
-    private String rootElementName;
-
-    private String namespaceURI;
-
-    private Locator2 locator;
-
-    private String xmlVersion;
-
-    private String encoding;
-
-    private SAXAnalysisHandler(final Context context) {
-      this.context = context;
-    }
-
-    @Override
-    public void setDocumentLocator(final Locator locator) {
-      if (locator instanceof Locator2) {
-        this.locator = (Locator2) locator;
-      }
-    }
-
-    @Override
-    public InputSource resolveEntity(final String publicId, final String systemId) throws IOException, SAXException {
-      // Don't resolve any entities
-      return null;
-    }
-
-    @Override
-    public void startDocument() throws SAXException {
-      if (locator != null) {
-        this.xmlVersion = locator.getXMLVersion();
-        this.encoding = locator.getEncoding();
-      }
-    }
-
-    @Override
-    public void startElement(final String uri, final String localName, final String qName,
-        final Attributes attributes) {
-      if (!hitRoot) {
-        hitRoot = true;
-
-        if (uri != null && !uri.isEmpty()) {
-          namespaceURI = uri;
-          context.info(XMLMatcher.this, "Found namespace URI: '" + uri + "'");
-        }
-
-        rootElementName = localName;
-        context.info(XMLMatcher.this, "Found root element: '" + localName + "'");
-      }
-    }
-
-    public String getRootElementName() {
-      return rootElementName;
-    }
-
-    public String getNamespaceURI() {
-      return namespaceURI;
-    }
-
-    public String getXmlVersion() {
-      return xmlVersion;
-    }
-
-    public String getEncoding() {
-      return encoding;
-    }
-  }
 
   @Override
   public boolean matches(final Context context) throws IOException {
@@ -182,7 +114,7 @@ public class XMLMatcher extends Matcher {
       }
 
       final SAXParser saxParser = createSAXParser();
-      final SAXAnalysisHandler handler = new SAXAnalysisHandler(context);
+      final SAXAnalysisHandler handler = new SAXAnalysisHandler(this, context);
       saxParser.parse(sis, handler);
 
       String mimeType = MIME_TYPE_XML;
@@ -241,7 +173,7 @@ public class XMLMatcher extends Matcher {
 
   /**
    * Create a {@link java.io.Reader} instance that will obey potential {@link ByteOrderMark BOMs}.
-   * As XML is suspected to be human readable text, we're leveraging the {@link java.io.Reader}
+   * As XML is suspected to be human-readable text, we're leveraging the {@link java.io.Reader}
    * framework to analyze the contents. This method will take care of creating the appropriate
    * {@link java.io.Reader} with a matching {@link Charset} configuration.
    *
@@ -320,40 +252,55 @@ public class XMLMatcher extends Matcher {
    * @throws ParserConfigurationException
    * @throws SAXException
    */
-  private SAXParser createSAXParser() throws ParserConfigurationException, SAXException {
-    SAXParserFactory spf = saxFactoryReference.get();
-    if (spf == null) {
-      spf = SAXParserFactory.newInstance();
-      spf.setNamespaceAware(true);
-      spf.setValidating(false);
-      for (String feature : SAX_FACTORY_FEATURES_TO_DISABLE) {
-        disableFeatureSafely(spf, feature);
-      }
-      saxFactoryReference = new SoftReference<SAXParserFactory>(spf);
-    }
+  static SAXParser createSAXParser() throws ParserConfigurationException, SAXException {
+    SAXParserFactory spf = getSaxParserFactory();
 
     final SAXParser parser = spf.newSAXParser();
     for (String feature : JAPX_EXTERNALS_TO_DISABLE) {
       disableExternalSafely(parser, feature);
     }
+    trySetXercesSecurityManager(parser);
     return parser;
   }
 
   /**
-   * Disables a feature safely; that means it logs a possible exception instead of throwing if.
-   * 
-   * This is necessary because the array #{@link #SAX_FACTORY_FEATURES_TO_DISABLE} contains some
-   * feature names for Xerces which is part of the Oracle JVM, but not meant do be for JVMs of other
-   * manufactures.
-   * 
-   * @param spf the {@link SAXParserFactory} to configure
-   * @param feature the feature to disable
+   * Creates a pre-configures SAXParserFactory
+   *
+   * @return {@link SAXParserFactory}
    */
-  private static void disableFeatureSafely(final SAXParserFactory spf, final String feature) {
+  @SuppressWarnings("java:S2755") // compliant settings are applied, but in another method
+  static SAXParserFactory getSaxParserFactory() {
+    SAXParserFactory spf = saxFactoryReference.get();
+    if (spf == null) {
+      spf = SAXParserFactory.newInstance();
+      spf.setNamespaceAware(true);
+      spf.setValidating(false);
+      for (Map.Entry<String,Boolean> entry : SAX_FACTORY_FEATURES.entrySet()) {
+        setFeatureSafely(spf, entry.getKey(), entry.getValue());
+      }
+      saxFactoryReference = new SoftReference<>(spf);
+    }
+    return spf;
+  }
+
+  /**
+   * Set a feature safely; that means it logs a possible exception instead of throwing it.
+   * <p>
+   * This is necessary because the array #{@link #SAX_FACTORY_FEATURES} contains some
+   * feature names for Xerces which is part of the Oracle JVM, but not meant for JVMs of other
+   * manufactures.
+   *
+   * @param spf     the {@link SAXParserFactory} to configure
+   * @param feature the feature to disable
+   * @param enabled weather to enable the feature
+   */
+  private static void setFeatureSafely(final SAXParserFactory spf, final String feature, Boolean enabled) {
     try {
-      spf.setFeature(feature, false);
-    } catch (SAXNotRecognizedException | SAXNotSupportedException | ParserConfigurationException e) {
-      LOGGER.warn("Disabling feature '" + feature + "' is not supported. Consider to upgrade to a new JVM version", e);
+      spf.setFeature(feature, enabled);
+    } catch (SAXNotRecognizedException e){
+      LOGGER.debug("The feature '" + feature + "' is not recognized by the SAXParserFactory. Check if the feature name is correct.", e);
+    }catch (SAXNotSupportedException | ParserConfigurationException e) {
+      LOGGER.debug("Setting feature '" + feature + "' is not supported.", e);
     }
   }
 
@@ -362,8 +309,68 @@ public class XMLMatcher extends Matcher {
       // Empty value means no external location, see
       // https://docs.oracle.com/javase/tutorial/jaxp/properties/properties.html
       parser.setProperty(external, "");
-    } catch (SAXNotRecognizedException | SAXNotSupportedException e) {
-      LOGGER.warn("Disabling feature '" + external + "' is not supported. Consider to upgrade to a new JVM version", e);
+    }catch (SAXNotRecognizedException e){
+      LOGGER.debug("The property '" + external + "' is not recognized by the SAXParser. Check if the property name is correct.", e);
+    } catch (SAXNotSupportedException e) {
+      LOGGER.debug("Disabling feature '" + external + "' is not supported. Consider to upgrade to a new JVM version", e);
     }
+  }
+
+  private static void trySetXercesSecurityManager(SAXParser parser) {
+    //from POI
+    // Try built-in JVM one first, standalone if not
+    for (String securityManagerClassName : new String[]{
+            //"com.sun.org.apache.xerces.internal.util.SecurityManager",
+            XERCES_SECURITY_MANAGER}) {
+      try {
+        Object mgr = Class.forName(securityManagerClassName).newInstance();
+        Method setLimit = mgr.getClass().getMethod("setEntityExpansionLimit", Integer.TYPE);
+        setLimit.invoke(mgr, MAX_ENTITY_EXPANSIONS);
+
+        parser.setProperty(XERCES_SECURITY_MANAGER_PROPERTY, mgr);
+        // Stop once one can be setup without error
+        return;
+      } catch (ClassNotFoundException e) {
+        // continue without log, this is expected in some setups
+      } catch (Throwable e) {
+        // NOSONAR - also catch things like NoClassDefError here
+        // throttle the log somewhat as it can spam the log otherwise
+        if (System.currentTimeMillis() > LAST_LOG + TimeUnit.MINUTES.toMillis(5)) {
+          LOGGER.warn(
+                  "SAX Security Manager could not be setup [log suppressed for 5 " +
+                          "minutes]",
+                  e);
+          LAST_LOG = System.currentTimeMillis();
+        }
+      }
+    }
+
+    // separate old version of Xerces not found => use the builtin way of setting the property
+    try {
+      parser.setProperty("http://www.oracle.com/xml/jaxp/properties/entityExpansionLimit",
+              MAX_ENTITY_EXPANSIONS);
+    } catch (SAXException e) {     // NOSONAR - also catch things like NoClassDefError here
+      // throttle the log somewhat as it can spam the log otherwise
+      if (System.currentTimeMillis() > LAST_LOG + TimeUnit.MINUTES.toMillis(5)) {
+        LOGGER.warn("SAX Security Manager could not be setup [log suppressed for 5 minutes]",
+                e);
+        LAST_LOG = System.currentTimeMillis();
+      }
+    }
+  }
+
+  private static int determineMaxEntityExpansions() {
+    String expansionLimit = System.getProperty(JAXP_ENTITY_EXPANSION_LIMIT_KEY);
+    if (expansionLimit != null) {
+      try {
+        return Integer.parseInt(expansionLimit);
+      } catch (NumberFormatException e) {
+        LOGGER.warn(
+                "Couldn't parse an integer for the entity expansion limit: {}; " +
+                        "backing off to default: {}",
+                expansionLimit, DEFAULT_MAX_ENTITY_EXPANSIONS);
+      }
+    }
+    return DEFAULT_MAX_ENTITY_EXPANSIONS;
   }
 }
