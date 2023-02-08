@@ -189,7 +189,5 @@ class TestXMLMatcher {
     final Context ctx = createContext(new MemoryInputStream(buf), listener);
 
     assertFalse(MATCHER.matches(ctx));
-
-
   }
 }
