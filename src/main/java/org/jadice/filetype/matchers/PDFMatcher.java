@@ -75,7 +75,6 @@ public class PDFMatcher extends Matcher {
   public boolean matches(final Context context) {
     SeekableInputStream sis = context.getStream();
     try {
-      long fileLength = getFileLength(sis);
       sis.seek(0);
       try (PDDocument document = PDDocument.load(sis)) {
         context.setProperty(MimeTypeAction.KEY, PDF_MIME_TYPE);
@@ -122,6 +121,11 @@ public class PDFMatcher extends Matcher {
 
         if (!filenames.isEmpty())
           pdfDetails.put(EMBEDDED_FILE_NAMES_KEY, filenames);
+
+        long fileLength = -1; // won't be used if there are no signatures in the PDF
+        if (document.getSignatureFields().size() > 0) {
+          fileLength = getFileLength(sis);
+        }
         PDFBoxSignatureUtil.addSignatureInfo(pdfDetails, document, fileLength);
       }
 
