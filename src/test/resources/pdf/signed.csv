@@ -1,0 +1,5 @@
+URL,signature-count
+https://github.com/levigo/sample-files/raw/main/pdf/PDF_signed_invisible.pdf,1
+https://github.com/levigo/sample-files/raw/main/pdf/PDF_signed_visible.pdf,1
+https://github.com/levigo/sample-files/raw/main/pdf/PDF_signed_invisible_visible.pdf,2
+https://github.com/levigo/sample-files/raw/main/pdf/PDF_unsigned.pdf,0
