@@ -32,6 +32,7 @@ import org.apache.pdfbox.pdmodel.common.filespecification.PDFileSpecification;
 import org.apache.pdfbox.pdmodel.encryption.PDEncryption;
 import org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotation;
 import org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotationFileAttachment;
+import org.apache.pdfbox.text.PDFTextStripper;
 import org.jadice.filetype.Context;
 import org.jadice.filetype.database.MimeTypeAction;
 import org.jadice.filetype.io.SeekableInputStream;
@@ -65,6 +66,11 @@ public class PDFMatcher extends Matcher {
   public static final String VERSION_KEY = "version";
 
   public static final String NUMBER_OF_PAGES_KEY = "number-of-pages";
+
+  public static final String CONTAINS_TEXT_KEY = "contains-text";
+  public static final String TEXT_LENGTH_KEY = "text-length";
+  public static final String TEXT_LENGTH_PER_PAGE_KEY = "text-length-per-page";
+
 
   /*
    * (non-Javadoc)
@@ -127,6 +133,30 @@ public class PDFMatcher extends Matcher {
           fileLength = getFileLength(sis);
         }
         PDFBoxSignatureUtil.addSignatureInfo(pdfDetails, document, fileLength);
+
+//        final String pdfText = new PDFTextStripper().getText(document).replaceAll("([\\r\\n])", "");
+//        final boolean containsText = pdfText.length() > 0;
+//        pdfDetails.put(CONTAINS_TEXT_KEY, containsText);
+//        if (containsText) {
+//          pdfDetails.put(TEXT_LENGTH_KEY, pdfText.length());
+//        }
+        boolean containsText = false;
+        List<Integer> textLengthPerPages = new ArrayList<>();
+        PDFTextStripper reader = new PDFTextStripper();
+        for (int i = 1; i <= document.getNumberOfPages(); i++) {
+          reader.setStartPage(i);
+          reader.setEndPage(i);
+          final String pdfText = reader.getText(document).replaceAll("([\\r\\n])", "");
+          textLengthPerPages.add(pdfText.length());
+          if (pdfText.length() > 0) {
+            containsText = true;
+          }
+        }
+        pdfDetails.put(CONTAINS_TEXT_KEY, containsText);
+        if (containsText) {
+          pdfDetails.put(TEXT_LENGTH_PER_PAGE_KEY, textLengthPerPages);
+          pdfDetails.put(TEXT_LENGTH_KEY, new PDFTextStripper().getText(document).replaceAll("([\\r\\n])", "").length());
+        }
       }
 
       return true;
