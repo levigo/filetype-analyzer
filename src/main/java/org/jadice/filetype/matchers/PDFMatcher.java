@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A {@link Matcher} for PDF documents .
- * <p>
+ * 
  * Caveat: for performance reasons, this should only be called from a context where the stream has
  * already be identified as a PDF file/stream.
  */
