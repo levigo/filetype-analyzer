@@ -74,7 +74,7 @@ public class PDFMatcher extends Matcher {
 
   /*
    * (non-Javadoc)
-   *
+   * 
    * @see com.levigo.jadice.filetype.database.Matcher#matches(com.levigo.jadice.filetype.Context)
    */
   @Override
@@ -128,11 +128,7 @@ public class PDFMatcher extends Matcher {
         if (!filenames.isEmpty())
           pdfDetails.put(EMBEDDED_FILE_NAMES_KEY, filenames);
 
-        long fileLength = -1; // won't be used if there are no signatures in the PDF
-        if (document.getSignatureFields().size() > 0) {
-          fileLength = getFileLength(sis);
-        }
-        PDFBoxSignatureUtil.addSignatureInfo(pdfDetails, document, fileLength);
+        PDFBoxSignatureUtil.addSignatureInfo(pdfDetails, document, sis);
         if (lookForText())
           addTextInfo(pdfDetails, document);
       }

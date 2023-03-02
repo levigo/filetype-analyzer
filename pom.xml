@@ -320,6 +320,13 @@
       <version>${pdfbox.version}</version>
     </dependency>
 
+    <!-- for pdf signature validation -->
+    <dependency>
+      <groupId>org.bouncycastle</groupId>
+      <artifactId>bcpkix-jdk15on</artifactId>
+      <version>1.70</version>
+    </dependency>
+
     <!-- Using Hamcrest in a Maven Project see http://hamcrest.org/JavaHamcrest/distributables#maven-upgrade-example -->
     <dependency>
       <groupId>org.hamcrest</groupId>
