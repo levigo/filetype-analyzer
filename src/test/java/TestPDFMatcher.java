@@ -158,7 +158,7 @@ class TestPDFMatcher {
   @SuppressWarnings("unchecked")
   @ParameterizedTest
   @CsvFileSource(resources = "/pdf/contains-text.csv", numLinesToSkip = 1)
-  void testContainsText(final String filePath, final boolean expected) throws IOException {
+  void testContainsText(final String filePath, final boolean expected, final String language) throws IOException {
     System.setProperty(PDFMatcher.class.getName() + ".lookForText", "true");
     Map<String, Object> result = ANALYZER.analyze(new File(filePath));
     assertNotNull(result);
@@ -174,6 +174,10 @@ class TestPDFMatcher {
       final List<Integer> textLengthPerPages = (List<Integer>) pdfDetails.get(PDFMatcher.TEXT_LENGTH_PER_PAGE_KEY);
       final int sum = textLengthPerPages.stream().mapToInt(Integer::intValue).sum();
       assertEquals(totalTextLength, sum);
+      if (!language.equals("null")) {
+        assertEquals(language, pdfDetails.get(PDFMatcher.MOST_LIKELY_TEXT_LANGUAGE));
+      }
+      assertTrue(pdfDetails.containsKey(PDFMatcher.TEXT_LANGUAGE_CONFIDENCE_VALUES));
     }
     System.clearProperty(PDFMatcher.class.getName() + ".lookForText");
   }
