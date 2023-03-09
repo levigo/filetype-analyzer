@@ -82,11 +82,15 @@ public class PDFBoxSignatureUtil extends SignatureUtil {
    * @return bytes of the "Cert" entry or null
    */
   private static byte[] getCertData(final PDSignature signature) {
-    if (PDSignature.SUBFILTER_ADBE_X509_RSA_SHA1.getName().equals(signature.getSubFilter())) {
-      final COSString certString = (COSString) signature.getCOSObject().getDictionaryObject(COSName.CERT);
-      return certString.getBytes();
+    try {
+      if (PDSignature.SUBFILTER_ADBE_X509_RSA_SHA1.getName().equals(signature.getSubFilter())) {
+        final COSString certString = (COSString) signature.getCOSObject().getDictionaryObject(COSName.CERT);
+        return certString.getBytes();
+      }
+      return null;
+    } catch (Exception e) {
+      return null;
     }
-    return null;
   }
 
   /**
