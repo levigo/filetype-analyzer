@@ -3,10 +3,7 @@ package org.jadice.filetype.matchers;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
 import javax.xml.transform.OutputKeys;
@@ -18,6 +15,8 @@ import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
+import com.github.pemistahl.lingua.api.LanguageDetector;
+import com.github.pemistahl.lingua.api.LanguageDetectorBuilder;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentCatalog;
 import org.apache.pdfbox.pdmodel.PDDocumentInformation;
@@ -42,7 +41,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A {@link Matcher} for PDF documents .
- * 
+ * <p>
  * Caveat: for performance reasons, this should only be called from a context where the stream has
  * already be identified as a PDF file/stream.
  */
@@ -71,10 +70,19 @@ public class PDFMatcher extends Matcher {
   public static final String TEXT_LENGTH_KEY = "text-length";
   public static final String TEXT_LENGTH_PER_PAGE_KEY = "text-length-per-page";
 
+  /**
+   * Most likely language of the text of the PDF, analyzed with <a href="https://github.com/pemistahl/lingua">lingua</a>
+   */
+  public static final String MOST_LIKELY_TEXT_LANGUAGE = "most-likely-text-language";
+  /**
+   * All possible languages of the PDF's text, sorted by their confidence value, analyzed with <a href="https://github.com/pemistahl/lingua">lingua</a>
+   */
+  public static final String TEXT_LANGUAGE_CONFIDENCE_VALUES = "text-language-confidence-values";
+
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.levigo.jadice.filetype.database.Matcher#matches(com.levigo.jadice.filetype.Context)
    */
   @Override
@@ -134,29 +142,7 @@ public class PDFMatcher extends Matcher {
         }
         PDFBoxSignatureUtil.addSignatureInfo(pdfDetails, document, fileLength);
 
-//        final String pdfText = new PDFTextStripper().getText(document).replaceAll("([\\r\\n])", "");
-//        final boolean containsText = pdfText.length() > 0;
-//        pdfDetails.put(CONTAINS_TEXT_KEY, containsText);
-//        if (containsText) {
-//          pdfDetails.put(TEXT_LENGTH_KEY, pdfText.length());
-//        }
-        boolean containsText = false;
-        List<Integer> textLengthPerPages = new ArrayList<>();
-        PDFTextStripper reader = new PDFTextStripper();
-        for (int i = 1; i <= document.getNumberOfPages(); i++) {
-          reader.setStartPage(i);
-          reader.setEndPage(i);
-          final String pdfText = reader.getText(document).replaceAll("([\\r\\n])", "");
-          textLengthPerPages.add(pdfText.length());
-          if (pdfText.length() > 0) {
-            containsText = true;
-          }
-        }
-        pdfDetails.put(CONTAINS_TEXT_KEY, containsText);
-        if (containsText) {
-          pdfDetails.put(TEXT_LENGTH_PER_PAGE_KEY, textLengthPerPages);
-          pdfDetails.put(TEXT_LENGTH_KEY, new PDFTextStripper().getText(document).replaceAll("([\\r\\n])", "").length());
-        }
+        addTextInfo(pdfDetails, document);
       }
 
       return true;
@@ -242,7 +228,7 @@ public class PDFMatcher extends Matcher {
   }
 
   private static void extractFile(final List<String> filenames, final String filename,
-      final PDEmbeddedFile embeddedFile) throws IOException {
+                                  final PDEmbeddedFile embeddedFile) throws IOException {
     filenames.add(filename);
   }
 
@@ -268,7 +254,65 @@ public class PDFMatcher extends Matcher {
   }
 
   /**
+   * Adds the following information to the result map:
+   * <ul>
+   *   <li>{@link #CONTAINS_TEXT_KEY} whether the whole document contains any text (without line breaks)</li>
+   *   <li>{@link #TEXT_LENGTH_PER_PAGE_KEY} list of integers that indicate how long the text in each page is (only set if there is text at all)</li>
+   *   <li>{@link #TEXT_LENGTH_KEY} length of the text of the whole document (only set if there is text at all)</li>
+   *   <li>{@link #MOST_LIKELY_TEXT_LANGUAGE} detected language (only set if there is text at all)</li>
+   *   <li>{@link #TEXT_LANGUAGE_CONFIDENCE_VALUES} map of all possible languages, sorted by their confidence value (only set if there is text at all)</li>
+   * </ul>
+   *
+   * @param pdfDetails map to which the results get added
+   * @param doc document
+   */
+  private static void addTextInfo(final Map<String, Object> pdfDetails, final PDDocument doc) throws IOException {
+    boolean containsText = false;
+    List<Integer> textLengthPerPages = new ArrayList<>();
+    PDFTextStripper reader = new PDFTextStripper();
+    for (int i = 1; i <= doc.getNumberOfPages(); i++) {
+      reader.setStartPage(i);
+      reader.setEndPage(i);
+      final String pdfText = reader.getText(doc).replaceAll("([\\r\\n])", "");
+      textLengthPerPages.add(pdfText.length());
+      if (pdfText.length() > 0) {
+        containsText = true;
+      }
+    }
+    pdfDetails.put(CONTAINS_TEXT_KEY, containsText);
+    if (containsText) {
+      final String pdfText = new PDFTextStripper().getText(doc);
+      pdfDetails.put(TEXT_LENGTH_PER_PAGE_KEY, textLengthPerPages);
+      pdfDetails.put(TEXT_LENGTH_KEY, pdfText.replaceAll("([\\r\\n])", "").length());
+      addLanguageInformation(pdfDetails, pdfText);
+    }
+  }
+
+  /**
+   * Adds information about the given text to the given map.
+   * The most likely text language will be {@link com.github.pemistahl.lingua.api.Language#UNKNOWN} in case
+   * language detection is not reliably possible.
+   *
+   * @param pdfDetails map to which the results get added
+   * @param text text to analyze
+   */
+  public static void addLanguageInformation(final Map<String, Object> pdfDetails, final String text) {
+    LanguageDetectorBuilder languageDetectorBuilder =
+        LanguageDetectorBuilder
+            .fromAllLanguages()
+            .withMinimumRelativeDistance(0.1);
+    if (text.length() > 120)
+      languageDetectorBuilder.withLowAccuracyMode();
+    final LanguageDetector languageDetector = languageDetectorBuilder.build();
+    final long startTime = System.currentTimeMillis();
+    pdfDetails.put(TEXT_LANGUAGE_CONFIDENCE_VALUES, languageDetector.computeLanguageConfidenceValues(text));
+    pdfDetails.put(MOST_LIKELY_TEXT_LANGUAGE, languageDetector.detectLanguageOf(text).toString());
+    LOGGER.debug("Language recognition took {} ms.", System.currentTimeMillis() - startTime);
+  }
+
+  /**
    * Reads the whole stream to determine the length of it.
+   *
    * @param sis stream
    * @return length of given stream or -1 if any error occurred
    */
