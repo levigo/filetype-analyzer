@@ -1,6 +1,8 @@
 package org.jadice.filetype.pdfutil;
 
 import org.apache.pdfbox.cos.COSDictionary;
+import org.apache.pdfbox.cos.COSName;
+import org.apache.pdfbox.cos.COSString;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageTree;
@@ -58,7 +60,7 @@ public class PDFBoxSignatureUtil extends SignatureUtil {
           signatureDetails.put(SIGNATURE_PAGE_KEY, determinePageOfSignature(signatureField, document));
           signatureDetails.put(SIGNATURE_FILTER_KEY, sig.getFilter());
           signatureDetails.put(SIGNATURE_SUB_FILTER_KEY, sig.getSubFilter());
-          signatureDetails.put(SIGNATURE_VALIDITY, verifySignature(contents, signedContent, sig.getSubFilter(), sig.getSignDate()));
+          signatureDetails.put(SIGNATURE_VALIDITY, verifySignature(contents, signedContent, sig.getSubFilter(), sig.getSignDate(), getCertData(sig)));
         } catch (Exception e) {
           LOGGER.warn("Error occurred while analyzing signature.", e);
         }
@@ -71,6 +73,20 @@ public class PDFBoxSignatureUtil extends SignatureUtil {
     } catch (Exception e) {
       LOGGER.warn("Failed to add signature information.", e);
     }
+  }
+
+  /**
+   * Returns the bytes of the "Cert" entry of the signature's dictionary,
+   * but only if subfilter is "adbe.x509.rsa_sha1". For other subfilters null is returned.
+   * @param signature signature
+   * @return bytes of the "Cert" entry or null
+   */
+  private static byte[] getCertData(final PDSignature signature) {
+    if (PDSignature.SUBFILTER_ADBE_X509_RSA_SHA1.getName().equals(signature.getSubFilter())) {
+      final COSString certString = (COSString) signature.getCOSObject().getDictionaryObject(COSName.CERT);
+      return certString.getBytes();
+    }
+    return null;
   }
 
   /**

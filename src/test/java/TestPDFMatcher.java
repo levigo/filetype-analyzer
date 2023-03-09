@@ -130,7 +130,7 @@ class TestPDFMatcher {
   @SuppressWarnings("unchecked")
   @ParameterizedTest
   @CsvFileSource(resources = "/pdf/signed.csv", numLinesToSkip = 1)
-  void testSignedPDFs(final String urlString, final int expectedSignatureCount) throws IOException {
+  void testSignedPDFs(final String urlString, final int expectedSignatureCount, final boolean valid) throws IOException {
     final Map<String, Object> result = ANALYZER.analyze(new URL(urlString).openStream());
     assertNotNull(result);
     assertThat(result, hasKey(PDFMatcher.DETAILS_KEY));
@@ -146,23 +146,15 @@ class TestPDFMatcher {
         assertThat(signature, hasKey(SignatureUtil.SIGNATURE_NUMBER_KEY));
         assertThat(signature.get(SignatureUtil.SIGNATURE_PAGE_KEY), notNullValue());
         if (expectedSignatureCount == 1) {
-          assertThat(signature.get(SignatureUtil.SIGNATURE_DOCUMENT_COVERAGE_KEY), equalTo("WHOLE_DOCUMENT"));
+          if (valid)
+            assertThat(signature.get(SignatureUtil.SIGNATURE_DOCUMENT_COVERAGE_KEY), equalTo("WHOLE_DOCUMENT"));
           assertThat(signature.get(SignatureUtil.SIGNATURE_NUMBER_KEY), equalTo(1));
         }
-        System.out.println("Valid: " + signature.get(SignatureUtil.SIGNATURE_VALIDITY));
+        if (valid)
+          assertEquals("Valid", signature.get(SignatureUtil.SIGNATURE_VALIDITY));
+        else
+          assertTrue(((String) signature.get(SignatureUtil.SIGNATURE_VALIDITY)).startsWith("Could not be validated."));
       }
-    }
-  }
-
-  @Test // TODO delete
-  void test() throws IOException {
-    Map<String, Object> result = ANALYZER.analyze(new File("src/test/resources/pdf/adbe.pkcs7.sha1.pdf"));
-    Map<String,Object> pdfDetails = (Map<String,Object>) result.get(PDFMatcher.DETAILS_KEY);
-    List<Map<String,Object>> sigDetails = (List<Map<String,Object>>) pdfDetails.get(SignatureUtil.SIGNATURE_DETAILS_KEY);
-    for (Map<String, Object> sigDetail : sigDetails) {
-      System.out.println(sigDetail.get(SignatureUtil.SIGNATURE_FILTER_KEY));
-      System.out.println(sigDetail.get(SignatureUtil.SIGNATURE_SUB_FILTER_KEY));
-      System.out.println(sigDetail.get(SignatureUtil.SIGNATURE_VALIDITY));
     }
   }
 

@@ -1,6 +1,9 @@
 package org.jadice.filetype.pdfutil;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.pdfbox.pdmodel.interactive.digitalsignature.PDSignature;
+import org.bouncycastle.asn1.ASN1InputStream;
+import org.bouncycastle.asn1.ASN1OctetString;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cms.*;
 import org.bouncycastle.cms.jcajce.JcaSimpleSignerInfoVerifierBuilder;
@@ -15,12 +18,14 @@ import org.slf4j.LoggerFactory;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.DigestInputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.security.*;
+import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -46,6 +51,9 @@ public abstract class SignatureUtil {
   public static final String SIGNATURE_FILTER_KEY = "filter";
   public static final String SIGNATURE_SUB_FILTER_KEY = "sub-filter";
   public static final String SIGNATURE_VALIDITY = "validity";
+
+  private static final String SIGNATURE_NOT_VALID = "Could not be validated.";
+  private static final String SIGNATURE_VALID = "Valid";
 
   /**
    * Determines whether the given signature covers the whole
@@ -103,52 +111,52 @@ public abstract class SignatureUtil {
   }
 
   /**
+   * Tries to validate the given signature depending on the subfilter.
+   * Returns a String which indicates whether the signature could be validated or not.
+   * In case it could not be validated, a cause for this should be included, too.
+   *
    * @param contents      the /Contents field as a COSString
    * @param signedContent the byte sequence that has been signed
    * @param subFilter     the subfilter of the signature
    * @param signDate      the sign date of the signature
-   * @return string message which indicates whether the signature could be validated
+   * @param certData      the bytes of the "Cert" entry of the signature's dictionary,
+   *                      only required if subfilter is "adbe.x509.rsa_sha1"
+   * @return String which indicates whether the signature could be validated or not.
+   * In case it could not be validated, a cause for this should be included, too.
    */
   public static String verifySignature(final byte[] contents, final InputStream signedContent, final String subFilter,
-                                       final Calendar signDate) {
+                                       final Calendar signDate, final byte[] certData) {
     try {
-      if (subFilter == null) return "Could not be validated. Missing subfilter.";
+      if (subFilter == null) return SIGNATURE_NOT_VALID + " Missing subfilter.";
       switch (subFilter) {
         case "adbe.pkcs7.detached":
         case "ETSI.CAdES.detached":
           return verifyPKCS7(contents, signedContent, signDate);
         case "adbe.pkcs7.sha1":
-//          CertificateFactory factory = CertificateFactory.getInstance("X.509");
-//          ByteArrayInputStream certStream = new ByteArrayInputStream(contents);
-//          Collection<? extends Certificate> certs = factory.generateCertificates(certStream);
-//          System.out.println("certs=" + certs);
           @SuppressWarnings({"squid:S5542", "lgtm [java/weak-cryptographic-algorithm]"})
-          MessageDigest md = MessageDigest.getInstance("SHA1");
-          try (DigestInputStream dis = new DigestInputStream(signedContent, md)) {
-            while (dis.read() != -1) {
-            }
-          }
-          byte[] hash = md.digest();
+          final MessageDigest md = MessageDigest.getInstance("SHA1");
+          md.update(IOUtils.toByteArray(signedContent));
+          final byte[] hash = md.digest();
           return verifyPKCS7(contents, new ByteArrayInputStream(hash), signDate);
         case "adbe.x509.rsa.sha1":
         case "adbe.x509.rsa_sha1":
-          // TODO
-          return String.format("Could not be validated. SubFilter %s not yet supported.", subFilter);
+          return verifyAdbeX509RsaSha1(contents, signedContent, certData);
         case "ETSI.RFC3161":
           return verifyETSIdotRFC3161(signedContent, contents);
         default:
-          return String.format("Could not be validated. Unknown subfilter %s.", subFilter);
+          return String.format("%s Unknown subfilter %s.", SIGNATURE_NOT_VALID, subFilter);
       }
     } catch (Exception e) {
       LOGGER.warn("Error occurred while verification of signature.", e);
-      return "Could not be validated, error occurred: " + e.getMessage();
+      return String.format("%s Error occurred: %s", SIGNATURE_NOT_VALID, e.getMessage());
     }
   }
 
   /**
    * Verifies that the pkcs7 signature is valid.
    * Inspired by: <a href="https://github.com/mkl-public/testarea-pdfbox2/blob/master/src/test/java/mkl/testarea/pdfbox2/sign/ValidateSignature.java#L198">...</a>
-   * TODO: Could be extended to more complex validation, like here: <a href="https://github.com/apache/pdfbox/blob/trunk/examples/src/main/java/org/apache/pdfbox/examples/signature/ShowSignature.java">...</a>
+   *
+   * Could be extended to more complex validation, like here: <a href="https://github.com/apache/pdfbox/blob/trunk/examples/src/main/java/org/apache/pdfbox/examples/signature/ShowSignature.java">...</a>
    *
    * @param contents      the /Contents field as a COSString
    * @param signedContent the byte sequence that has been signed
@@ -159,14 +167,14 @@ public abstract class SignatureUtil {
     try {
       final CMSSignedData cms = new CMSSignedData(new CMSProcessableInputStream(signedContent), contents);
       final SignerInformation signerInfo = cms.getSignerInfos().getSigners().iterator().next();
-      X509CertificateHolder cert = (X509CertificateHolder) cms.getCertificates().getMatches(signerInfo.getSID())
+      X509CertificateHolder certHolder = (X509CertificateHolder) cms.getCertificates().getMatches(signerInfo.getSID())
           .iterator().next();
-      SignerInformationVerifier verifier = new JcaSimpleSignerInfoVerifierBuilder().setProvider(new BouncyCastleProvider()).build(cert);
+      SignerInformationVerifier verifier = new JcaSimpleSignerInfoVerifierBuilder().setProvider(new BouncyCastleProvider()).build(certHolder);
 
-      return signerInfo.verify(verifier) ? "valid" : "Could not be validated";
+      return signerInfo.verify(verifier) ? SIGNATURE_VALID : SIGNATURE_NOT_VALID;
     } catch (Exception e) {
       LOGGER.warn("Error occurred while verification of signature.", e);
-      return "Could not be validated, error occurred: " + e.getMessage();
+      return String.format("%s Error occurred: %s", SIGNATURE_NOT_VALID, e.getMessage());
     }
   }
 
@@ -179,30 +187,41 @@ public abstract class SignatureUtil {
    * @return string message which indicates whether the signature could be validated
    */
   public static String verifyETSIdotRFC3161(InputStream signedContent, byte[] contents)
-      throws CMSException, NoSuchAlgorithmException, IOException, TSPException, CertificateException {
-    TimeStampToken timeStampToken = new TimeStampToken(new CMSSignedData(contents));
-    TimeStampTokenInfo timeStampInfo = timeStampToken.getTimeStampInfo();
+      throws CMSException, NoSuchAlgorithmException, IOException, TSPException {
+    final TimeStampToken timeStampToken = new TimeStampToken(new CMSSignedData(contents));
+    final TimeStampTokenInfo timeStampInfo = timeStampToken.getTimeStampInfo();
 
-    String hashAlgorithm = timeStampInfo.getMessageImprintAlgOID().getId();
+    final String hashAlgorithm = timeStampInfo.getMessageImprintAlgOID().getId();
     // compare the hash of the signed content with the hash in the timestamp
-    MessageDigest md = MessageDigest.getInstance(hashAlgorithm);
-    try (DigestInputStream dis = new DigestInputStream(signedContent, md)) {
-      while (dis.read() != -1) {
-      }
-    }
-    return Arrays.equals(md.digest(), timeStampInfo.getMessageImprintDigest()) ? "valid" : "Could not be validated";
+    final MessageDigest md = MessageDigest.getInstance(hashAlgorithm);
+    md.update(IOUtils.toByteArray(signedContent));
+    return Arrays.equals(md.digest(), timeStampInfo.getMessageImprintDigest()) ? SIGNATURE_VALID : SIGNATURE_NOT_VALID;
+  }
 
-//    CertificateFactory factory = CertificateFactory.getInstance("X.509");
-//    ByteArrayInputStream certStream = new ByteArrayInputStream(contents);
-//    Collection<? extends Certificate> certs = factory.generateCertificates(certStream);
-//    System.out.println("certs=" + certs);
-//
-//    X509Certificate certFromTimeStamp = (X509Certificate) certs.iterator().next();
-//    SigUtils.checkTimeStampCertificateUsage(certFromTimeStamp);
-//    SigUtils.validateTimestampToken(timeStampToken);
-//    SigUtils.verifyCertificateChain(timeStampToken.getCertificates(),
-//        certFromTimeStamp,
-//        timeStampInfo.getGenTime());
+  /**
+   * Tries to validate the given signature with subfilter "adbe.x509.rsa_sha1".
+   * Returns a String which indicates whether the signature could be validated or not.
+   * In case it could not be validated, a cause for this should be included, too.
+   * <p>
+   * Inspired by this <a href="https://stackoverflow.com/a/52861045/19199839">stackoverflow thread</a>.
+   *
+   * @param contents      the /Contents field as a COSString
+   * @param signedContent the byte sequence that has been signed
+   * @param certData      the bytes of the "Cert" entry of the signature's dictionary
+   * @return String which indicates whether the signature could be validated or not.
+   * In case it could not be validated, a cause for this should be included, too.
+   */
+  public static String verifyAdbeX509RsaSha1(final byte[] contents, final InputStream signedContent, final byte[] certData) throws SignatureException, InvalidKeyException, NoSuchAlgorithmException, CertificateException, IOException {
+    final CertificateFactory factory = CertificateFactory.getInstance("X.509");
+    final ByteArrayInputStream certStream = new ByteArrayInputStream(certData);
+    final Collection<? extends Certificate> certs = factory.generateCertificates(certStream);
+    final X509Certificate cert = (X509Certificate) certs.iterator().next();
+
+    final ASN1OctetString oct = (ASN1OctetString) new ASN1InputStream(new ByteArrayInputStream(contents)).readObject();
+    final Signature signature = Signature.getInstance("SHA1withRSA");
+    signature.initVerify(cert.getPublicKey());
+    signature.update(IOUtils.toByteArray(signedContent));
+    return signature.verify(oct.getOctets()) ? SIGNATURE_VALID : SIGNATURE_NOT_VALID;
   }
 
 }
