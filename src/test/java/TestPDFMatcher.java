@@ -1,7 +1,10 @@
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasEntry;
+import static org.hamcrest.Matchers.hasKey;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -19,8 +22,9 @@ import org.jadice.filetype.AnalyzerException;
 import org.jadice.filetype.database.MimeTypeAction;
 import org.jadice.filetype.matchers.PDFMatcher;
 import org.jadice.filetype.pdfutil.SignatureUtil;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvFileSource;
 
@@ -37,8 +41,14 @@ class TestPDFMatcher {
 
   private static Analyzer ANALYZER;
 
-  @BeforeAll
-  public static void init() throws AnalyzerException {
+  @BeforeEach
+  public void init(TestInfo testInfo) throws AnalyzerException {
+    try {
+      if (testInfo.getTestMethod().get().getName().equals("testContainsText"))
+        System.setProperty(PDFMatcher.class.getName() + ".languageCheck", "true");
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
     ANALYZER = Analyzer.getInstance("/magic.xml");
   }
 
@@ -161,7 +171,8 @@ class TestPDFMatcher {
   @SuppressWarnings("unchecked")
   @ParameterizedTest
   @CsvFileSource(resources = "/pdf/contains-text.csv", numLinesToSkip = 1)
-  void testContainsText(final String filePath, final boolean expected) throws IOException {
+  void testContainsText(final String filePath, final boolean expected, final String language) throws IOException {
+    System.setProperty(PDFMatcher.class.getName() + ".languageCheck", "true");
     System.setProperty(PDFMatcher.class.getName() + ".lookForText", "true");
     Map<String, Object> result = ANALYZER.analyze(new File(filePath));
     assertNotNull(result);
@@ -177,7 +188,12 @@ class TestPDFMatcher {
       final List<Integer> textLengthPerPages = (List<Integer>) pdfDetails.get(PDFMatcher.TEXT_LENGTH_PER_PAGE_KEY);
       final int sum = textLengthPerPages.stream().mapToInt(Integer::intValue).sum();
       assertEquals(totalTextLength, sum);
+      if (!language.equals("null")) {
+        assertEquals(language, pdfDetails.get(PDFMatcher.MOST_LIKELY_TEXT_LANGUAGE));
+      }
+      assertTrue(pdfDetails.containsKey(PDFMatcher.TEXT_LANGUAGE_CONFIDENCE_VALUES));
     }
+    System.clearProperty(PDFMatcher.class.getName() + ".languageCheck");
     System.clearProperty(PDFMatcher.class.getName() + ".lookForText");
   }
 
