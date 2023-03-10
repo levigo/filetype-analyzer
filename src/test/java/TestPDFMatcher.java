@@ -36,14 +36,8 @@ class TestPDFMatcher {
 
   private static Analyzer ANALYZER;
 
-  @BeforeEach
-  public void init(TestInfo testInfo) throws AnalyzerException {
-    try {
-      if (testInfo.getTestMethod().get().getName().equals("testContainsText"))
-        System.setProperty(PDFMatcher.class.getName() + ".languageCheck", "true");
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
+  @BeforeAll
+  public static void init(TestInfo testInfo) throws AnalyzerException {
     ANALYZER = Analyzer.getInstance("/magic.xml");
   }
 
@@ -135,6 +129,7 @@ class TestPDFMatcher {
   @ParameterizedTest
   @CsvFileSource(resources = "/pdf/signed.csv", numLinesToSkip = 1)
   void testSignedPDFs(final String urlString, final int expectedSignatureCount) throws IOException {
+    System.setProperty(PDFMatcher.class.getName() + ".languageCheck", "true");
     final Map<String, Object> result = ANALYZER.analyze(new URL(urlString).openStream());
     assertNotNull(result);
     assertThat(result, hasKey(PDFMatcher.DETAILS_KEY));

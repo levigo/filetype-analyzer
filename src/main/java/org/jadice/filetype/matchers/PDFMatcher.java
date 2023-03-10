@@ -80,10 +80,8 @@ public class PDFMatcher extends Matcher {
   public static final String TEXT_LANGUAGE_CONFIDENCE_VALUES = "text-language-confidence-values";
 
 
-  private final static boolean languageCheck;
-
-  static {
-    languageCheck = "true".equalsIgnoreCase(System.getProperty(PDFMatcher.class.getName() + ".languageCheck", "false"));
+  private static boolean checkLanguage() {
+    return "true".equalsIgnoreCase(System.getProperty(PDFMatcher.class.getName() + ".languageCheck", "false"));
   }
 
   private static boolean lookForText() {
@@ -292,7 +290,7 @@ public class PDFMatcher extends Matcher {
       final String pdfText = new PDFTextStripper().getText(doc);
       pdfDetails.put(TEXT_LENGTH_PER_PAGE_KEY, textLengthPerPages);
       pdfDetails.put(TEXT_LENGTH_KEY, pdfText.replaceAll("([\\r\\n])", "").length());
-      if (languageCheck)
+      if (checkLanguage())
         addLanguageInformation(pdfDetails, pdfText);
     }
   }
