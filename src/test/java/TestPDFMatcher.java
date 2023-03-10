@@ -129,7 +129,6 @@ class TestPDFMatcher {
   @ParameterizedTest
   @CsvFileSource(resources = "/pdf/signed.csv", numLinesToSkip = 1)
   void testSignedPDFs(final String urlString, final int expectedSignatureCount) throws IOException {
-    System.setProperty(PDFMatcher.class.getName() + ".languageCheck", "true");
     final Map<String, Object> result = ANALYZER.analyze(new URL(urlString).openStream());
     assertNotNull(result);
     assertThat(result, hasKey(PDFMatcher.DETAILS_KEY));
@@ -159,6 +158,7 @@ class TestPDFMatcher {
   @ParameterizedTest
   @CsvFileSource(resources = "/pdf/contains-text.csv", numLinesToSkip = 1)
   void testContainsText(final String filePath, final boolean expected, final String language) throws IOException {
+    System.setProperty(PDFMatcher.class.getName() + ".languageCheck", "true");
     System.setProperty(PDFMatcher.class.getName() + ".lookForText", "true");
     Map<String, Object> result = ANALYZER.analyze(new File(filePath));
     assertNotNull(result);
@@ -179,6 +179,7 @@ class TestPDFMatcher {
       }
       assertTrue(pdfDetails.containsKey(PDFMatcher.TEXT_LANGUAGE_CONFIDENCE_VALUES));
     }
+    System.clearProperty(PDFMatcher.class.getName() + ".languageCheck");
     System.clearProperty(PDFMatcher.class.getName() + ".lookForText");
   }
 
