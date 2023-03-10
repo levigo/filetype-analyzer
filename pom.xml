@@ -73,6 +73,8 @@
     <sonar.projectKey>levigo_filetype-analyzer</sonar.projectKey>
     <sonar.organization>levigo</sonar.organization>
     <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+
+    <bouncycastle.version>1.70</bouncycastle.version>
   </properties>
 
   <build>
@@ -324,7 +326,7 @@
     <dependency>
       <groupId>org.bouncycastle</groupId>
       <artifactId>bcpkix-jdk15on</artifactId>
-      <version>1.70</version>
+      <version>${bouncycastle.version}</version>
     </dependency>
 
     <!-- Using Hamcrest in a Maven Project see http://hamcrest.org/JavaHamcrest/distributables#maven-upgrade-example -->
