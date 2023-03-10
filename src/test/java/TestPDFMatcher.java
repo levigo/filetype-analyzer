@@ -37,7 +37,7 @@ class TestPDFMatcher {
   private static Analyzer ANALYZER;
 
   @BeforeAll
-  public static void init(TestInfo testInfo) throws AnalyzerException {
+  public static void init() throws AnalyzerException {
     ANALYZER = Analyzer.getInstance("/magic.xml");
   }
 
