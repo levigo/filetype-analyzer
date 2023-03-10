@@ -68,6 +68,10 @@ public class PDFMatcher extends Matcher {
   public static final String TEXT_LENGTH_KEY = "text-length";
   public static final String TEXT_LENGTH_PER_PAGE_KEY = "text-length-per-page";
 
+  private static boolean lookForText() {
+    return "true".equalsIgnoreCase(System.getProperty(PDFMatcher.class.getName() + ".lookForText", "false"));
+  }
+
   /*
    * (non-Javadoc)
    *
@@ -129,8 +133,8 @@ public class PDFMatcher extends Matcher {
           fileLength = getFileLength(sis);
         }
         PDFBoxSignatureUtil.addSignatureInfo(pdfDetails, document, fileLength);
-
-        addTextInfo(pdfDetails, document);
+        if (lookForText())
+          addTextInfo(pdfDetails, document);
       }
 
       return true;

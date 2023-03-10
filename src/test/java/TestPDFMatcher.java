@@ -159,6 +159,7 @@ class TestPDFMatcher {
   @ParameterizedTest
   @CsvFileSource(resources = "/pdf/contains-text.csv", numLinesToSkip = 1)
   void testContainsText(final String filePath, final boolean expected) throws IOException {
+    System.setProperty(PDFMatcher.class.getName() + ".lookForText", "true");
     Map<String, Object> result = ANALYZER.analyze(new File(filePath));
     assertNotNull(result);
     assertTrue(result.containsKey(PDFMatcher.DETAILS_KEY));
@@ -174,6 +175,7 @@ class TestPDFMatcher {
       final int sum = textLengthPerPages.stream().mapToInt(Integer::intValue).sum();
       assertEquals(totalTextLength, sum);
     }
+    System.clearProperty(PDFMatcher.class.getName() + ".lookForText");
   }
 
   private static File[] nullSafe(final File[] filesOrNull) {
