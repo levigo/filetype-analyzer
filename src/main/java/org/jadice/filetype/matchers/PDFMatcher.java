@@ -3,10 +3,7 @@ package org.jadice.filetype.matchers;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
 import javax.xml.transform.OutputKeys;
@@ -32,6 +29,7 @@ import org.apache.pdfbox.pdmodel.common.filespecification.PDFileSpecification;
 import org.apache.pdfbox.pdmodel.encryption.PDEncryption;
 import org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotation;
 import org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotationFileAttachment;
+import org.apache.pdfbox.text.PDFTextStripper;
 import org.jadice.filetype.Context;
 import org.jadice.filetype.database.MimeTypeAction;
 import org.jadice.filetype.io.SeekableInputStream;
@@ -41,7 +39,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A {@link Matcher} for PDF documents .
- * 
+ * <p>
  * Caveat: for performance reasons, this should only be called from a context where the stream has
  * already be identified as a PDF file/stream.
  */
@@ -66,9 +64,17 @@ public class PDFMatcher extends Matcher {
 
   public static final String NUMBER_OF_PAGES_KEY = "number-of-pages";
 
+  public static final String CONTAINS_TEXT_KEY = "contains-text";
+  public static final String TEXT_LENGTH_KEY = "text-length";
+  public static final String TEXT_LENGTH_PER_PAGE_KEY = "text-length-per-page";
+
+  private static boolean lookForText() {
+    return "true".equalsIgnoreCase(System.getProperty(PDFMatcher.class.getName() + ".lookForText", "false"));
+  }
+
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.levigo.jadice.filetype.database.Matcher#matches(com.levigo.jadice.filetype.Context)
    */
   @Override
@@ -127,6 +133,8 @@ public class PDFMatcher extends Matcher {
           fileLength = getFileLength(sis);
         }
         PDFBoxSignatureUtil.addSignatureInfo(pdfDetails, document, fileLength);
+        if (lookForText())
+          addTextInfo(pdfDetails, document);
       }
 
       return true;
@@ -212,7 +220,7 @@ public class PDFMatcher extends Matcher {
   }
 
   private static void extractFile(final List<String> filenames, final String filename,
-      final PDEmbeddedFile embeddedFile) throws IOException {
+                                  final PDEmbeddedFile embeddedFile) throws IOException {
     filenames.add(filename);
   }
 
@@ -238,7 +246,40 @@ public class PDFMatcher extends Matcher {
   }
 
   /**
+   * Adds the following information to the result map:
+   * <ul>
+   *   <li>{@link #CONTAINS_TEXT_KEY} whether the whole document contains any text (without line breaks)</li>
+   *   <li>{@link #TEXT_LENGTH_PER_PAGE_KEY} list of integers that indicate how long the text in each page is (only set if there is text at all)</li>
+   *   <li>{@link #TEXT_LENGTH_KEY} length of the text of the whole document (only set if there is text at all)</li>
+   * </ul>
+   *
+   * @param pdfDetails map to which the results get added
+   * @param doc document
+   */
+  private static void addTextInfo(final Map<String, Object> pdfDetails, final PDDocument doc) throws IOException {
+    boolean containsText = false;
+    List<Integer> textLengthPerPages = new ArrayList<>();
+    PDFTextStripper reader = new PDFTextStripper();
+    for (int i = 1; i <= doc.getNumberOfPages(); i++) {
+      reader.setStartPage(i);
+      reader.setEndPage(i);
+      final String pdfText = reader.getText(doc).replaceAll("([\\r\\n])", "");
+      textLengthPerPages.add(pdfText.length());
+      if (pdfText.length() > 0) {
+        containsText = true;
+      }
+    }
+    pdfDetails.put(CONTAINS_TEXT_KEY, containsText);
+    if (containsText) {
+      final String pdfText = new PDFTextStripper().getText(doc);
+      pdfDetails.put(TEXT_LENGTH_PER_PAGE_KEY, textLengthPerPages);
+      pdfDetails.put(TEXT_LENGTH_KEY, pdfText.replaceAll("([\\r\\n])", "").length());
+    }
+  }
+
+  /**
    * Reads the whole stream to determine the length of it.
+   *
    * @param sis stream
    * @return length of given stream or -1 if any error occurred
    */

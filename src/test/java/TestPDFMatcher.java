@@ -155,6 +155,29 @@ class TestPDFMatcher {
     }
   }
 
+  @SuppressWarnings("unchecked")
+  @ParameterizedTest
+  @CsvFileSource(resources = "/pdf/contains-text.csv", numLinesToSkip = 1)
+  void testContainsText(final String filePath, final boolean expected) throws IOException {
+    System.setProperty(PDFMatcher.class.getName() + ".lookForText", "true");
+    Map<String, Object> result = ANALYZER.analyze(new File(filePath));
+    assertNotNull(result);
+    assertTrue(result.containsKey(PDFMatcher.DETAILS_KEY));
+    Map<String, Object> pdfDetails = (Map<String, Object>) result.get(PDFMatcher.DETAILS_KEY);
+    assertTrue(pdfDetails.containsKey(PDFMatcher.CONTAINS_TEXT_KEY));
+    assertEquals(expected, pdfDetails.get(PDFMatcher.CONTAINS_TEXT_KEY));
+    if (expected) {
+      assertTrue(pdfDetails.containsKey(PDFMatcher.TEXT_LENGTH_KEY));
+      final int totalTextLength = (int) pdfDetails.get(PDFMatcher.TEXT_LENGTH_KEY);
+      assertTrue(totalTextLength > 0);
+      assertTrue(pdfDetails.containsKey(PDFMatcher.TEXT_LENGTH_PER_PAGE_KEY));
+      final List<Integer> textLengthPerPages = (List<Integer>) pdfDetails.get(PDFMatcher.TEXT_LENGTH_PER_PAGE_KEY);
+      final int sum = textLengthPerPages.stream().mapToInt(Integer::intValue).sum();
+      assertEquals(totalTextLength, sum);
+    }
+    System.clearProperty(PDFMatcher.class.getName() + ".lookForText");
+  }
+
   private static File[] nullSafe(final File[] filesOrNull) {
     if (filesOrNull == null) {
       return new File[0];
