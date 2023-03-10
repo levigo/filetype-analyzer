@@ -73,6 +73,8 @@
     <sonar.projectKey>levigo_filetype-analyzer</sonar.projectKey>
     <sonar.organization>levigo</sonar.organization>
     <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+
+    <lingua.version>1.2.2</lingua.version>
   </properties>
 
   <build>
@@ -372,6 +374,13 @@
       <artifactId>opennlp-tools</artifactId>
       <version>${opennlp-tools.version}</version>
       <scope>compile</scope>
+    </dependency>
+
+    <!-- Language recognition -->
+    <dependency>
+      <groupId>com.github.pemistahl</groupId>
+      <artifactId>lingua</artifactId>
+      <version>${lingua.version}</version>
     </dependency>
   </dependencies>
 

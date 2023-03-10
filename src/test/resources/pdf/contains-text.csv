@@ -1,19 +1,19 @@
-path,contains-text
-src/test/resources/pdf/normal/lorem-ipsum.pdf,true
-src/test/resources/pdf/normal/PDF-testdoc-1.3-Karte.pdf,false
-src/test/resources/pdf/normal/PDF-testdoc-1.4-hallo.pdf,true
-src/test/resources/pdf/normal/PDF-testdoc-1.4-hallo-annotation.pdf,true
-src/test/resources/pdf/normal/PDF-testdoc-1.4-hallo-complex.pdf,true
-src/test/resources/pdf/normal/PDF-testdoc-1.4-lines.pdf,false
-src/test/resources/pdf/normal/PDF-testdoc-1.4-MultiImage.pdf,false
-src/test/resources/pdf/normal/PDF-testdoc-1.4-RotatedImages.pdf,true
-src/test/resources/pdf/normal/PDF-testdoc-1.4-SingleImage.pdf,false
-src/test/resources/pdf/normal/PDF-testdoc-1.4-TextTest.pdf,true
-src/test/resources/pdf/encrypted/02_enc40bit_no-pw.pdf,true
-src/test/resources/pdf/encrypted/03_enc40bit_pw-owner.pdf,true
-src/test/resources/pdf/encrypted/06_enc128bit_no-pw.pdf,true
-src/test/resources/pdf/encrypted/07_enc128bit_pw-owner.pdf,true
-src/test/resources/pdf/encrypted/10_enc128bit-aes_no-pw.pdf,true
-src/test/resources/pdf/encrypted/11_enc128bit-aes_pw-owner.pdf,true
-src/test/resources/pdf/encrypted/Contrapunctus I BWV 1080.pdf,true
-src/test/resources/pdf/portfolio/portable-collection-1.pdf,true
+path,contains-text,language(ignored if null)
+src/test/resources/pdf/normal/lorem-ipsum.pdf,true,LATIN
+src/test/resources/pdf/normal/PDF-testdoc-1.3-Karte.pdf,false,null
+src/test/resources/pdf/normal/PDF-testdoc-1.4-hallo.pdf,true,null
+src/test/resources/pdf/normal/PDF-testdoc-1.4-hallo-annotation.pdf,true,null
+src/test/resources/pdf/normal/PDF-testdoc-1.4-hallo-complex.pdf,true,null
+src/test/resources/pdf/normal/PDF-testdoc-1.4-lines.pdf,false,null
+src/test/resources/pdf/normal/PDF-testdoc-1.4-MultiImage.pdf,false,null
+src/test/resources/pdf/normal/PDF-testdoc-1.4-RotatedImages.pdf,true,null
+src/test/resources/pdf/normal/PDF-testdoc-1.4-SingleImage.pdf,false,null
+src/test/resources/pdf/normal/PDF-testdoc-1.4-TextTest.pdf,true,null
+src/test/resources/pdf/encrypted/02_enc40bit_no-pw.pdf,true,null
+src/test/resources/pdf/encrypted/03_enc40bit_pw-owner.pdf,true,null
+src/test/resources/pdf/encrypted/06_enc128bit_no-pw.pdf,true,null
+src/test/resources/pdf/encrypted/07_enc128bit_pw-owner.pdf,true,null
+src/test/resources/pdf/encrypted/10_enc128bit-aes_no-pw.pdf,true,null
+src/test/resources/pdf/encrypted/11_enc128bit-aes_pw-owner.pdf,true,null
+src/test/resources/pdf/encrypted/Contrapunctus I BWV 1080.pdf,true,null
+src/test/resources/pdf/portfolio/portable-collection-1.pdf,true,GERMAN
