@@ -15,6 +15,8 @@ import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
+import com.github.pemistahl.lingua.api.LanguageDetector;
+import com.github.pemistahl.lingua.api.LanguageDetectorBuilder;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentCatalog;
 import org.apache.pdfbox.pdmodel.PDDocumentInformation;
@@ -76,6 +78,13 @@ public class PDFMatcher extends Matcher {
    * All possible languages of the PDF's text, sorted by their confidence value, analyzed with <a href="https://github.com/pemistahl/lingua">lingua</a>
    */
   public static final String TEXT_LANGUAGE_CONFIDENCE_VALUES = "text-language-confidence-values";
+
+
+  private final static boolean languageCheck;
+
+  static {
+    languageCheck = "true".equalsIgnoreCase(System.getProperty(PDFMatcher.class.getName() + ".languageCheck", "false"));
+  }
 
   private static boolean lookForText() {
     return "true".equalsIgnoreCase(System.getProperty(PDFMatcher.class.getName() + ".lookForText", "false"));
@@ -283,7 +292,31 @@ public class PDFMatcher extends Matcher {
       final String pdfText = new PDFTextStripper().getText(doc);
       pdfDetails.put(TEXT_LENGTH_PER_PAGE_KEY, textLengthPerPages);
       pdfDetails.put(TEXT_LENGTH_KEY, pdfText.replaceAll("([\\r\\n])", "").length());
+      if (languageCheck)
+        addLanguageInformation(pdfDetails, pdfText);
     }
+  }
+
+  /**
+   * Adds information about the given text to the given map.
+   * The most likely text language will be {@link com.github.pemistahl.lingua.api.Language#UNKNOWN} in case
+   * language detection is not reliably possible.
+   *
+   * @param pdfDetails map to which the results get added
+   * @param text text to analyze
+   */
+  public static void addLanguageInformation(final Map<String, Object> pdfDetails, final String text) {
+    LanguageDetectorBuilder languageDetectorBuilder =
+        LanguageDetectorBuilder
+            .fromAllLanguages()
+            .withMinimumRelativeDistance(0.1);
+    if (text.length() > 120)
+      languageDetectorBuilder.withLowAccuracyMode();
+    final LanguageDetector languageDetector = languageDetectorBuilder.build();
+    final long startTime = System.currentTimeMillis();
+    pdfDetails.put(TEXT_LANGUAGE_CONFIDENCE_VALUES, languageDetector.computeLanguageConfidenceValues(text));
+    pdfDetails.put(MOST_LIKELY_TEXT_LANGUAGE, languageDetector.detectLanguageOf(text).toString());
+    LOGGER.debug("Language recognition took {} ms.", System.currentTimeMillis() - startTime);
   }
 
   /**
