@@ -127,19 +127,17 @@ class TestPDFMatcher {
     assertNumberOfPages(result, 1);
   }
 
+  @SuppressWarnings("unchecked")
   @ParameterizedTest
   @CsvFileSource(resources = "/pdf/signed.csv", numLinesToSkip = 1)
-  void testSignedPDFs(final String urlString, final int expectedSignatureCount) throws IOException {
+  void testSignedPDFs(final String urlString, final int expectedSignatureCount, final boolean valid) throws IOException {
     final Map<String, Object> result = ANALYZER.analyze(new URL(urlString).openStream());
     assertNotNull(result);
     assertThat(result, hasKey(PDFMatcher.DETAILS_KEY));
     final Map<String, Object> details = (Map<String, Object>) result.get(PDFMatcher.DETAILS_KEY);
-    assertThat(details, hasKey(SignatureUtil.IS_SIGNED_KEY));
     assertEquals(expectedSignatureCount != 0, details.get(SignatureUtil.IS_SIGNED_KEY));
     if (expectedSignatureCount != 0) {
-      assertThat(details, hasKey(SignatureUtil.SIGNATURE_DETAILS_KEY));
       final Object signatureDetails = details.get(SignatureUtil.SIGNATURE_DETAILS_KEY);
-      assertThat(signatureDetails, instanceOf(List.class));
       final List<Map<String,Object>> signatureList = (List<Map<String,Object>>) signatureDetails;
       assertThat(signatureList.size(), equalTo(expectedSignatureCount));
       for (Map<String, Object> signature : signatureList) {
@@ -148,9 +146,14 @@ class TestPDFMatcher {
         assertThat(signature, hasKey(SignatureUtil.SIGNATURE_NUMBER_KEY));
         assertThat(signature.get(SignatureUtil.SIGNATURE_PAGE_KEY), notNullValue());
         if (expectedSignatureCount == 1) {
-          assertThat(signature.get(SignatureUtil.SIGNATURE_DOCUMENT_COVERAGE_KEY), equalTo("WHOLE_DOCUMENT"));
+          if (valid)
+            assertThat(signature.get(SignatureUtil.SIGNATURE_DOCUMENT_COVERAGE_KEY), equalTo("WHOLE_DOCUMENT"));
           assertThat(signature.get(SignatureUtil.SIGNATURE_NUMBER_KEY), equalTo(1));
         }
+        if (valid)
+          assertEquals("Valid", signature.get(SignatureUtil.SIGNATURE_VALIDITY));
+        else
+          assertTrue(((String) signature.get(SignatureUtil.SIGNATURE_VALIDITY)).startsWith("Could not be validated."));
       }
     }
   }
