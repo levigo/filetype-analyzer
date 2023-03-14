@@ -80,4 +80,4 @@ The following sets forth attribution notices for third-party software that may b
 ### Apache Commons Compress
 
 - Copyright (c) 2004-2020 The Apache Software Foundation
-- License: Apache License, Version 2.0 (https://www
+- License: Apache License, Version 2.0 (https://www.apache.org/licenses/LICENSE-2.0)
