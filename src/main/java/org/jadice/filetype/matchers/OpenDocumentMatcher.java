@@ -4,7 +4,6 @@ import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -18,17 +17,14 @@ import org.jadice.filetype.database.ExtensionAction;
 import org.jadice.filetype.database.MimeTypeAction;
 import org.jadice.filetype.domutil.DOMUtil;
 import org.jadice.filetype.io.SeekableInputStream;
-import org.jadice.filetype.ziputil.ZipUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
-import net.lingala.zip4j.ZipFile;
-import net.lingala.zip4j.model.FileHeader;
+import net.lingala.zip4j.io.inputstream.ZipInputStream;
+import net.lingala.zip4j.model.LocalFileHeader;
 
 /**
  * A matcher for OpenDocument-based formats and their fore-runners. In particular, the following
@@ -48,8 +44,6 @@ import net.lingala.zip4j.model.FileHeader;
  *
  */
 public class OpenDocumentMatcher extends Matcher {
-
-  private static final Logger LOGGER = LoggerFactory.getLogger(OpenDocumentMatcher.class);
 
   static final class DontCloseFilter extends FilterInputStream {
     DontCloseFilter(InputStream in) {
@@ -128,13 +122,13 @@ public class OpenDocumentMatcher extends Matcher {
     final String description;
     final String extension;
 
-    private OpenDocumenType(String mimeType, String description, String extension) {
+    OpenDocumenType(String mimeType, String description, String extension) {
       this.mimeType = mimeType;
       this.description = description;
       this.extension = extension;
     }
 
-    private OpenDocumenType(String mimeType, String description) {
+    OpenDocumenType(String mimeType, String description) {
       this.mimeType = mimeType;
       this.description = description;
       this.extension = null;
@@ -146,19 +140,9 @@ public class OpenDocumentMatcher extends Matcher {
     SeekableInputStream sis = context.getStream();
     try {
       sis.seek(0);
-
-      ZipFile archive = ZipUtil.createZipFile(sis);
-      try {
-        detect(context, archive);
-      } finally {
-        archive.close();
-        try {
-          Files.delete(archive.getFile().toPath());
-        } catch (IOException ioe) {
-          LOGGER.debug("failed to delete temporary zip file", ioe);
-        }
+      try (ZipInputStream zis = new ZipInputStream(sis)) {
+        detect(context, zis);
       }
-
       return context.getProperty(MimeTypeAction.KEY) != null;
     } catch (Exception e) {
       context.error(this, "Exception analyzing ODF", e);
@@ -167,29 +151,28 @@ public class OpenDocumentMatcher extends Matcher {
     return false;
   }
 
-  private void detect(Context ctx, ZipFile archive) throws IOException {
+  private void detect(Context ctx, ZipInputStream zipInputStream) throws IOException {
     boolean gotMimeType = false;
     boolean gotMetaData = false;
 
     try {
+      LocalFileHeader fileHeader;
       Map<String, Object> results = new HashMap<>();
-      
-      for(FileHeader fileHeader : archive.getFileHeaders()){
-        // consider the uuid directory name
-        String fileName = fileHeader.getFileName().replace(archive.getFile().getName() + "/", "");
+      while ((fileHeader = zipInputStream.getNextEntry()) != null) {
+        String fileName = fileHeader.getFileName();
         if ("mimetype".equals(fileName)) {
-          detectMimeType(ctx, results, archive.getInputStream(fileHeader));
+          detectMimeType(ctx, results, zipInputStream);
           gotMimeType = true;
         } else if ("meta.xml".equals(fileName)) {
           try {
-            readMetaXml(results, archive.getInputStream(fileHeader));
+            readMetaXml(results, zipInputStream);
             gotMetaData = true;
           } catch (Exception e) {
             ctx.error(this, "Exception parsing meta.xml", e);
           }
         } else if ("META-INF/manifest.xml".equals(fileName)) {
           try {
-            readManifestXml(ctx, results, archive.getInputStream(fileHeader));
+            readManifestXml(ctx, results, zipInputStream);
             gotMimeType = true;
           } catch (Exception e) {
             ctx.error(this, "Exception parsing manifest.xml", e);
