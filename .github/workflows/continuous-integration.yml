@@ -27,7 +27,7 @@ jobs:
 
     ## Enable Caching
     - name: Cache SonarCloud packages
-      uses: actions/cache@v1
+      uses: actions/cache@v3
       with:
         path: ~/.sonar/cache
         key: ${{ runner.os }}-sonar
@@ -48,14 +48,18 @@ jobs:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       run: mvn $MAVEN_CLI_OPTS verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
 
-    ## Notify Slack
-    - name: Notify slack
-      uses: hennejg/slack-build-notifier@v1.1
+    ## Notify Mattermost
+    - name: Notify Developers
+      uses: 8398a7/action-slack@v3
       with:
         username: GitHub
         icon_emoji: octocat
         channel: ci_js
+        status: ${{ job.status }}
+        fields: repo,message,commit,author,action,eventName,ref
+        text: ${{ github.workflow }} ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-      if: always()
+      # vermutlich muss man das personal access token der Action übergeben, damit diese nach mattermost
+      # funken darf. Alternativ wie unten einstellen, sodass bei dependabot PRs nichts passiert.
+      if: ${{ github.actor != 'dependabot[bot]' }}
