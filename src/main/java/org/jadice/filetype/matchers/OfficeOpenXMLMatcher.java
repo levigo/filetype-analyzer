@@ -32,7 +32,9 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import net.lingala.zip4j.ZipFile;
+import net.lingala.zip4j.io.inputstream.ZipInputStream;
 import net.lingala.zip4j.model.FileHeader;
+import net.lingala.zip4j.model.LocalFileHeader;
 
 /**
  * A {@link Matcher} for Office Open XML (i.e. MS Office 2007) documents.
@@ -235,16 +237,8 @@ public class OfficeOpenXMLMatcher extends Matcher {
     try {
       sis.seek(0);
 
-      ZipFile archive = ZipUtil.createZipFile(sis);
-      try {
-        detect(context, archive);
-      } finally {
-        archive.close();
-        try {
-          Files.delete(archive.getFile().toPath());
-        } catch (IOException ioe) {
-          LOGGER.debug("failed to delete temporary zip file", ioe);
-        }
+      try (ZipInputStream zis = new ZipInputStream(sis)) {
+        detect(context, zis);
       }
 
       return context.getProperty(MimeTypeAction.KEY) != null;
@@ -254,9 +248,9 @@ public class OfficeOpenXMLMatcher extends Matcher {
     return false;
   }
 
-  private void detect(final Context ctx, final ZipFile archive) throws IOException {
-    final SortedSet<Relationship> rels = getRelationships(archive);
-    final List<ContentType> contentTypes = getContentTypes(archive);
+  private void detect(final Context ctx, final ZipInputStream zipInputStream) throws IOException {
+    final SortedSet<Relationship> rels = getRelationships(zipInputStream);
+    final List<ContentType> contentTypes = getContentTypes(zipInputStream);
     if (rels.isEmpty() || contentTypes.isEmpty()) {
       return;
     }
@@ -273,7 +267,7 @@ public class OfficeOpenXMLMatcher extends Matcher {
 
     Map<String, Object> metaData;
     try {
-      metaData = findMetaData(rels, archive);
+      metaData = findMetaData(rels, zipInputStream);
       if (!metaData.isEmpty()) {
         ctx.setProperty("OLE_DETAILS", metaData);
       }
@@ -319,11 +313,11 @@ public class OfficeOpenXMLMatcher extends Matcher {
     return null;
   }
 
-  private Map<String, Object> findMetaData(final SortedSet<Relationship> rels, final ZipFile archive) throws IOException {
+  private Map<String, Object> findMetaData(final SortedSet<Relationship> rels, final ZipInputStream zis) throws IOException {
     for (Relationship r : rels) {
       // XXX What about extended-properties?
       if (CORE_PROPERTIES_SCHEMA.equalsIgnoreCase(r.type)) {
-        final InputStream is = getSafeInputStream(r.target, archive);
+        final InputStream is = getSafeInputStream(r.target, zis);
         if (is == null) {
           continue;
         }
@@ -366,13 +360,13 @@ public class OfficeOpenXMLMatcher extends Matcher {
 
   /**
    * Get the content types from an OfficeOpenXML archive
-   * @param archive an OfficeOpenXML archive
+   * @param zis an OfficeOpenXML archive
    * @return a list of content types or an empty {@link List<ContentType>}
    * @throws IOException if parsing of the content types fails
    */
-  private List<ContentType> getContentTypes(final ZipFile archive) throws IOException {
+  private List<ContentType> getContentTypes(final ZipInputStream zis) throws IOException {
     List<ContentType> result = new LinkedList<>();
-    final InputStream typesIS = getSafeInputStream(CONTENT_TYPES_FILENAME, archive);
+    final InputStream typesIS = getSafeInputStream(CONTENT_TYPES_FILENAME, zis);
     if (typesIS == null) {
       return result;
     }
@@ -417,13 +411,13 @@ public class OfficeOpenXMLMatcher extends Matcher {
 
   /**
    * Get the relationships from an OfficeOpenXML archive
-   * @param archive an OfficeOpenXML archive
+   * @param zis an OfficeOpenXML archive
    * @return a set of relationships or an empty {@link SortedSet<Relationship>}
    * @throws IOException if parsing of the relationship part fails
    */
-  private SortedSet<Relationship> getRelationships(final ZipFile archive) throws IOException {
+  private SortedSet<Relationship> getRelationships(final ZipInputStream zis) throws IOException {
     SortedSet<Relationship> result = new TreeSet<>();
-    final InputStream relationsIS = getSafeInputStream(RELATIONSSHIP_FILENAME, archive);
+    final InputStream relationsIS = getSafeInputStream(RELATIONSSHIP_FILENAME, zis);
     if (relationsIS == null) {
       return result;
     }
@@ -452,18 +446,18 @@ public class OfficeOpenXMLMatcher extends Matcher {
     return result;
   }
 
-  private InputStream getSafeInputStream(String fileName, final ZipFile archive) throws IOException {
+  private InputStream getSafeInputStream(String fileName, final ZipInputStream zis) throws IOException {
+//    return zis;
     if (fileName.startsWith("/")) {
       fileName = fileName.substring(1);
     }
 
-    // consider the uuid directory name
-    fileName = archive.getFile().getName() + File.separator + fileName;
-
-    final FileHeader entry = archive.getFileHeader(fileName);
-    if (entry != null && !entry.isDirectory()) {
-      LOGGER.debug("Get '{}' from 1 piece", fileName);
-      return archive.getInputStream(entry);
+    LocalFileHeader localFileHeader;
+    while ((localFileHeader = zis.getNextEntry()) != null) {
+      if(localFileHeader.getFileName().equals(fileName) && !localFileHeader.isDirectory()){
+        LOGGER.debug("Get '{}' from 1 piece", fileName);
+        return zis;
+      }
     }
 
     // try directory browsing:
