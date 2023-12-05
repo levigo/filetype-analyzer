@@ -57,7 +57,7 @@
     <commons.io.version>2.15.1</commons.io.version>
     <commons-compress.version>1.25.0</commons-compress.version>
     <opennlp-tools.version>1.9.4</opennlp-tools.version>
-
+    <jtnef.version>2.1.0</jtnef.version>
     <pdfbox.version>2.0.30</pdfbox.version>
 
     <jaxb-api.version>2.3.1</jaxb-api.version>
@@ -300,6 +300,16 @@
       <groupId>org.apache.poi</groupId>
       <artifactId>poi</artifactId>
       <version>${poi.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.poi</groupId>
+      <artifactId>poi-scratchpad</artifactId>
+      <version>${poi.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>net.freeutils</groupId>
+      <artifactId>jtnef</artifactId>
+      <version>${jtnef.version}</version>
     </dependency>
 
     <dependency>

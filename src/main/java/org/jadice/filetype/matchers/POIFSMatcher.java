@@ -27,6 +27,11 @@ import org.jadice.filetype.database.ExtensionAction;
 import org.jadice.filetype.database.MimeTypeAction;
 import org.jadice.filetype.io.SeekableInputStream;
 
+import net.freeutils.tnef.MAPIProp;
+import net.freeutils.tnef.MAPIProps;
+import net.freeutils.tnef.Message;
+import net.freeutils.tnef.msg.Msg;
+
 /**
  * A matcher for Microsoft Office formats up to, but excluding the Office 2007 OOXML formats. Those
  * documents are based on the COM/OLE container "filesystem" which is parsed using apache POI.
@@ -124,6 +129,10 @@ public class POIFSMatcher extends Matcher {
         DirectoryEntry root = fs.getRoot();
 
         traverse(context, root);
+
+        if (context.getProperty(MimeTypeAction.KEY).equals(POIFS_TYPE.OUTLOOK.mimeType) && (isSignedMessage(context, root))) {
+          context.setProperty(MimeTypeAction.KEY, POIFS_TYPE.OUTLOOK.mimeType + ";signed=true");
+        }
       }
       return context.getProperty(MimeTypeAction.KEY) != null;
     } catch (IOException e) {
@@ -219,6 +228,31 @@ public class POIFSMatcher extends Matcher {
       context.setProperty(ExtensionAction.KEY, POIFS_TYPE.PROJECT.extension);
     }
 
+  }
+
+  /**
+   * Return whether the input is a clear-signed or opaque-signed .msg format message.
+   *
+   * @param context
+   * @param root    the root of the {@link POIFSFileSystem}
+   * @return true if signed, false if not or an error occurred
+   * @see <a href="https://learn.microsoft.com/en-us/openspecs/exchange_server_protocols/ms-oxosmime/e6f63b02-c679-4752-9302-9c4641749e95?redirectedfrom=MSDN">Recognizing a Message Object that Represents an Opaque-Signed or Encrypted S/MIME Message</a>
+   * @see <a href="https://learn.microsoft.com/en-us/openspecs/exchange_server_protocols/ms-oxosmime/b5ab0318-ff00-4be2-a02a-6b8201a1d6b3?redirectedfrom=MSDN">Recognizing a Message Object that Represents a Clear-Signed Message</a>
+   */
+  private boolean isSignedMessage(Context context, DirectoryEntry root){
+    try(Message message = Msg.processMessage(root)) {
+      if (message.getAttachments().size() == 1) {
+        MAPIProps mapiProps = message.getMAPIProps();
+        MAPIProp prop = mapiProps.getProp(MAPIProp.PR_MESSAGE_CLASS);
+        if (prop != null) {
+          Object value = prop.getValue();
+          return value != null && (value.equals("IPM.Note.SMIME") || value.equals("IPM.Note.SMIME.MultipartSigned"));
+        }
+      }
+    } catch (IOException e) {
+      context.error(this, "Exception parsing " + POIFS_TYPE.OUTLOOK.description, e);
+    }
+    return false;
   }
 
 
