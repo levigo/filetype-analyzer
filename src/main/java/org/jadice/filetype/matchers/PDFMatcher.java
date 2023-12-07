@@ -15,6 +15,8 @@ import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
+import org.apache.pdfbox.Loader;
+import org.apache.pdfbox.io.IOUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentCatalog;
 import org.apache.pdfbox.pdmodel.PDDocumentInformation;
@@ -82,10 +84,10 @@ public class PDFMatcher extends Matcher {
     SeekableInputStream sis = context.getStream();
     try {
       sis.seek(0);
-      try (PDDocument document = PDDocument.load(sis)) {
+      try (PDDocument document = Loader.loadPDF(IOUtils.toByteArray(sis))) {
         context.setProperty(MimeTypeAction.KEY, PDF_MIME_TYPE);
 
-        Map<String, Object> pdfDetails = new HashMap<String, Object>();
+        Map<String, Object> pdfDetails = new HashMap<>();
         context.setProperty(DETAILS_KEY, pdfDetails);
 
         pdfDetails.put(NUMBER_OF_PAGES_KEY, Integer.valueOf(document.getNumberOfPages()));
