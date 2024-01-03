@@ -49,32 +49,32 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-    <zip4j.version>2.11.3</zip4j.version>
+    <zip4j.version>2.11.5</zip4j.version>
     <slf4j.version>1.7.36</slf4j.version>
 
-    <poi.version>5.2.3</poi.version>
+    <poi.version>5.2.5</poi.version>
     <rtfparserkit.version>1.16.0</rtfparserkit.version>
-    <commons.io.version>2.11.0</commons.io.version>
-    <commons-compress.version>1.22</commons-compress.version>
+    <commons.io.version>2.15.1</commons.io.version>
+    <commons-compress.version>1.25.0</commons-compress.version>
     <opennlp-tools.version>1.9.4</opennlp-tools.version>
 
-    <pdfbox.version>2.0.27</pdfbox.version>
+    <pdfbox.version>2.0.30</pdfbox.version>
 
     <jaxb-api.version>2.3.1</jaxb-api.version>
     <jaxb-runtime.version>2.3.6</jaxb-runtime.version>
 
     <!-- testing -->
-    <junit.version>5.9.2</junit.version>
+    <junit.version>5.10.1</junit.version>
     <hamcrest.version>2.2</hamcrest.version>
     <jmock-junit5.version>2.12.0</jmock-junit5.version>
-    <log4j.version>2.17.2</log4j.version>
+    <log4j.version>2.22.1</log4j.version>
 
     <!-- sonarcloud -->
     <sonar.projectKey>levigo_filetype-analyzer</sonar.projectKey>
     <sonar.organization>levigo</sonar.organization>
     <sonar.host.url>https://sonarcloud.io</sonar.host.url>
 
-    <bouncycastle.version>1.70</bouncycastle.version>
+    <bouncycastle.version>1.77</bouncycastle.version>
   </properties>
 
   <build>
@@ -82,7 +82,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.10.1</version>
+        <version>3.12.1</version>
         <configuration>
           <source>1.8</source>
           <target>1.8</target>
@@ -92,7 +92,7 @@
         <!-- Calculating the test coverage  -->
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
-        <version>0.8.8</version>
+        <version>0.8.11</version>
         <executions>
           <execution>
             <id>pre-unit-test</id>
@@ -114,8 +114,9 @@
         </executions>
       </plugin>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>3.0.0-M8</version>
+        <version>3.2.2</version>
         <configuration>
           <!-- Sets the VM argument line as defined by the JaCoCo plugin. -->
           <argLine>${jacocoAgentArgLine}</argLine>
@@ -131,12 +132,12 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
-        <version>3.1.0</version>
+        <version>3.4.1</version>
         <dependencies>
           <dependency>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>extra-enforcer-rules</artifactId>
-            <version>1.6.1</version>
+            <version>1.7.0</version>
           </dependency>
         </dependencies>
         <executions>
@@ -148,11 +149,11 @@
             <configuration>
               <rules>
                 <requireMavenVersion>
-                  <version>[3.5.4,)</version>
+                  <version>[3.8.8,)</version>
                 </requireMavenVersion>
                 <requireJavaVersion>
                   <!-- http://maven.apache.org/enforcer/enforcer-rules/versionRanges.html -->
-                  <version>[1.8,12)</version>
+                  <version>[1.8,18)</version>
                 </requireJavaVersion>
                 <!-- <requirePluginVersions> <message>Best Practice is to 
                   always define plugin versions!</message> <banLatest>true</banLatest> <banRelease>true</banRelease> 
@@ -180,7 +181,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-release-plugin</artifactId>
-        <version>3.0.0-M7</version>
+        <version>3.0.1</version>
         <configuration>
           <username>git</username>
           <password/>
@@ -203,12 +204,12 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-clean-plugin</artifactId>
-          <version>3.2.0</version>
+          <version>3.3.2</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-install-plugin</artifactId>
-          <version>3.1.0</version>
+          <version>3.1.1</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -218,12 +219,17 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-resources-plugin</artifactId>
-          <version>3.3.0</version>
+          <version>3.3.1</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-deploy-plugin</artifactId>
-          <version>3.0.0</version>
+          <version>3.1.1</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-javadoc-plugin</artifactId>
+          <version>3.6.3</version>
         </plugin>
       </plugins>
     </pluginManagement>
@@ -233,7 +239,6 @@
     <plugins>
       <plugin>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>3.4.1</version>
         <configuration>
           <!-- <excludePackageNames>*.internal*</excludePackageNames> -->
           <!-- the javadoc footer may not contain any newline characters 
@@ -325,7 +330,7 @@
     <!-- for pdf signature validation -->
     <dependency>
       <groupId>org.bouncycastle</groupId>
-      <artifactId>bcpkix-jdk15on</artifactId>
+      <artifactId>bcpkix-jdk18on</artifactId>
       <version>${bouncycastle.version}</version>
     </dependency>
 
@@ -424,7 +429,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-source-plugin</artifactId>
-            <version>3.2.1</version>
+            <version>3.3.0</version>
             <executions>
               <execution>
                 <id>attach-sources</id>
@@ -438,7 +443,6 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
-            <version>3.4.0</version>
             <executions>
               <execution>
                 <id>attach-javadocs</id>
@@ -457,7 +461,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-gpg-plugin</artifactId>
-            <version>3.0.1</version>
+            <version>3.1.0</version>
             <executions>
               <execution>
                 <id>sign-artifacts</id>
