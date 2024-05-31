@@ -54,26 +54,26 @@
 
     <poi.version>5.2.5</poi.version>
     <rtfparserkit.version>1.16.0</rtfparserkit.version>
-    <commons.io.version>2.15.1</commons.io.version>
-    <commons-compress.version>1.26.0</commons-compress.version>
+    <commons.io.version>2.16.1</commons.io.version>
+    <commons-compress.version>1.26.2</commons-compress.version>
     <opennlp-tools.version>1.9.4</opennlp-tools.version>
 
-    <pdfbox.version>2.0.30</pdfbox.version>
+    <pdfbox.version>2.0.31</pdfbox.version>
 
     <jaxb-runtime.version>3.0.2</jaxb-runtime.version>
 
     <!-- testing -->
     <junit.version>5.10.2</junit.version>
     <hamcrest.version>2.2</hamcrest.version>
-    <jmock-junit5.version>2.12.0</jmock-junit5.version>
-    <log4j.version>2.22.1</log4j.version>
+    <jmock-junit5.version>2.13.1</jmock-junit5.version>
+    <log4j.version>2.23.1</log4j.version>
 
     <!-- sonarcloud -->
     <sonar.projectKey>levigo_filetype-analyzer</sonar.projectKey>
     <sonar.organization>levigo</sonar.organization>
     <sonar.host.url>https://sonarcloud.io</sonar.host.url>
 
-    <bouncycastle.version>1.77</bouncycastle.version>
+    <bouncycastle.version>1.78.1</bouncycastle.version>
   </properties>
 
   <build>
@@ -152,7 +152,7 @@
                 </requireMavenVersion>
                 <requireJavaVersion>
                   <!-- http://maven.apache.org/enforcer/enforcer-rules/versionRanges.html -->
-                  <version>[1.8,18)</version>
+                  <version>[1.8,22)</version>
                 </requireJavaVersion>
                 <!-- <requirePluginVersions> <message>Best Practice is to 
                   always define plugin versions!</message> <banLatest>true</banLatest> <banRelease>true</banRelease> 
@@ -411,7 +411,7 @@
           <plugin>
             <groupId>org.sonatype.plugins</groupId>
             <artifactId>nexus-staging-maven-plugin</artifactId>
-            <version>1.6.13</version>
+            <version>1.7.0</version>
             <extensions>true</extensions>
             <configuration>
               <serverId>ossrh</serverId>
@@ -424,7 +424,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-source-plugin</artifactId>
-            <version>3.3.0</version>
+            <version>3.3.1</version>
             <executions>
               <execution>
                 <id>attach-sources</id>
@@ -456,7 +456,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-gpg-plugin</artifactId>
-            <version>3.0.1</version>
+            <version>3.2.4</version>
             <executions>
               <execution>
                 <id>sign-artifacts</id>
