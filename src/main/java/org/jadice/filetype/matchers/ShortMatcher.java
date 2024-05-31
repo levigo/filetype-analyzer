@@ -3,9 +3,9 @@ package org.jadice.filetype.matchers;
 import java.io.IOException;
 import java.nio.ByteOrder;
 
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlValue;
+import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlValue;
 
 import org.jadice.filetype.Context;
 import org.jadice.filetype.database.AbsoluteLocation;

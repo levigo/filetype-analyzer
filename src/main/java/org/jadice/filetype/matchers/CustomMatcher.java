@@ -3,8 +3,8 @@ package org.jadice.filetype.matchers;
 import java.io.EOFException;
 import java.io.IOException;
 
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlValue;
+import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlValue;
 
 import org.jadice.filetype.Context;
 import org.slf4j.Logger;
