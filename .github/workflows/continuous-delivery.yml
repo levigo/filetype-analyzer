@@ -1,6 +1,6 @@
 name: Continuous Delivery
 
-on: 
+on:
   push:
     branches:
       - master
@@ -32,7 +32,7 @@ jobs:
         release_branches: master
         github_token: ${{ secrets.GITHUB_TOKEN }}
         fetch_all_tags: true
-        
+
     - name: Verify and print new build number
       run: |
         if echo '${{ steps.semanticversion.outputs.new_tag }}' |grep -Eq '^v[0-9]+[.][0-9]+[.][0-9]+$'; then 
@@ -50,11 +50,11 @@ jobs:
         key: ${{ runner.os }}-sonar
         restore-keys: ${{ runner.os }}-sonar
 
-    - name: Set up JDK 11
+    - name: Set up JDK 17
       uses: actions/setup-java@v3
       with:
         distribution: 'temurin'
-        java-version: '11'
+        java-version: '17'
         cache: 'maven'
 
     ## Build with maven
@@ -90,7 +90,7 @@ jobs:
         echo "$GPG_SECRET_KEYS" | base64 --decode | $GPG_EXECUTABLE --import --no-tty --batch --yes
         echo "$GPG_OWNERTRUST" | base64 --decode | $GPG_EXECUTABLE --import-ownertrust --no-tty --batch --yes
         mvn $MAVEN_CLI_OPTS deploy --settings .maven.xml -Dmaven.test.skip.exec=true -U -Prelease
-        
+
     ## Update README.md
     - name: Edit README.md to contain version number
       run: |
@@ -109,7 +109,7 @@ jobs:
 
         git add README.md
         git commit -m "Edit README.md to contain correct version"
-      
+
     - name: Push changes
       uses: ad-m/github-push-action@master
       with:
