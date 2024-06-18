@@ -2,7 +2,7 @@ package org.jadice.filetype.matchers;
 
 import java.io.IOException;
 
-import javax.xml.bind.annotation.XmlTransient;
+import jakarta.xml.bind.annotation.XmlTransient;
 
 import org.jadice.filetype.Context;
 import org.jadice.filetype.database.Location;
