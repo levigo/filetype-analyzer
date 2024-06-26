@@ -23,11 +23,11 @@ jobs:
     timeout-minutes: 10
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Bump version and create tag
       id: semanticversion
-      uses: mathieudutour/github-tag-action@v6.1
+      uses: mathieudutour/github-tag-action@v6.2
       with:
         release_branches: master
         github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -44,14 +44,14 @@ jobs:
 
     ## Enable Caching
     - name: Cache SonarCloud packages
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ~/.sonar/cache
         key: ${{ runner.os }}-sonar
         restore-keys: ${{ runner.os }}-sonar
 
     - name: Set up JDK 17
-      uses: actions/setup-java@v3
+      uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
         java-version: '17'
@@ -80,12 +80,12 @@ jobs:
     ## Deploy
     - name: Deploy package
       env:
-            GPG_EXECUTABLE: gpg
-            GPG_SECRET_KEYS: ${{ secrets.LEVIGO_GPG_KEYS }}
-            GPG_OWNERTRUST: ${{ secrets.LEVIGO_GPG_OWNERTRUST }}
-            GPG_PASSPHRASE: ${{ secrets.LEVIGO_GPG_PASSPHRASE }}
-            SONATYPE_USERNAME: ${{ secrets.LEVIGO_SONATYPE_USERNAME }}
-            SONATYPE_PASSWORD: ${{ secrets.LEVIGO_SONATYPE_PASSWORD }}
+        GPG_EXECUTABLE: gpg
+        GPG_SECRET_KEYS: ${{ secrets.LEVIGO_GPG_KEYS }}
+        GPG_OWNERTRUST: ${{ secrets.LEVIGO_GPG_OWNERTRUST }}
+        GPG_PASSPHRASE: ${{ secrets.LEVIGO_GPG_PASSPHRASE }}
+        SONATYPE_USERNAME: ${{ secrets.LEVIGO_SONATYPE_USERNAME }}
+        SONATYPE_PASSWORD: ${{ secrets.LEVIGO_SONATYPE_PASSWORD }}
       run: |
         echo "$GPG_SECRET_KEYS" | base64 --decode | $GPG_EXECUTABLE --import --no-tty --batch --yes
         echo "$GPG_OWNERTRUST" | base64 --decode | $GPG_EXECUTABLE --import-ownertrust --no-tty --batch --yes
@@ -117,7 +117,7 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Create release
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       with:
         tag_name: ${{ steps.semanticversion.outputs.new_tag }}
         name: ${{ steps.semanticversion.outputs.new_version }}
@@ -134,4 +134,4 @@ jobs:
         text: Released new version `${{ steps.semanticversion.outputs.new_version }}` of *${{ github.repository }}* to maven central
       env:
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-      if: ${{ github.actor != 'dependabot[bot]' }}
+      if: ${{ failure && github.actor != 'dependabot[bot]' }}
