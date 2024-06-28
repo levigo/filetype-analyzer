@@ -1009,28 +1009,28 @@
 		<extension>ps</extension>
 		<description>Adobe PostScript data</description>
 		<description lang="de">Adobe PostScript Daten</description>
-		
+
 		<match-regexp offset="0" range="1000" multiline="true">^%!PS-Adobe</match-regexp>
-		
+
 		<type>
 			<extension>eps</extension>
 			<description>Encapsulated (EPS)</description>
 			<description lang="de">Encapsulated (EPS)</description>
-			
+
 			<match-regexp offset="0" range="1000" multiline="true">EPSF-</match-regexp>
 		</type>
-		
+
 		<type>
 			<description>Level 2</description>
 			<description lang="de">Level 2</description>
-			
+
 			<match-regexp offset="0" range="1000" multiline="true">PS-Adobe-2</match-regexp>
 		</type>
-		
+
 		<type>
 			<description>Level 3</description>
 			<description lang="de">Level 3</description>
-			
+
 			<match-regexp offset="0" range="1000" multiline="true">PS-Adobe-3</match-regexp>
 		</type>
 	</type>
@@ -3490,7 +3490,7 @@
 		<description>HTML Document</description>
 		<match-regexp offset="0">^\s*&lt;!DOCTYPE HTML PUBLIC</match-regexp>
 	</type>
-	
+
 	<type>
 		<mime-type>text/html</mime-type>
 		<extension>.html</extension>
@@ -3501,15 +3501,22 @@
 	<type>
 		<match-custom>org.jadice.filetype.matchers.XMLMatcher</match-custom>
 	</type>
-	
+
 	<type>
 		<mime-type>image/heif</mime-type>
 		<extension>heif</extension>
 		<description>HEIF images</description>
 		<match-regexp offset="4">ftypheif</match-regexp>
 	</type>
-	
-	
+
+	<type>
+		<mime-type>video/mp4</mime-type>
+		<extension>mp4</extension>
+		<description>Video</description>
+		<match-regexp offset="4">ftypdash</match-regexp>
+	</type>
+
+
 	<type>
 		<mime-type>image/heic</mime-type>
 		<extension>heic</extension>
