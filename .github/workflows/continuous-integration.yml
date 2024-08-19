@@ -3,7 +3,7 @@ name: Continuous Integration
 on:
   push:
     branches-ignore:
-      - master
+      - 'maintenance-1'
     paths-ignore:
       - '.github/**'
       - '**/README.md'
