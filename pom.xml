@@ -54,27 +54,27 @@
 
     <poi.version>5.2.5</poi.version>
     <rtfparserkit.version>1.16.0</rtfparserkit.version>
-    <commons.io.version>2.15.1</commons.io.version>
-    <commons-compress.version>1.26.0</commons-compress.version>
-    <opennlp-tools.version>1.9.4</opennlp-tools.version>
+    <commons.io.version>2.16.1</commons.io.version>
+    <commons-compress.version>1.27.0</commons-compress.version>
+    <opennlp-tools.version>1.9.3</opennlp-tools.version>
 
-    <pdfbox.version>2.0.30</pdfbox.version>
+    <pdfbox.version>2.0.31</pdfbox.version>
 
     <jaxb-api.version>2.3.1</jaxb-api.version>
     <jaxb-runtime.version>2.3.6</jaxb-runtime.version>
 
     <!-- testing -->
-    <junit.version>5.10.2</junit.version>
-    <hamcrest.version>2.2</hamcrest.version>
-    <jmock-junit5.version>2.12.0</jmock-junit5.version>
-    <log4j.version>2.22.1</log4j.version>
+    <junit.version>5.11.0</junit.version>
+    <hamcrest.version>3.0</hamcrest.version>
+    <jmock-junit5.version>2.13.1</jmock-junit5.version>
+    <log4j.version>2.23.1</log4j.version>
 
     <!-- sonarcloud -->
     <sonar.projectKey>levigo_filetype-analyzer</sonar.projectKey>
     <sonar.organization>levigo</sonar.organization>
     <sonar.host.url>https://sonarcloud.io</sonar.host.url>
 
-    <bouncycastle.version>1.77</bouncycastle.version>
+    <bouncycastle.version>1.78.1</bouncycastle.version>
   </properties>
 
   <build>
@@ -100,7 +100,7 @@
               <goal>prepare-agent</goal>
             </goals>
             <configuration>
-              <!-- Sets the name of the property containing the settings 
+              <!-- Sets the name of the property containing the settings
                 for JaCoCo runtime agent.  -->
               <propertyName>jacocoAgentArgLine</propertyName>
             </configuration>
@@ -120,8 +120,8 @@
         <configuration>
           <!-- Sets the VM argument line as defined by the JaCoCo plugin. -->
           <argLine>${jacocoAgentArgLine}</argLine>
-          <!-- system properties supplied to maven are not automatically 
-            mapped to surefire test runs. Therefore, we need to specify a manual mapping 
+          <!-- system properties supplied to maven are not automatically
+            mapped to surefire test runs. Therefore, we need to specify a manual mapping
             here. -->
           <systemPropertyVariables>
             <com.levigo.analyzer.testsuite>${com.levigo.analyzer.testsuite}</com.levigo.analyzer.testsuite>
@@ -132,7 +132,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
-        <version>3.4.1</version>
+        <version>3.5.0</version>
         <dependencies>
           <dependency>
             <groupId>org.codehaus.mojo</groupId>
@@ -155,9 +155,9 @@
                   <!-- http://maven.apache.org/enforcer/enforcer-rules/versionRanges.html -->
                   <version>[1.8,18)</version>
                 </requireJavaVersion>
-                <!-- <requirePluginVersions> <message>Best Practice is to 
-                  always define plugin versions!</message> <banLatest>true</banLatest> <banRelease>true</banRelease> 
-                  <banSnapshots>true</banSnapshots> <phases>clean,install,deploy,site</phases> 
+                <!-- <requirePluginVersions> <message>Best Practice is to
+                  always define plugin versions!</message> <banLatest>true</banLatest> <banRelease>true</banRelease>
+                  <banSnapshots>true</banSnapshots> <phases>clean,install,deploy,site</phases>
                   </requirePluginVersions> -->
               </rules>
             </configuration>
@@ -187,7 +187,7 @@
           <password/>
           <goals>deploy</goals>
           <useReleaseProfile>false</useReleaseProfile>
-          <!-- use our own profile in case of releases: upload html documentation 
+          <!-- use our own profile in case of releases: upload html documentation
             / enforce relaese env. -->
           <autoVersionSubmodules>true</autoVersionSubmodules>
           <preparationGoals>clean</preparationGoals>
@@ -242,7 +242,7 @@
         <artifactId>maven-javadoc-plugin</artifactId>
         <configuration>
           <!-- <excludePackageNames>*.internal*</excludePackageNames> -->
-          <!-- the javadoc footer may not contain any newline characters 
+          <!-- the javadoc footer may not contain any newline characters
             otherwise the javadoc plugin will fail -->
           <footer>
             <![CDATA[
@@ -251,8 +251,8 @@
           </footer>
         </configuration>
         <!-- https://maven.apache.org/plugins/maven-javadoc-plugin/examples/aggregate.html -->
-        <!-- "Since 3.1.0 the aggregate has changed a little bit. It'll generate 
-          aggregated reports at every level. To get only an aggregated project at root 
+        <!-- "Since 3.1.0 the aggregate has changed a little bit. It'll generate
+          aggregated reports at every level. To get only an aggregated project at root
           level, you need to configure the pom like:" -->
         <reportSets>
           <reportSet>
