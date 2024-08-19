@@ -1,8 +1,11 @@
 package org.jadice.filetype.matchers;
 
+import static org.jadice.filetype.matchers.XMLMatcher.X_RECHNUNG_KEY;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -32,6 +35,7 @@ import org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotationFileAttachme
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.jadice.filetype.Context;
 import org.jadice.filetype.database.MimeTypeAction;
+import org.jadice.filetype.io.MemoryInputStream;
 import org.jadice.filetype.io.SeekableInputStream;
 import org.jadice.filetype.pdfutil.PDFBoxSignatureUtil;
 import org.slf4j.Logger;
@@ -85,7 +89,7 @@ public class PDFMatcher extends Matcher {
       try (PDDocument document = PDDocument.load(sis)) {
         context.setProperty(MimeTypeAction.KEY, PDF_MIME_TYPE);
 
-        Map<String, Object> pdfDetails = new HashMap<String, Object>();
+        Map<String, Object> pdfDetails = new HashMap<>();
         context.setProperty(DETAILS_KEY, pdfDetails);
 
         pdfDetails.put(NUMBER_OF_PAGES_KEY, Integer.valueOf(document.getNumberOfPages()));
@@ -101,6 +105,7 @@ public class PDFMatcher extends Matcher {
         PDMetadata meta = catalog.getMetadata();
         if (null != meta) {
           provideXMPMetadata(pdfDetails, meta);
+          checkIfXRechnung(pdfDetails);
         }
 
         PDEncryption encryption = document.getEncryption();
@@ -270,6 +275,29 @@ public class PDFMatcher extends Matcher {
       final String pdfText = new PDFTextStripper().getText(doc);
       pdfDetails.put(TEXT_LENGTH_PER_PAGE_KEY, textLengthPerPages);
       pdfDetails.put(TEXT_LENGTH_KEY, pdfText.replaceAll("([\\r\\n])", "").length());
+    }
+  }
+
+  /**
+   * Checks if the PDF is an electronic invoice.
+   * 
+   * @param pdfDetails the map of PDF details with the metadata XML
+   */
+  private static void checkIfXRechnung(final Map<String, Object> pdfDetails) {
+    final Object metadata = pdfDetails.get(METADATA_KEY);
+    if (metadata instanceof String) {
+      try {
+        final XMLMatcher xmlMatcher = new XMLMatcher();
+        final Context xmlContext = new Context(
+            new MemoryInputStream(((String) metadata).getBytes(StandardCharsets.UTF_8)),
+            new HashMap<>(), null, Locale.ENGLISH, "");
+        final boolean isXRechnung = xmlMatcher.matches(xmlContext);
+        if (isXRechnung) {
+          pdfDetails.put(X_RECHNUNG_KEY, true);
+        }
+      } catch (IOException e) {
+        LOGGER.error("Failed to parse metadata XML", e);
+      }
     }
   }
 
