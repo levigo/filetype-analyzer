@@ -98,7 +98,7 @@ jobs:
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        git checkout master
+        git checkout maintenance-1
         git reset --hard HEAD      
 
         sed -ri "s,<version>.*</version>,<version>${{ steps.semanticversion.outputs.new_version }}</version>," README.md
@@ -115,7 +115,7 @@ jobs:
     - name: Push changes
       uses: ad-m/github-push-action@master
       with:
-        branch: master
+        branch: maintenance-1
         github_token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Create release
