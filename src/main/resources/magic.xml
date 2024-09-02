@@ -1,815 +1,815 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <magic>
-	<type>
-		<mime-type>image/gif</mime-type>
-		<extension>gif</extension>
-		
-		<description>GIF image data</description>
-		<match-string offset="0">GIF8</match-string>
+  <type>
+    <mime-type>image/gif</mime-type>
+    <extension>gif</extension>
 
-		<type>
-			<description append="true">, version 8%s,</description>
-			<match-string offset="4">7a</match-string>
-		</type>
-		<type>
-			<description append="true">, version 8%s,</description>
-			<match-string offset="4">9a</match-string>
-		</type>
-	</type>
+    <description>GIF image data</description>
+    <match-string offset="0">GIF8</match-string>
 
-	<type>
-		<mime-type>image/tiff</mime-type>
-		<extension>tif</extension>
-		<description>TIFF image data, little-endian format</description>
-		<match-string offset="0">II</match-string>
-	</type>
-
-	<type>
-		<mime-type>image/tiff</mime-type>
-		<extension>tif</extension>
-		<description>TIFF image data, big-endian format</description>
-		<match-string offset="0">MM</match-string>
-	</type>
-
-	<type>
-		<mime-type>video/mpeg</mime-type>
-		<extension>mpg</extension>
-		<description>MPEG video stream data</description>
-		<match-long order="be" offset="0">0x1b3</match-long>
-	</type>
-
-	<type>
-		<mime-type>video/mpeg</mime-type>
-		<extension>mpg</extension>
-		<description>MPEG system stream data</description>
-		<match-long order="be" offset="0">0x1ba</match-long>
-	</type>
-
-	<type>
-		<mime-type>video/quicktime</mime-type>
-		<extension>mov</extension>
-		<description>Apple QuickTime movie file (moov)</description>
-		<match-string offset="4">moov</match-string>
-	</type>
-
-	<type>
-		<mime-type>video/quicktime</mime-type>
-		<extension>mov</extension>
-		<description>Apple QuickTime movie file (mdat)</description>
-		<match-string offset="4">mdat</match-string>
-	</type>
-
-	<type>
-		<mime-type>application/x-tar</mime-type>
-		<extension>tar</extension>
-		<description>GNU tar archive</description>
-		<match-string offset="257">ustar \000GNU</match-string>
-	</type>
-
-	<type>
-		<mime-type>application/x-tar</mime-type>
-		<extension>tar</extension>
-		<description>POSIX tar archive</description>
-		<match-string offset="257">ustar</match-string>
-	</type>
-
-	<type>
-		<mime-type>application/x-7z-compressed</mime-type>
-		<extension>7z</extension>
-		<description>7-Zip archive</description>
-		<description lang="de">7-Zip Archivdatei</description>
-		<match-string offset="0">7z\xBC\xAF'\x1C</match-string>
-	</type>
-
-	<type>
-		<description>spanned ZIP archive data</description>
-		<description lang="de">geteilte ZIP Archivdatei</description>
-		<mime-type>application/zip-spanned</mime-type>
-		<extension>zip</extension>
-		<match-string offset="0">PK00PK</match-string>
-	</type>
-
-	<type>
-		<description>Zip archive data</description>
-		<mime-type>application/zip</mime-type>
-		<extension>zip</extension>
-
-		<match-string offset="0">PK\003\004</match-string>
-
-		<!--  Password-protected ZIPs -->
-		<type>
-			<description>password protected ZIP archive data</description>
-			<description lang="de">passwortgeschützte ZIP Archivdatei</description>
-			<mime-type>application/zip;protection=encrypted</mime-type>
-			<extension>zip</extension>
-
-			<match-custom>org.jadice.filetype.matchers.EncryptedZIPMatcher</match-custom>
-		</type>
-
-		<!-- office ZIPs -->
-		<type>
-			<!-- OpenDocument/OpenOffice/StarOffice/KOffice stuff -->
-			<match-custom>org.jadice.filetype.matchers.OpenDocumentMatcher</match-custom>
-			<!--  Office Open XML files (i.e. MS Office 2007) -->
-			<match-custom>org.jadice.filetype.matchers.OfficeOpenXMLMatcher</match-custom>
-		</type>
-
-		<!-- General ZIP archives -->
-		<type>
-			<description append="true">requires at least v0.9 to extract</description>
-			<match-byte order="be" offset="4">0x9</match-byte>
-		</type>
-		<type>
-			<description append="true">requires at least v1.0 to extract</description>
-			<match-byte order="be" offset="4">0xa</match-byte>
-		</type>
-		<type>
-			<description append="true">requires at least v1.1 to extract</description>
-			<match-byte order="be" offset="4">0xb</match-byte>
-		</type>
-		<type>
-			<description append="true">requires at least v2.0 to extract</description>
-			<match-byte order="be" offset="4">0x14</match-byte>
-		</type>
-	</type>
-
-	<type>
-		<mime-type>application/x-gzip</mime-type>
-		<extension>gz</extension>
-		<description>gzip compressed data</description>
-		<match-string offset="0">\037\213</match-string>
-
-		<!-- 
-			FIXME: replace with extraction actions
-			
-			<type>
-			<mime-type>application/x-gzip</mime-type>
-			<extension>gz</extension>
-			<description>reserved method,</description>
-			<match-byte order="be" offset="2" comparator="&lt;">0x8</match-byte>
-			</type>
-			<type>
-			<mime-type>application/x-gzip</mime-type>
-			<extension>gz</extension>
-			<description>deflated,</description>
-			<match-byte order="be" offset="2">0x8</match-byte>
-			</type>
-			<type>
-			<mime-type>application/x-gzip</mime-type>
-			<extension>gz</extension>
-			<description>ASCII,</description>
-			<match-byte order="be" offset="3" comparator="&amp;">0x1</match-byte>
-			</type>
-			<type>
-			<mime-type>application/x-gzip</mime-type>
-			<extension>gz</extension>
-			<description>continuation,</description>
-			<match-byte order="be" offset="3" comparator="&amp;">0x2</match-byte>
-			</type>
-			<type>
-			<mime-type>application/x-gzip</mime-type>
-			<extension>gz</extension>
-			<description>extra field,</description>
-			<match-byte order="be" offset="3" comparator="&amp;">0x4</match-byte>
-			</type>
-			<type>
-			<mime-type>application/x-gzip</mime-type>
-			<extension>gz</extension>
-			<description>original filename,</description>
-			<match-byte order="be" offset="3" comparator="&amp;">0x8</match-byte>
-			</type>
-			<type>
-			<mime-type>application/x-gzip</mime-type>
-			<extension>gz</extension>
-			<description>comment,</description>
-			<match-byte order="be" offset="3" comparator="&amp;">0x10</match-byte>
-			</type>
-			<type>
-			<mime-type>application/x-gzip</mime-type>
-			<extension>gz</extension>
-			<description>encrypted,</description>
-			<match-byte order="be" offset="3" comparator="&amp;">0x20</match-byte>
-			</type>
-			<type>
-			<mime-type>application/x-gzip</mime-type>
-			<extension>gz</extension>
-			<description>last modified: %s,</description>
-			<match-date order="le" offset="4"></match-date>
-			</type>
-			<type>
-			<mime-type>application/x-gzip</mime-type>
-			<extension>gz</extension>
-			<description>max compression,</description>
-			<match-byte order="be" offset="8">0x2</match-byte>
-			</type>
-			<type>
-			<mime-type>application/x-gzip</mime-type>
-			<extension>gz</extension>
-			<description>max speed,</description>
-			<match-byte order="be" offset="8">0x4</match-byte>
-			</type>
-			<type>
-			<mime-type>application/x-gzip</mime-type>
-			<extension>gz</extension>
-			<description>os: MS-DOS</description>
-			<match-byte order="be" offset="9">0x0</match-byte>
-			</type>
-			<type>
-			<mime-type>application/x-gzip</mime-type>
-			<extension>gz</extension>
-			<description>os: Amiga</description>
-			<match-byte order="be" offset="9">0x1</match-byte>
-			</type>
-			<type>
-			<mime-type>application/x-gzip</mime-type>
-			<extension>gz</extension>
-			<description>os: VMS</description>
-			<match-byte order="be" offset="9">0x2</match-byte>
-			</type>
-			<type>
-			<mime-type>application/x-gzip</mime-type>
-			<extension>gz</extension>
-			<description>os: Unix</description>
-			<match-byte order="be" offset="9">0x3</match-byte>
-			</type>
-			<type>
-			<mime-type>application/x-gzip</mime-type>
-			<extension>gz</extension>
-			<description>os: Atari</description>
-			<match-byte order="be" offset="9">0x5</match-byte>
-			</type>
-			<type>
-			<mime-type>application/x-gzip</mime-type>
-			<extension>gz</extension>
-			<description>os: OS/2</description>
-			<match-byte order="be" offset="9">0x6</match-byte>
-			</type>
-			<type>
-			<mime-type>application/x-gzip</mime-type>
-			<extension>gz</extension>
-			<description>os: MacOS</description>
-			<match-byte order="be" offset="9">0x7</match-byte>
-			</type>
-			<type>
-			<mime-type>application/x-gzip</mime-type>
-			<extension>gz</extension>
-			<description>os: Tops/20</description>
-			<match-byte order="be" offset="9">0xa</match-byte>
-			</type>
-			<type>
-			<mime-type>application/x-gzip</mime-type>
-			<extension>gz</extension>
-			<description>os: Win/32</description>
-			<match-byte order="be" offset="9">0xb</match-byte>
-			</type>
-		-->
-	</type>
-
-	<type>
-		<description>POI file (MS Office)</description>
-
-		<match-string offset="0">\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1</match-string>
-
-		<type>
-			<!-- Details are determined by custom matcher using apache POI -->
-			<match-custom>org.jadice.filetype.matchers.POIFSMatcher</match-custom>
-		</type>
-	</type>
-
-	<type>
-		<mime-type>application/x-bzip2</mime-type>
-		<extension>bz2</extension>
-		<description>bzip2 compressed data</description>
-		<match-string offset="0">BZh</match-string>
-
-		<type>
-			<mime-type>application/x-bzip2</mime-type>
-			<extension>bz2</extension>
-			<description>block size = %c00k</description>
-			<match-byte order="be" offset="3" comparator="&gt;">0x2f</match-byte>
-		</type>
-	</type>
-
-	<type>
-		<mime-type>application/x-rar-compressed</mime-type>
-		<extension>rar</extension>
-		<description>RAR archive</description>
-		<match-string offset="0">Rar!</match-string>
-	</type>
-
-	<type>
-		<mime-type>application/x-shockwave-flash</mime-type>
-		<extension>swf</extension>
-		<description>Macromedia Flash data,</description>
-		<match-string offset="0">FWS</match-string>
-
-		<type>
-			<mime-type>application/x-shockwave-flash</mime-type>
-			<extension>swf</extension>
-			<description>version %d</description>
-			<match-byte order="be" offset="3"></match-byte>
-		</type>
-	</type>
-
-	<type>
-		<mime-type>application/postscript</mime-type>
-		<extension>ps</extension>
-		<description>Adobe PostScript data</description>
-		<description lang="de">Adobe PostScript Daten</description>
-		
-		<match-regexp offset="0" range="1000" multiline="true">^%!PS-Adobe</match-regexp>
-		
-		<type>
-			<extension>eps</extension>
-			<description>Encapsulated (EPS)</description>
-			<description lang="de">Encapsulated (EPS)</description>
-			
-			<match-regexp offset="0" range="1000" multiline="true">EPSF-</match-regexp>
-		</type>
-		
-		<type>
-			<description>Level 2</description>
-			<description lang="de">Level 2</description>
-			
-			<match-regexp offset="0" range="1000" multiline="true">PS-Adobe-2</match-regexp>
-		</type>
-		
-		<type>
-			<description>Level 3</description>
-			<description lang="de">Level 3</description>
-			
-			<match-regexp offset="0" range="1000" multiline="true">PS-Adobe-3</match-regexp>
-		</type>
-	</type>
-	<type>
-		<mime-type>image/x-portable-bitmap</mime-type>
-		<extension>pbm</extension>
-		<description>PBM "rawbits" image data</description>
-		<match-string offset="0">P4</match-string>
-	</type>
-	<type>
-		<mime-type>image/png</mime-type>
-		<extension>png</extension>
-		<description>PNG image data,</description>
-		<match-string offset="0">\211NG</match-string>
-
-		<type>
-			<mime-type>image/png</mime-type>
-			<extension>png</extension>
-			<description>CORRUPTED,</description>
-			<match-long order="be" offset="4">0xd0a1a0a</match-long>
-		</type>
-		<type>
-			<mime-type>image/png</mime-type>
-			<extension>png</extension>
-			<description></description>
-			<match-long order="be" offset="4">0xd0a1a0a</match-long>
-
-			<type>
-				<mime-type>image/png</mime-type>
-				<extension>png</extension>
-				<description>%ld x</description>
-				<match-long order="be" offset="16"></match-long>
-			</type>
-			<type>
-				<mime-type>image/png</mime-type>
-				<extension>png</extension>
-				<description>%ld,</description>
-				<match-long order="be" offset="20"></match-long>
-			</type>
-			<type>
-				<mime-type>image/png</mime-type>
-				<extension>png</extension>
-				<description>%d-bit</description>
-				<match-byte order="be" offset="24"></match-byte>
-			</type>
-			<type>
-				<mime-type>image/png</mime-type>
-				<extension>png</extension>
-				<description>grayscale,</description>
-				<match-byte order="be" offset="25">0x0</match-byte>
-			</type>
-			<type>
-				<mime-type>image/png</mime-type>
-				<extension>png</extension>
-				<description>\b/color RGB,</description>
-				<match-byte order="be" offset="25">0x2</match-byte>
-			</type>
-			<type>
-				<mime-type>image/png</mime-type>
-				<extension>png</extension>
-				<description>colormap,</description>
-				<match-byte order="be" offset="25">0x3</match-byte>
-			</type>
-			<type>
-				<mime-type>image/png</mime-type>
-				<extension>png</extension>
-				<description>gray+alpha,</description>
-				<match-byte order="be" offset="25">0x4</match-byte>
-			</type>
-			<type>
-				<mime-type>image/png</mime-type>
-				<extension>png</extension>
-				<description>\b/color RGBA,</description>
-				<match-byte order="be" offset="25">0x6</match-byte>
-			</type>
-			<type>
-				<mime-type>image/png</mime-type>
-				<extension>png</extension>
-				<description>non-interlaced</description>
-				<match-byte order="be" offset="28">0x0</match-byte>
-			</type>
-			<type>
-				<mime-type>image/png</mime-type>
-				<extension>png</extension>
-				<description>interlaced</description>
-				<match-byte order="be" offset="28">0x1</match-byte>
-			</type>
-
-		</type>
-
-	</type>
-	<type>
-		<mime-type>image/png</mime-type>
-		<extension>png</extension>
-		<description>PNG image data, CORRUPTED</description>
-		<match-string offset="1">PNG</match-string>
-	</type>
-	<type>
-		<mime-type>image/gif</mime-type>
-		<extension>gif</extension>
-		<description>GIF image data</description>
-		<match-string offset="0">GIF8</match-string>
-
-		<type>
-			<mime-type>image/gif</mime-type>
-			<extension>gif</extension>
-			<description>version 8%s,</description>
-			<match-string offset="4">7a</match-string>
-		</type>
-		<type>
-			<mime-type>image/gif</mime-type>
-			<extension>gif</extension>
-			<description>version 8%s,</description>
-			<match-string offset="4">9a</match-string>
-		</type>
-		<type>
-			<mime-type>image/gif</mime-type>
-			<extension>gif</extension>
-			<description>%hd x</description>
-			<match-short order="le" offset="6" comparator="&gt;">0x0</match-short>
-		</type>
-		<type>
-			<mime-type>image/gif</mime-type>
-			<extension>gif</extension>
-			<description>%hd,</description>
-			<match-short order="le" offset="8" comparator="&gt;">0x0</match-short>
-		</type>
-
-	</type>
-	<type>
-		<mime-type>application/x-miff</mime-type>
-		<extension>miff</extension>
-		<description>MIFF image data</description>
-		<match-string offset="0">id=ImageMagick</match-string>
-	</type>
-	<type>
-		<mime-type>image/g3fax</mime-type>
-		<extension>fax</extension>
-		<description>group 3 fax data</description>
-		<match-string offset="1">PC Research, Inc</match-string>
-
-		<type>
-			<mime-type>image/g3fax</mime-type>
-			<extension>fax</extension>
-			<description>normal resolution (204x98 DPI)</description>
-			<match-byte order="be" offset="29">0x0</match-byte>
-		</type>
-		<type>
-			<mime-type>image/g3fax</mime-type>
-			<extension>fax</extension>
-			<description>fine resolution (204x196 DPI)</description>
-			<match-byte order="be" offset="29">0x1</match-byte>
-		</type>
-
-	</type>
-	<type>
-		<mime-type>image/jpeg</mime-type>
-		<extension>jpg</extension>
-		<description>JPEG image data</description>
-		<match-short unsigned="true" order="be" offset="0">0xffd8</match-short>
-
-		<type>
-			<mime-type>image/jpeg</mime-type>
-			<extension>jpg</extension>
-			<description>JFIF standard</description>
-			<match-string offset="6">JFIF</match-string>
-		</type>
-
-	</type>
-	<type>
-		<mime-type>image/jpeg</mime-type>
-		<extension>jpg</extension>
-		<description>JPEG image data, HSI proprietary</description>
-		<match-string offset="0">hsi1</match-string>
-	</type>
     <type>
-        <mime-type>image/x-emf</mime-type>
-        <extension>emf</extension>
-        <description>EMF Image (Windows Enhanced Metafile)</description>
-        <description lang="de">EMF Bilddatei (Windows Enhanced Metafile)</description>
-        <match-string offset="0">\x01\x00\x00\x00</match-string>
+      <description append="true">, version 8%s,</description>
+      <match-string offset="4">7a</match-string>
     </type>
     <type>
-        <mime-type>image/x-wmf</mime-type>
-        <extension>wmf</extension>
-        <description>WMF Image (Windows Metafile)</description>
-        <description lang="de">WMF Bilddatei (Windows Metafile)</description>
-        <match-string offset="0">\xD7\xCD\xC6\x9A</match-string>
+      <description append="true">, version 8%s,</description>
+      <match-string offset="4">9a</match-string>
     </type>
-	<type>
-		<mime-type>application/pdf</mime-type>
-		<extension>pdf</extension>
-		<description>Macintosh PDF File (data)</description>
-		<match-string offset="0">PDF</match-string>
+  </type>
 
-		<type>
-			<mime-type>application/pdf</mime-type>
-			<extension>pdf</extension>
-			<description>: %s</description>
-			<match-string offset="2"></match-string>
-		</type>
-		
-		<type>
-			<!-- Extract further PDF details -->
-			<match-custom>org.jadice.filetype.matchers.PDFMatcher</match-custom>
-		</type>
-	</type>
+  <type>
+    <mime-type>image/tiff</mime-type>
+    <extension>tif</extension>
+    <description>TIFF image data, little-endian format</description>
+    <match-string offset="0">II</match-string>
+  </type>
 
-	<type>
-		<mime-type>application/pdf</mime-type>
-		<extension>pdf</extension>
-		<description>Macintosh PDF File(rsrc + data)</description>
-		<match-string offset="65">PDF</match-string>
+  <type>
+    <mime-type>image/tiff</mime-type>
+    <extension>tif</extension>
+    <description>TIFF image data, big-endian format</description>
+    <match-string offset="0">MM</match-string>
+  </type>
 
-		<type>
-			<mime-type>application/pdf</mime-type>
-			<extension>pdf</extension>
-			<description>: %s</description>
-			<match-string offset="2"></match-string>
-		</type>
+  <type>
+    <mime-type>video/mpeg</mime-type>
+    <extension>mpg</extension>
+    <description>MPEG video stream data</description>
+    <match-long order="be" offset="0">0x1b3</match-long>
+  </type>
 
-		<type>
-			<!-- Extract further PDF details -->
-			<match-custom>org.jadice.filetype.matchers.PDFMatcher</match-custom>
-		</type>
-	</type>
-	<type>
-		<mime-type>application/msword</mime-type>
-		<extension>doc</extension>
-		<description>%s</description>
-		<match-string offset="2080">Microsoft Word 6.0 Document</match-string>
-	</type>
-	<type>
-		<mime-type>application/msword</mime-type>
-		<extension>doc</extension>
-		<description>Spanish Microsoft Word 6 document data</description>
-		<match-string offset="2080">Documento Microsoft Word 6</match-string>
-	</type>
-	<type>
-		<mime-type>application/msword</mime-type>
-		<extension>doc</extension>
-		<description>Microsoft Word document data</description>
-		<match-string offset="2112">MSWordDoc</match-string>
-	</type>
-		<type>
-		<mime-type>application/msword</mime-type>
-		<extension>doc</extension>
-		<description>Microsoft Word document data</description>
-		<description lang="de">Microsoft Word Dokumentdaten</description>
-		<match-string offset="57"><![CDATA[<?mso-application progid="Word.Document"?>]]></match-string>
-	</type>
-	<type>
-		<mime-type>application/msword</mime-type>
-		<extension>doc</extension>
-		<description>Microsoft Word Document</description>
-		<match-long order="be" offset="0">0x31be0000</match-long>
-	</type>
-	<type>
-		<mime-type>application/msword</mime-type>
-		<extension>doc</extension>
-		<description>Microsoft Word 6.0 Document</description>
-		<match-string offset="0">PO^Q`</match-string>
-	</type>
-	<type>
-		<mime-type>application/msword</mime-type>
-		<extension>doc</extension>
-		<description>Microsoft Office Document</description>
-		<match-string offset="0">\376\067\000\043</match-string>
-	</type>
-	<type>
-		<mime-type>application/msword</mime-type>
-		<extension>doc</extension>
-		<description>Microsoft Office Document</description>
-		<match-string offset="0">\320\317\021\340\241\261</match-string>
-	</type>
-	<type>
-		<mime-type>application/msword</mime-type>
-		<extension>doc</extension>
-		<description>Microsoft Office Document</description>
-		<match-string offset="0">\333\245-\000\000\000</match-string>
-	</type>
-	<type>
-		<mime-type>application/msexcel</mime-type>
-		<extension>???</extension>
-		<description>%s</description>
-		<match-string offset="2080">Microsoft Excel 5.0 Worksheet</match-string>
-	</type>
-	<type>
-      <mime-type>application/msvisio</mime-type>
-      <extension>vdx</extension>
-      <description>Microsoft Visio Diagram XML</description>
-      <description lang="de">Microsoft Visio Zeichnung (XML)</description>
-      <match-regexp offset="0" range="300"><![CDATA[<VisioDocument]]></match-regexp>
+  <type>
+    <mime-type>video/mpeg</mime-type>
+    <extension>mpg</extension>
+    <description>MPEG system stream data</description>
+    <match-long order="be" offset="0">0x1ba</match-long>
+  </type>
+
+  <type>
+    <mime-type>video/quicktime</mime-type>
+    <extension>mov</extension>
+    <description>Apple QuickTime movie file (moov)</description>
+    <match-string offset="4">moov</match-string>
+  </type>
+
+  <type>
+    <mime-type>video/quicktime</mime-type>
+    <extension>mov</extension>
+    <description>Apple QuickTime movie file (mdat)</description>
+    <match-string offset="4">mdat</match-string>
+  </type>
+
+  <type>
+    <mime-type>application/x-tar</mime-type>
+    <extension>tar</extension>
+    <description>GNU tar archive</description>
+    <match-string offset="257">ustar \000GNU</match-string>
+  </type>
+
+  <type>
+    <mime-type>application/x-tar</mime-type>
+    <extension>tar</extension>
+    <description>POSIX tar archive</description>
+    <match-string offset="257">ustar</match-string>
+  </type>
+
+  <type>
+    <mime-type>application/x-7z-compressed</mime-type>
+    <extension>7z</extension>
+    <description>7-Zip archive</description>
+    <description lang="de">7-Zip Archivdatei</description>
+    <match-string offset="0">7z\xBC\xAF'\x1C</match-string>
+  </type>
+
+  <type>
+    <description>spanned ZIP archive data</description>
+    <description lang="de">geteilte ZIP Archivdatei</description>
+    <mime-type>application/zip-spanned</mime-type>
+    <extension>zip</extension>
+    <match-string offset="0">PK00PK</match-string>
+  </type>
+
+  <type>
+    <description>Zip archive data</description>
+    <mime-type>application/zip</mime-type>
+    <extension>zip</extension>
+
+    <match-string offset="0">PK\003\004</match-string>
+
+    <!--  Password-protected ZIPs -->
+    <type>
+      <description>password protected ZIP archive data</description>
+      <description lang="de">passwortgeschützte ZIP Archivdatei</description>
+      <mime-type>application/zip;protection=encrypted</mime-type>
+      <extension>zip</extension>
+
+      <match-custom>org.jadice.filetype.matchers.EncryptedZIPMatcher</match-custom>
+    </type>
+
+    <!-- office ZIPs -->
+    <type>
+      <!-- OpenDocument/OpenOffice/StarOffice/KOffice stuff -->
+      <match-custom>org.jadice.filetype.matchers.OpenDocumentMatcher</match-custom>
+      <!--  Office Open XML files (i.e. MS Office 2007) -->
+      <match-custom>org.jadice.filetype.matchers.OfficeOpenXMLMatcher</match-custom>
+    </type>
+
+    <!-- General ZIP archives -->
+    <type>
+      <description append="true">requires at least v0.9 to extract</description>
+      <match-byte order="be" offset="4">0x9</match-byte>
     </type>
     <type>
-		<mime-type>application/ms-tnef</mime-type>
-		<extension>tnef</extension>
-		<description>Microsoft Outlook Transport Neutral Encapsulation Format</description>
-		<match-string offset="0">x\x9f\x3e\x22</match-string>
-	</type>
-	<type>
-		<mime-type>application/pdf</mime-type>
-		<extension>pdf</extension>
-		<description>PDF document</description>
-		<match-string offset="0">%PDF-</match-string>
+      <description append="true">requires at least v1.0 to extract</description>
+      <match-byte order="be" offset="4">0xa</match-byte>
+    </type>
+    <type>
+      <description append="true">requires at least v1.1 to extract</description>
+      <match-byte order="be" offset="4">0xb</match-byte>
+    </type>
+    <type>
+      <description append="true">requires at least v2.0 to extract</description>
+      <match-byte order="be" offset="4">0x14</match-byte>
+    </type>
+  </type>
 
-		<type>
-			<mime-type>application/pdf</mime-type>
-			<extension>pdf</extension>
-			<description>version %c</description>
-			<match-byte order="be" offset="5"></match-byte>
-		</type>
-		<type>
-			<mime-type>application/pdf</mime-type>
-			<extension>pdf</extension>
-			<description>\b.%c</description>
-			<match-byte order="be" offset="7"></match-byte>
-		</type>
+  <type>
+    <mime-type>application/x-gzip</mime-type>
+    <extension>gz</extension>
+    <description>gzip compressed data</description>
+    <match-string offset="0">\037\213</match-string>
 
-		<type>
-			<!-- Extract further PDF details -->
-			<match-custom>org.jadice.filetype.matchers.PDFMatcher</match-custom>
-		</type>
+    <!--
+      FIXME: replace with extraction actions
 
-	</type>
-	<type>
-		<match-custom>org.jadice.filetype.matchers.modca.ModcaMatcher</match-custom>
-	</type>
-	<type>
-		<match-custom>org.jadice.filetype.matchers.modca.IocaMatcher</match-custom>
-	</type>
-	
-	<type>
-		<mime-type>text/rtf</mime-type>
-		<extension>rtf</extension>
-		<description>Rich Text Format data</description>
-		<match-string offset="0">{\\rtf</match-string>
+      <type>
+      <mime-type>application/x-gzip</mime-type>
+      <extension>gz</extension>
+      <description>reserved method,</description>
+      <match-byte order="be" offset="2" comparator="&lt;">0x8</match-byte>
+      </type>
+      <type>
+      <mime-type>application/x-gzip</mime-type>
+      <extension>gz</extension>
+      <description>deflated,</description>
+      <match-byte order="be" offset="2">0x8</match-byte>
+      </type>
+      <type>
+      <mime-type>application/x-gzip</mime-type>
+      <extension>gz</extension>
+      <description>ASCII,</description>
+      <match-byte order="be" offset="3" comparator="&amp;">0x1</match-byte>
+      </type>
+      <type>
+      <mime-type>application/x-gzip</mime-type>
+      <extension>gz</extension>
+      <description>continuation,</description>
+      <match-byte order="be" offset="3" comparator="&amp;">0x2</match-byte>
+      </type>
+      <type>
+      <mime-type>application/x-gzip</mime-type>
+      <extension>gz</extension>
+      <description>extra field,</description>
+      <match-byte order="be" offset="3" comparator="&amp;">0x4</match-byte>
+      </type>
+      <type>
+      <mime-type>application/x-gzip</mime-type>
+      <extension>gz</extension>
+      <description>original filename,</description>
+      <match-byte order="be" offset="3" comparator="&amp;">0x8</match-byte>
+      </type>
+      <type>
+      <mime-type>application/x-gzip</mime-type>
+      <extension>gz</extension>
+      <description>comment,</description>
+      <match-byte order="be" offset="3" comparator="&amp;">0x10</match-byte>
+      </type>
+      <type>
+      <mime-type>application/x-gzip</mime-type>
+      <extension>gz</extension>
+      <description>encrypted,</description>
+      <match-byte order="be" offset="3" comparator="&amp;">0x20</match-byte>
+      </type>
+      <type>
+      <mime-type>application/x-gzip</mime-type>
+      <extension>gz</extension>
+      <description>last modified: %s,</description>
+      <match-date order="le" offset="4"></match-date>
+      </type>
+      <type>
+      <mime-type>application/x-gzip</mime-type>
+      <extension>gz</extension>
+      <description>max compression,</description>
+      <match-byte order="be" offset="8">0x2</match-byte>
+      </type>
+      <type>
+      <mime-type>application/x-gzip</mime-type>
+      <extension>gz</extension>
+      <description>max speed,</description>
+      <match-byte order="be" offset="8">0x4</match-byte>
+      </type>
+      <type>
+      <mime-type>application/x-gzip</mime-type>
+      <extension>gz</extension>
+      <description>os: MS-DOS</description>
+      <match-byte order="be" offset="9">0x0</match-byte>
+      </type>
+      <type>
+      <mime-type>application/x-gzip</mime-type>
+      <extension>gz</extension>
+      <description>os: Amiga</description>
+      <match-byte order="be" offset="9">0x1</match-byte>
+      </type>
+      <type>
+      <mime-type>application/x-gzip</mime-type>
+      <extension>gz</extension>
+      <description>os: VMS</description>
+      <match-byte order="be" offset="9">0x2</match-byte>
+      </type>
+      <type>
+      <mime-type>application/x-gzip</mime-type>
+      <extension>gz</extension>
+      <description>os: Unix</description>
+      <match-byte order="be" offset="9">0x3</match-byte>
+      </type>
+      <type>
+      <mime-type>application/x-gzip</mime-type>
+      <extension>gz</extension>
+      <description>os: Atari</description>
+      <match-byte order="be" offset="9">0x5</match-byte>
+      </type>
+      <type>
+      <mime-type>application/x-gzip</mime-type>
+      <extension>gz</extension>
+      <description>os: OS/2</description>
+      <match-byte order="be" offset="9">0x6</match-byte>
+      </type>
+      <type>
+      <mime-type>application/x-gzip</mime-type>
+      <extension>gz</extension>
+      <description>os: MacOS</description>
+      <match-byte order="be" offset="9">0x7</match-byte>
+      </type>
+      <type>
+      <mime-type>application/x-gzip</mime-type>
+      <extension>gz</extension>
+      <description>os: Tops/20</description>
+      <match-byte order="be" offset="9">0xa</match-byte>
+      </type>
+      <type>
+      <mime-type>application/x-gzip</mime-type>
+      <extension>gz</extension>
+      <description>os: Win/32</description>
+      <match-byte order="be" offset="9">0xb</match-byte>
+      </type>
+    -->
+  </type>
 
-		<type>
-			<!-- Extracts RTF meta data -->
-			<match-custom>org.jadice.filetype.matchers.RTFMatcher</match-custom>
-		</type>
+  <type>
+    <description>POI file (MS Office)</description>
 
- 		<type>
-			<description append="true">version %c,</description>
-			<match-byte order="be" offset="5"></match-byte>
-		</type>
-		<type>
-			<description append="true">ANSI</description>
-			<match-string offset="6">\\ansi</match-string>
-		</type>
-		<type>
-			<description append="true">Apple Macintosh</description>
-			<match-string offset="6">\\mac</match-string>
-		</type>
-		<type>
-			<description append="true">IBM PC, code page 437</description>
-			<match-string offset="6">\\pc</match-string>
-		</type>
-		<type>
-			<description append="true">IBM PS/2, code page 850</description>
-			<match-string offset="6">\\pca</match-string>
-		</type>
-	</type>
+    <match-string offset="0">\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1</match-string>
 
-	<type>
-		<mime-type>text/html</mime-type>
-		<extension>html</extension>
-		<description>HTML document text</description>
-		<match-regexp offset="0" range="500" caseInsensitive="true">&lt;(!DOCTYPE\s+HTML|HEAD|TITLE|HTML)</match-regexp>
-	</type>
+    <type>
+      <!-- Details are determined by custom matcher using apache POI -->
+      <match-custom>org.jadice.filetype.matchers.POIFSMatcher</match-custom>
+    </type>
+  </type>
 
-	<type>
-		<mime-type>text/sgml</mime-type>
-		<extension>sgml</extension>
-		<description>exported SGML document text</description>
-		<match-regexp offset="0" range="500" caseInsensitive="true">&lt;(!DOCTYPE|!SUBDOC|TITLE|HTML)</match-regexp>
-	</type>
+  <type>
+    <mime-type>application/x-bzip2</mime-type>
+    <extension>bz2</extension>
+    <description>bzip2 compressed data</description>
+    <match-string offset="0">BZh</match-string>
 
-	<type>
-		<mime-type>text/x-java</mime-type>
-		<extension>java</extension>
-		<description>Java source file</description>
-		<match-regexp offset="0">^\s*package</match-regexp>
-	</type>
+    <type>
+      <mime-type>application/x-bzip2</mime-type>
+      <extension>bz2</extension>
+      <description>block size = %c00k</description>
+      <match-byte order="be" offset="3" comparator="&gt;">0x2f</match-byte>
+    </type>
+  </type>
 
-	<type>
-		<mime-type>text/x-perl</mime-type>
-		<extension>pl</extension>
-		<description>Perl source file</description>
-		<match-regexp offset="0">^#!/usr/bin/perl</match-regexp>
-	</type>
-	<type>
-		<mime-type>text/x-c</mime-type>
-		<extension>c</extension>
-		<description>C source file</description>
-		<match-regexp offset="0">^#include</match-regexp>
-	</type>
-	<type>
-		<mime-type>application/x-sh</mime-type>
-		<extension>.sh</extension>
-		<description>sh script</description>
-		<match-regexp offset="0">^#!/bin/sh/</match-regexp>
-	</type>
-	<type>
-		<mime-type>application/x-bash</mime-type>
-		<extension>.sh</extension>
-		<description>bash script</description>
-		<match-regexp offset="0">^#!/bin/bash</match-regexp>
-	</type>
-	<type>
-		<mime-type>application/x-csh</mime-type>
-		<extension>.sh</extension>
-		<description>csh script</description>
-		<match-regexp offset="0">^#!/bin/csh/</match-regexp>
-	</type>
-	<type>
-		<mime-type>application/x-ksh</mime-type>
-		<extension>.sh</extension>
-		<description>ksh script</description>
-		<match-regexp offset="0">^#!/bin/ksh</match-regexp>
-	</type>
-	<type>
-		<mime-type>text/html</mime-type>
-		<extension>.html</extension>
-		<description>HTML Document</description>
-		<match-regexp offset="0">^\s*&lt;!DOCTYPE HTML PUBLIC</match-regexp>
-	</type>
+  <type>
+    <mime-type>application/x-rar-compressed</mime-type>
+    <extension>rar</extension>
+    <description>RAR archive</description>
+    <match-string offset="0">Rar!</match-string>
+  </type>
 
-	<type>
-		<mime-type>text/html</mime-type>
-		<extension>.html</extension>
-		<description>HTML Document</description>
-		<match-regexp offset="0">^\s*&lt;html&gt;</match-regexp>
-	</type>
+  <type>
+    <mime-type>application/x-shockwave-flash</mime-type>
+    <extension>swf</extension>
+    <description>Macromedia Flash data,</description>
+    <match-string offset="0">FWS</match-string>
 
-	<type>
-		<match-custom>org.jadice.filetype.matchers.XMLMatcher</match-custom>
-	</type>
-	
-	<type>
-		<mime-type>image/heif</mime-type>
-		<extension>heif</extension>
-		<description>HEIF images</description>
-		<match-regexp offset="4">ftypheif</match-regexp>
-	</type>
-	
-	
-	<type>
-		<mime-type>image/heic</mime-type>
-		<extension>heic</extension>
-		<description>High Efficiency Image Container</description>
-		<match-regexp offset="4">ftyp(heic|hevs|heis|hevm|hevc|heim|mif1)</match-regexp>
-	</type>
-	
-	<type>
-		<mime-type>text/plain</mime-type>
-		<extension>txt</extension>
-		<description>ASCII Text Document</description>
-		<match-regexp offset="0" range="1000">^\p{ASCII}+$</match-regexp>
-	</type>
-	
-	<type>
-		<!--
-			MIME type + charset will be set by the TextMatcher instance
-			<mime-type>text/plain</mime-type>
-		-->
-		<description>Text file</description>
-		<match-custom>org.jadice.filetype.matchers.TextMatcher</match-custom>
-	</type>
+    <type>
+      <mime-type>application/x-shockwave-flash</mime-type>
+      <extension>swf</extension>
+      <description>version %d</description>
+      <match-byte order="be" offset="3"></match-byte>
+    </type>
+  </type>
 
-	<!-- Global fallback. If nothing else matches, it is just binary. -->
-	<mime-type>application/octet-stream</mime-type>
-	<description>Binary data</description>
+  <type>
+    <mime-type>application/postscript</mime-type>
+    <extension>ps</extension>
+    <description>Adobe PostScript data</description>
+    <description lang="de">Adobe PostScript Daten</description>
+
+    <match-regexp offset="0" range="1000" multiline="true">^%!PS-Adobe</match-regexp>
+
+    <type>
+      <extension>eps</extension>
+      <description>Encapsulated (EPS)</description>
+      <description lang="de">Encapsulated (EPS)</description>
+
+      <match-regexp offset="0" range="1000" multiline="true">EPSF-</match-regexp>
+    </type>
+
+    <type>
+      <description>Level 2</description>
+      <description lang="de">Level 2</description>
+
+      <match-regexp offset="0" range="1000" multiline="true">PS-Adobe-2</match-regexp>
+    </type>
+
+    <type>
+      <description>Level 3</description>
+      <description lang="de">Level 3</description>
+
+      <match-regexp offset="0" range="1000" multiline="true">PS-Adobe-3</match-regexp>
+    </type>
+  </type>
+  <type>
+    <mime-type>image/x-portable-bitmap</mime-type>
+    <extension>pbm</extension>
+    <description>PBM "rawbits" image data</description>
+    <match-string offset="0">P4</match-string>
+  </type>
+  <type>
+    <mime-type>image/png</mime-type>
+    <extension>png</extension>
+    <description>PNG image data,</description>
+    <match-string offset="0">\211NG</match-string>
+
+    <type>
+      <mime-type>image/png</mime-type>
+      <extension>png</extension>
+      <description>CORRUPTED,</description>
+      <match-long order="be" offset="4">0xd0a1a0a</match-long>
+    </type>
+    <type>
+      <mime-type>image/png</mime-type>
+      <extension>png</extension>
+      <description></description>
+      <match-long order="be" offset="4">0xd0a1a0a</match-long>
+
+      <type>
+        <mime-type>image/png</mime-type>
+        <extension>png</extension>
+        <description>%ld x</description>
+        <match-long order="be" offset="16"></match-long>
+      </type>
+      <type>
+        <mime-type>image/png</mime-type>
+        <extension>png</extension>
+        <description>%ld,</description>
+        <match-long order="be" offset="20"></match-long>
+      </type>
+      <type>
+        <mime-type>image/png</mime-type>
+        <extension>png</extension>
+        <description>%d-bit</description>
+        <match-byte order="be" offset="24"></match-byte>
+      </type>
+      <type>
+        <mime-type>image/png</mime-type>
+        <extension>png</extension>
+        <description>grayscale,</description>
+        <match-byte order="be" offset="25">0x0</match-byte>
+      </type>
+      <type>
+        <mime-type>image/png</mime-type>
+        <extension>png</extension>
+        <description>\b/color RGB,</description>
+        <match-byte order="be" offset="25">0x2</match-byte>
+      </type>
+      <type>
+        <mime-type>image/png</mime-type>
+        <extension>png</extension>
+        <description>colormap,</description>
+        <match-byte order="be" offset="25">0x3</match-byte>
+      </type>
+      <type>
+        <mime-type>image/png</mime-type>
+        <extension>png</extension>
+        <description>gray+alpha,</description>
+        <match-byte order="be" offset="25">0x4</match-byte>
+      </type>
+      <type>
+        <mime-type>image/png</mime-type>
+        <extension>png</extension>
+        <description>\b/color RGBA,</description>
+        <match-byte order="be" offset="25">0x6</match-byte>
+      </type>
+      <type>
+        <mime-type>image/png</mime-type>
+        <extension>png</extension>
+        <description>non-interlaced</description>
+        <match-byte order="be" offset="28">0x0</match-byte>
+      </type>
+      <type>
+        <mime-type>image/png</mime-type>
+        <extension>png</extension>
+        <description>interlaced</description>
+        <match-byte order="be" offset="28">0x1</match-byte>
+      </type>
+
+    </type>
+
+  </type>
+  <type>
+    <mime-type>image/png</mime-type>
+    <extension>png</extension>
+    <description>PNG image data, CORRUPTED</description>
+    <match-string offset="1">PNG</match-string>
+  </type>
+  <type>
+    <mime-type>image/gif</mime-type>
+    <extension>gif</extension>
+    <description>GIF image data</description>
+    <match-string offset="0">GIF8</match-string>
+
+    <type>
+      <mime-type>image/gif</mime-type>
+      <extension>gif</extension>
+      <description>version 8%s,</description>
+      <match-string offset="4">7a</match-string>
+    </type>
+    <type>
+      <mime-type>image/gif</mime-type>
+      <extension>gif</extension>
+      <description>version 8%s,</description>
+      <match-string offset="4">9a</match-string>
+    </type>
+    <type>
+      <mime-type>image/gif</mime-type>
+      <extension>gif</extension>
+      <description>%hd x</description>
+      <match-short order="le" offset="6" comparator="&gt;">0x0</match-short>
+    </type>
+    <type>
+      <mime-type>image/gif</mime-type>
+      <extension>gif</extension>
+      <description>%hd,</description>
+      <match-short order="le" offset="8" comparator="&gt;">0x0</match-short>
+    </type>
+
+  </type>
+  <type>
+    <mime-type>application/x-miff</mime-type>
+    <extension>miff</extension>
+    <description>MIFF image data</description>
+    <match-string offset="0">id=ImageMagick</match-string>
+  </type>
+  <type>
+    <mime-type>image/g3fax</mime-type>
+    <extension>fax</extension>
+    <description>group 3 fax data</description>
+    <match-string offset="1">PC Research, Inc</match-string>
+
+    <type>
+      <mime-type>image/g3fax</mime-type>
+      <extension>fax</extension>
+      <description>normal resolution (204x98 DPI)</description>
+      <match-byte order="be" offset="29">0x0</match-byte>
+    </type>
+    <type>
+      <mime-type>image/g3fax</mime-type>
+      <extension>fax</extension>
+      <description>fine resolution (204x196 DPI)</description>
+      <match-byte order="be" offset="29">0x1</match-byte>
+    </type>
+
+  </type>
+  <type>
+    <mime-type>image/jpeg</mime-type>
+    <extension>jpg</extension>
+    <description>JPEG image data</description>
+    <match-short unsigned="true" order="be" offset="0">0xffd8</match-short>
+
+    <type>
+      <mime-type>image/jpeg</mime-type>
+      <extension>jpg</extension>
+      <description>JFIF standard</description>
+      <match-string offset="6">JFIF</match-string>
+    </type>
+
+  </type>
+  <type>
+    <mime-type>image/jpeg</mime-type>
+    <extension>jpg</extension>
+    <description>JPEG image data, HSI proprietary</description>
+    <match-string offset="0">hsi1</match-string>
+  </type>
+  <type>
+    <mime-type>image/x-emf</mime-type>
+    <extension>emf</extension>
+    <description>EMF Image (Windows Enhanced Metafile)</description>
+    <description lang="de">EMF Bilddatei (Windows Enhanced Metafile)</description>
+    <match-string offset="0">\x01\x00\x00\x00</match-string>
+  </type>
+  <type>
+    <mime-type>image/x-wmf</mime-type>
+    <extension>wmf</extension>
+    <description>WMF Image (Windows Metafile)</description>
+    <description lang="de">WMF Bilddatei (Windows Metafile)</description>
+    <match-string offset="0">\xD7\xCD\xC6\x9A</match-string>
+  </type>
+  <type>
+    <mime-type>application/pdf</mime-type>
+    <extension>pdf</extension>
+    <description>Macintosh PDF File (data)</description>
+    <match-string offset="0">PDF</match-string>
+
+    <type>
+      <mime-type>application/pdf</mime-type>
+      <extension>pdf</extension>
+      <description>: %s</description>
+      <match-string offset="2"></match-string>
+    </type>
+
+    <type>
+      <!-- Extract further PDF details -->
+      <match-custom>org.jadice.filetype.matchers.PDFMatcher</match-custom>
+    </type>
+  </type>
+
+  <type>
+    <mime-type>application/pdf</mime-type>
+    <extension>pdf</extension>
+    <description>Macintosh PDF File(rsrc + data)</description>
+    <match-string offset="65">PDF</match-string>
+
+    <type>
+      <mime-type>application/pdf</mime-type>
+      <extension>pdf</extension>
+      <description>: %s</description>
+      <match-string offset="2"></match-string>
+    </type>
+
+    <type>
+      <!-- Extract further PDF details -->
+      <match-custom>org.jadice.filetype.matchers.PDFMatcher</match-custom>
+    </type>
+  </type>
+  <type>
+    <mime-type>application/msword</mime-type>
+    <extension>doc</extension>
+    <description>%s</description>
+    <match-string offset="2080">Microsoft Word 6.0 Document</match-string>
+  </type>
+  <type>
+    <mime-type>application/msword</mime-type>
+    <extension>doc</extension>
+    <description>Spanish Microsoft Word 6 document data</description>
+    <match-string offset="2080">Documento Microsoft Word 6</match-string>
+  </type>
+  <type>
+    <mime-type>application/msword</mime-type>
+    <extension>doc</extension>
+    <description>Microsoft Word document data</description>
+    <match-string offset="2112">MSWordDoc</match-string>
+  </type>
+  <type>
+    <mime-type>application/msword</mime-type>
+    <extension>doc</extension>
+    <description>Microsoft Word document data</description>
+    <description lang="de">Microsoft Word Dokumentdaten</description>
+    <match-string offset="57"><![CDATA[<?mso-application progid="Word.Document"?>]]></match-string>
+  </type>
+  <type>
+    <mime-type>application/msword</mime-type>
+    <extension>doc</extension>
+    <description>Microsoft Word Document</description>
+    <match-long order="be" offset="0">0x31be0000</match-long>
+  </type>
+  <type>
+    <mime-type>application/msword</mime-type>
+    <extension>doc</extension>
+    <description>Microsoft Word 6.0 Document</description>
+    <match-string offset="0">PO^Q`</match-string>
+  </type>
+  <type>
+    <mime-type>application/msword</mime-type>
+    <extension>doc</extension>
+    <description>Microsoft Office Document</description>
+    <match-string offset="0">\376\067\000\043</match-string>
+  </type>
+  <type>
+    <mime-type>application/msword</mime-type>
+    <extension>doc</extension>
+    <description>Microsoft Office Document</description>
+    <match-string offset="0">\320\317\021\340\241\261</match-string>
+  </type>
+  <type>
+    <mime-type>application/msword</mime-type>
+    <extension>doc</extension>
+    <description>Microsoft Office Document</description>
+    <match-string offset="0">\333\245-\000\000\000</match-string>
+  </type>
+  <type>
+    <mime-type>application/msexcel</mime-type>
+    <extension>???</extension>
+    <description>%s</description>
+    <match-string offset="2080">Microsoft Excel 5.0 Worksheet</match-string>
+  </type>
+  <type>
+    <mime-type>application/msvisio</mime-type>
+    <extension>vdx</extension>
+    <description>Microsoft Visio Diagram XML</description>
+    <description lang="de">Microsoft Visio Zeichnung (XML)</description>
+    <match-regexp offset="0" range="300"><![CDATA[<VisioDocument]]></match-regexp>
+  </type>
+  <type>
+    <mime-type>application/ms-tnef</mime-type>
+    <extension>tnef</extension>
+    <description>Microsoft Outlook Transport Neutral Encapsulation Format</description>
+    <match-string offset="0">x\x9f\x3e\x22</match-string>
+  </type>
+  <type>
+    <mime-type>application/pdf</mime-type>
+    <extension>pdf</extension>
+    <description>PDF document</description>
+    <match-string offset="0">%PDF-</match-string>
+
+    <type>
+      <mime-type>application/pdf</mime-type>
+      <extension>pdf</extension>
+      <description>version %c</description>
+      <match-byte order="be" offset="5"></match-byte>
+    </type>
+    <type>
+      <mime-type>application/pdf</mime-type>
+      <extension>pdf</extension>
+      <description>\b.%c</description>
+      <match-byte order="be" offset="7"></match-byte>
+    </type>
+
+    <type>
+      <!-- Extract further PDF details -->
+      <match-custom>org.jadice.filetype.matchers.PDFMatcher</match-custom>
+    </type>
+
+  </type>
+  <type>
+    <match-custom>org.jadice.filetype.matchers.modca.ModcaMatcher</match-custom>
+  </type>
+  <type>
+    <match-custom>org.jadice.filetype.matchers.modca.IocaMatcher</match-custom>
+  </type>
+
+  <type>
+    <mime-type>text/rtf</mime-type>
+    <extension>rtf</extension>
+    <description>Rich Text Format data</description>
+    <match-string offset="0">{\\rtf</match-string>
+
+    <type>
+      <!-- Extracts RTF meta data -->
+      <match-custom>org.jadice.filetype.matchers.RTFMatcher</match-custom>
+    </type>
+
+    <type>
+      <description append="true">version %c,</description>
+      <match-byte order="be" offset="5"></match-byte>
+    </type>
+    <type>
+      <description append="true">ANSI</description>
+      <match-string offset="6">\\ansi</match-string>
+    </type>
+    <type>
+      <description append="true">Apple Macintosh</description>
+      <match-string offset="6">\\mac</match-string>
+    </type>
+    <type>
+      <description append="true">IBM PC, code page 437</description>
+      <match-string offset="6">\\pc</match-string>
+    </type>
+    <type>
+      <description append="true">IBM PS/2, code page 850</description>
+      <match-string offset="6">\\pca</match-string>
+    </type>
+  </type>
+
+  <type>
+    <mime-type>text/html</mime-type>
+    <extension>html</extension>
+    <description>HTML document text</description>
+    <match-regexp offset="0" range="500" caseInsensitive="true">&lt;(!DOCTYPE\s+HTML|HEAD|TITLE|HTML)</match-regexp>
+  </type>
+
+  <type>
+    <mime-type>text/sgml</mime-type>
+    <extension>sgml</extension>
+    <description>exported SGML document text</description>
+    <match-regexp offset="0" range="500" caseInsensitive="true">&lt;(!DOCTYPE|!SUBDOC|TITLE|HTML)</match-regexp>
+  </type>
+
+  <type>
+    <mime-type>text/x-java</mime-type>
+    <extension>java</extension>
+    <description>Java source file</description>
+    <match-regexp offset="0">^\s*package</match-regexp>
+  </type>
+
+  <type>
+    <mime-type>text/x-perl</mime-type>
+    <extension>pl</extension>
+    <description>Perl source file</description>
+    <match-regexp offset="0">^#!/usr/bin/perl</match-regexp>
+  </type>
+  <type>
+    <mime-type>text/x-c</mime-type>
+    <extension>c</extension>
+    <description>C source file</description>
+    <match-regexp offset="0">^#include</match-regexp>
+  </type>
+  <type>
+    <mime-type>application/x-sh</mime-type>
+    <extension>.sh</extension>
+    <description>sh script</description>
+    <match-regexp offset="0">^#!/bin/sh/</match-regexp>
+  </type>
+  <type>
+    <mime-type>application/x-bash</mime-type>
+    <extension>.sh</extension>
+    <description>bash script</description>
+    <match-regexp offset="0">^#!/bin/bash</match-regexp>
+  </type>
+  <type>
+    <mime-type>application/x-csh</mime-type>
+    <extension>.sh</extension>
+    <description>csh script</description>
+    <match-regexp offset="0">^#!/bin/csh/</match-regexp>
+  </type>
+  <type>
+    <mime-type>application/x-ksh</mime-type>
+    <extension>.sh</extension>
+    <description>ksh script</description>
+    <match-regexp offset="0">^#!/bin/ksh</match-regexp>
+  </type>
+  <type>
+    <mime-type>text/html</mime-type>
+    <extension>.html</extension>
+    <description>HTML Document</description>
+    <match-regexp offset="0">^\s*&lt;!DOCTYPE HTML PUBLIC</match-regexp>
+  </type>
+
+  <type>
+    <mime-type>text/html</mime-type>
+    <extension>.html</extension>
+    <description>HTML Document</description>
+    <match-regexp offset="0">^\s*&lt;html&gt;</match-regexp>
+  </type>
+
+  <type>
+    <match-custom>org.jadice.filetype.matchers.XMLMatcher</match-custom>
+  </type>
+
+  <type>
+    <mime-type>image/heif</mime-type>
+    <extension>heif</extension>
+    <description>HEIF images</description>
+    <match-regexp offset="4">ftypheif</match-regexp>
+  </type>
+
+
+  <type>
+    <mime-type>image/heic</mime-type>
+    <extension>heic</extension>
+    <description>High Efficiency Image Container</description>
+    <match-regexp offset="4">ftyp(heic|hevs|heis|hevm|hevc|heim|mif1)</match-regexp>
+  </type>
+
+  <type>
+    <mime-type>text/plain</mime-type>
+    <extension>txt</extension>
+    <description>ASCII Text Document</description>
+    <match-regexp offset="0" range="1000">^\p{ASCII}+$</match-regexp>
+  </type>
+
+  <type>
+    <!--
+      MIME type + charset will be set by the TextMatcher instance
+      <mime-type>text/plain</mime-type>
+    -->
+    <description>Text file</description>
+    <match-custom>org.jadice.filetype.matchers.TextMatcher</match-custom>
+  </type>
+
+  <!-- Global fallback. If nothing else matches, it is just binary. -->
+  <mime-type>application/octet-stream</mime-type>
+  <description>Binary data</description>
 </magic>
