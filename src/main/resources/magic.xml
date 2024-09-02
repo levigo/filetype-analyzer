@@ -1,9 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <magic>
   <type>
+    <mime-type>image/jpeg</mime-type>
+    <extension>jpg</extension>
+    <description>JPEG image data</description>
+    <match-short unsigned="true" order="be" offset="0">0xffd8</match-short>
+
+    <type>
+      <description>JFIF standard</description>
+      <match-string offset="6">JFIF</match-string>
+    </type>
+
+    <type>
+      <description>Exif format</description>
+      <match-string offset="6">Exif</match-string>
+    </type>
+  </type>
+  <type>
+    <mime-type>image/jpeg</mime-type>
+    <extension>jpg</extension>
+    <description>JPEG image data, HSI proprietary</description>
+    <match-string offset="0">hsi1</match-string>
+  </type>
+
+  <type>
     <mime-type>image/gif</mime-type>
     <extension>gif</extension>
-
     <description>GIF image data</description>
     <match-string offset="0">GIF8</match-string>
 
@@ -32,6 +54,20 @@
   </type>
 
   <type>
+    <mime-type>image/x-ms-bmp</mime-type>
+    <extension>bmp</extension>
+    <description>MS Windows Bitmap Image</description>
+    <match-string offset="0">BM</match-string>
+  </type>
+
+  <type>
+    <mime-type>image/vnd.djvu</mime-type>
+    <extension>djvu</extension>
+    <description>DjVu document</description>
+    <match-string offset="0">AT&amp;T</match-string>
+  </type>
+
+  <type>
     <mime-type>video/mpeg</mime-type>
     <extension>mpg</extension>
     <description>MPEG video stream data</description>
@@ -48,7 +84,7 @@
   <type>
     <mime-type>video/quicktime</mime-type>
     <extension>mov</extension>
-    <description>Apple QuickTime movie file (moov)</description>
+    <description>Apple QuickTime movie file (mov)</description>
     <match-string offset="4">moov</match-string>
   </type>
 
@@ -90,7 +126,7 @@
   </type>
 
   <type>
-    <description>Zip archive data</description>
+    <description>ZIP archive data</description>
     <mime-type>application/zip</mime-type>
     <extension>zip</extension>
 
@@ -99,7 +135,6 @@
     <!--  Password-protected ZIPs -->
     <type>
       <description>password protected ZIP archive data</description>
-      <description lang="de">passwortgeschützte ZIP Archivdatei</description>
       <mime-type>application/zip;protection=encrypted</mime-type>
       <extension>zip</extension>
 
@@ -110,7 +145,7 @@
     <type>
       <!-- OpenDocument/OpenOffice/StarOffice/KOffice stuff -->
       <match-custom>org.jadice.filetype.matchers.OpenDocumentMatcher</match-custom>
-      <!--  Office Open XML files (i.e. MS Office 2007) -->
+      <!-- Office Open XML files (i.e. MS Office 2007) -->
       <match-custom>org.jadice.filetype.matchers.OfficeOpenXMLMatcher</match-custom>
     </type>
 
@@ -341,12 +376,14 @@
       <match-regexp offset="0" range="1000" multiline="true">PS-Adobe-3</match-regexp>
     </type>
   </type>
+
   <type>
     <mime-type>image/x-portable-bitmap</mime-type>
     <extension>pbm</extension>
     <description>PBM "rawbits" image data</description>
     <match-string offset="0">P4</match-string>
   </type>
+
   <type>
     <mime-type>image/png</mime-type>
     <extension>png</extension>
@@ -493,26 +530,7 @@
     </type>
 
   </type>
-  <type>
-    <mime-type>image/jpeg</mime-type>
-    <extension>jpg</extension>
-    <description>JPEG image data</description>
-    <match-short unsigned="true" order="be" offset="0">0xffd8</match-short>
 
-    <type>
-      <mime-type>image/jpeg</mime-type>
-      <extension>jpg</extension>
-      <description>JFIF standard</description>
-      <match-string offset="6">JFIF</match-string>
-    </type>
-
-  </type>
-  <type>
-    <mime-type>image/jpeg</mime-type>
-    <extension>jpg</extension>
-    <description>JPEG image data, HSI proprietary</description>
-    <match-string offset="0">hsi1</match-string>
-  </type>
   <type>
     <mime-type>image/x-emf</mime-type>
     <extension>emf</extension>
