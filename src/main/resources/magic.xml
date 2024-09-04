@@ -24,22 +24,6 @@
   </type>
 
   <type>
-    <mime-type>image/gif</mime-type>
-    <extension>gif</extension>
-    <description>GIF image data</description>
-    <match-string offset="0">GIF8</match-string>
-
-    <type>
-      <description append="true">, version 8%s,</description>
-      <match-string offset="4">7a</match-string>
-    </type>
-    <type>
-      <description append="true">, version 8%s,</description>
-      <match-string offset="4">9a</match-string>
-    </type>
-  </type>
-
-  <type>
     <mime-type>image/tiff</mime-type>
     <extension>tif</extension>
     <description>TIFF image data, little-endian format</description>
@@ -335,7 +319,7 @@
   <type>
     <mime-type>application/x-shockwave-flash</mime-type>
     <extension>swf</extension>
-    <description>Macromedia Flash data,</description>
+    <description>Macromedia Flash data</description>
     <match-string offset="0">FWS</match-string>
 
     <type>
@@ -460,6 +444,7 @@
     <description>PNG image data, CORRUPTED</description>
     <match-string offset="1">PNG</match-string>
   </type>
+
   <type>
     <mime-type>image/gif</mime-type>
     <extension>gif</extension>
@@ -469,13 +454,13 @@
     <type>
       <mime-type>image/gif</mime-type>
       <extension>gif</extension>
-      <description>version 8%s,</description>
+      <description>version 87a</description>
       <match-string offset="4">7a</match-string>
     </type>
     <type>
       <mime-type>image/gif</mime-type>
       <extension>gif</extension>
-      <description>version 8%s,</description>
+      <description>version 89a</description>
       <match-string offset="4">9a</match-string>
     </type>
     <type>
@@ -490,14 +475,15 @@
       <description>%hd,</description>
       <match-short order="le" offset="8" comparator="&gt;">0x0</match-short>
     </type>
-
   </type>
+
   <type>
     <mime-type>application/x-miff</mime-type>
     <extension>miff</extension>
     <description>MIFF image data</description>
     <match-string offset="0">id=ImageMagick</match-string>
   </type>
+
   <type>
     <mime-type>image/g3fax</mime-type>
     <extension>fax</extension>
@@ -551,7 +537,6 @@
       <match-custom>org.jadice.filetype.matchers.PDFMatcher</match-custom>
     </type>
   </type>
-
   <type>
     <mime-type>application/pdf</mime-type>
     <extension>pdf</extension>
@@ -662,13 +647,12 @@
       <description>\b.%c</description>
       <match-byte order="be" offset="7"></match-byte>
     </type>
-
     <type>
       <!-- Extract further PDF details -->
       <match-custom>org.jadice.filetype.matchers.PDFMatcher</match-custom>
     </type>
-
   </type>
+
   <type>
     <match-custom>org.jadice.filetype.matchers.modca.ModcaMatcher</match-custom>
   </type>
@@ -686,7 +670,6 @@
       <!-- Extracts RTF meta data -->
       <match-custom>org.jadice.filetype.matchers.RTFMatcher</match-custom>
     </type>
-
     <type>
       <description append="true">version %c,</description>
       <match-byte order="be" offset="5"></match-byte>
@@ -706,6 +689,19 @@
     <type>
       <description append="true">IBM PS/2, code page 850</description>
       <match-string offset="6">\\pca</match-string>
+    </type>
+  </type>
+
+  <type>
+    <mime-type>message/rfc822</mime-type>
+    <extension>eml</extension>
+    <description>RFC 822 email message</description>
+    <match-regexp offset="0" range="20000" multiline="true">^(Message-ID:|MIME-Version:|Message-Id:)\s+</match-regexp>
+    <type>
+      <mime-type>message/rfc822</mime-type>
+      <extension>eml</extension>
+      <description>MIME email message</description>
+      <match-regexp offset="0" range="10000" multiline="true">^MIME-Version:\s+</match-regexp>
     </type>
   </type>
 
@@ -766,6 +762,7 @@
     <description>ksh script</description>
     <match-regexp offset="0">^#!/bin/ksh</match-regexp>
   </type>
+
   <type>
     <mime-type>text/html</mime-type>
     <extension>.html</extension>
@@ -811,11 +808,13 @@
       MIME type + charset will be set by the TextMatcher instance
       <mime-type>text/plain</mime-type>
     -->
-    <description>Text file</description>
+    <description>Plain Text file</description>
     <match-custom>org.jadice.filetype.matchers.TextMatcher</match-custom>
   </type>
 
   <!-- Global fallback. If nothing else matches, it is just binary. -->
-  <mime-type>application/octet-stream</mime-type>
-  <description>Binary data</description>
+  <type>
+    <mime-type>application/octet-stream</mime-type>
+    <description>Binary data</description>
+  </type>
 </magic>
