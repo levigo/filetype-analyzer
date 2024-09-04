@@ -387,20 +387,10 @@
   <type>
     <mime-type>image/png</mime-type>
     <extension>png</extension>
-    <description>PNG image data,</description>
-    <match-string offset="0">\211NG</match-string>
-
-    <type>
-      <mime-type>image/png</mime-type>
-      <extension>png</extension>
-      <description>CORRUPTED,</description>
-      <match-long order="be" offset="4">0xd0a1a0a</match-long>
-    </type>
-    <type>
-      <mime-type>image/png</mime-type>
-      <extension>png</extension>
-      <description></description>
-      <match-long order="be" offset="4">0xd0a1a0a</match-long>
+    <description>PNG image data</description>
+    <description lang="de">PNG Bilddatei</description>
+    <match-string offset="0">\211PNG</match-string>
+    <match-string offset="12">IHDR</match-string>
 
       <type>
         <mime-type>image/png</mime-type>
@@ -462,10 +452,8 @@
         <description>interlaced</description>
         <match-byte order="be" offset="28">0x1</match-byte>
       </type>
-
-    </type>
-
   </type>
+
   <type>
     <mime-type>image/png</mime-type>
     <extension>png</extension>
