@@ -61,15 +61,16 @@ class TestVariousTypes {
     assertNotNull(results, "empty stream could not be analyzed");
     assertEquals("text/plain", results.get(MimeTypeAction.KEY));
     assertEquals("txt", results.get(ExtensionAction.KEY));
-    assertEquals("Binary data, ASCII Text Document", results.get(DescriptionAction.KEY));
+    assertEquals("ASCII Text Document", results.get(DescriptionAction.KEY));
   }
 
   public static Stream<Arguments> dataProviderVarious() {
     return Stream.of(
-        arguments("/various_types/test.png", "image/png", "Binary data, PNG image data, colormap,", "png"),
-        arguments("/various_types/File-PNG_8pbc_GRAY.png", "image/png", "Binary data, PNG image data, grayscale,", "png"),
-        arguments("/various_types/File-PNG_8bpc_RGBA.png", "image/png", "Binary data, PNG image data, \\b/color RGBA,", "png"),
-        arguments("/various_types/File-PNG_16bpc_RGBA.png", "image/png", "Binary data, PNG image data, \\b/color RGBA,", "png")
+        arguments("/various_types/test.png", "image/png", "PNG image data, colormap,", "png"),
+        arguments("/various_types/File-PNG_8pbc_GRAY.png", "image/png", "PNG image data, grayscale,", "png"),
+        arguments("/various_types/File-PNG_8bpc_RGBA.png", "image/png", "PNG image data, \\b/color RGBA,", "png"),
+        arguments("/various_types/File-PNG_16bpc_RGBA.png", "image/png", "PNG image data, \\b/color RGBA,", "png"),
+        arguments("/various_types/sample-rtf-files-sample2.rtf", "text/rtf", "Rich Text Format data", "rtf")
     );
   }
 
@@ -135,7 +136,7 @@ class TestVariousTypes {
   }
 
 
-  private static void printResult(final Map<String, Object> results) {
+  public static void printResult(final Map<String, Object> results) {
     for (final Map.Entry<String, Object> e : results.entrySet()) {
       LOGGER.info("   {}={}", e.getKey(), e.getValue());
     }

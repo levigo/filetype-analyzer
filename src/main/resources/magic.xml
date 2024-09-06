@@ -379,24 +379,6 @@
       <type>
         <mime-type>image/png</mime-type>
         <extension>png</extension>
-        <description>%ld x</description>
-        <match-long order="be" offset="16"></match-long>
-      </type>
-      <type>
-        <mime-type>image/png</mime-type>
-        <extension>png</extension>
-        <description>%ld,</description>
-        <match-long order="be" offset="20"></match-long>
-      </type>
-      <type>
-        <mime-type>image/png</mime-type>
-        <extension>png</extension>
-        <description>%d-bit</description>
-        <match-byte order="be" offset="24"></match-byte>
-      </type>
-      <type>
-        <mime-type>image/png</mime-type>
-        <extension>png</extension>
         <description>grayscale,</description>
         <match-byte order="be" offset="25">0x0</match-byte>
       </type>
@@ -634,19 +616,6 @@
     <extension>pdf</extension>
     <description>PDF document</description>
     <match-string offset="0">%PDF-</match-string>
-
-    <type>
-      <mime-type>application/pdf</mime-type>
-      <extension>pdf</extension>
-      <description>version %c</description>
-      <match-byte order="be" offset="5"></match-byte>
-    </type>
-    <type>
-      <mime-type>application/pdf</mime-type>
-      <extension>pdf</extension>
-      <description>\b.%c</description>
-      <match-byte order="be" offset="7"></match-byte>
-    </type>
     <type>
       <!-- Extract further PDF details -->
       <match-custom>org.jadice.filetype.matchers.PDFMatcher</match-custom>
