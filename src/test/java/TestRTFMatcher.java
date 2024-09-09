@@ -35,6 +35,7 @@ class TestRTFMatcher {
   void testRtfEmbeddedFiles() throws IOException {
     for (File f : nullSafe(EMBEDDED_FILES_FOLDER.listFiles())) {
       final Map<String, Object> result = ANALYZER.analyze(f);
+      TestVariousTypes.printResult(result);
       assertNotNull(result, f + " could not be analyzed");
       assertEquals("text/rtf", result.get(MimeTypeAction.KEY), f + " is recognized as RTF");
       assertValidDetails(result); 
@@ -46,6 +47,7 @@ class TestRTFMatcher {
   void testNormalRtfFiles() throws IOException {
     for (File f : nullSafe(NORMAL_FOLDER.listFiles())) {
       final Map<String, Object> result = ANALYZER.analyze(f);
+      TestVariousTypes.printResult(result);
       assertNotNull(result, f + " could not be analyzed");
       assertEquals("text/rtf", result.get(MimeTypeAction.KEY), f + " is recognized as RTF");
       assertValidDetails(result); 

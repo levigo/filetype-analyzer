@@ -61,10 +61,37 @@ class TestVariousTypes {
     assertNotNull(results, "empty stream could not be analyzed");
     assertEquals("text/plain", results.get(MimeTypeAction.KEY));
     assertEquals("txt", results.get(ExtensionAction.KEY));
-    assertEquals("Binary data, ASCII Text Document", results.get(DescriptionAction.KEY));
+    assertEquals("ASCII Text Document", results.get(DescriptionAction.KEY));
   }
 
-  public static Stream<Arguments> dataProvider() {
+  public static Stream<Arguments> dataProviderVarious() {
+    return Stream.of(
+        arguments("/various_types/test.png", "image/png", "PNG image data, colormap,", "png"),
+        arguments("/various_types/File-PNG_8pbc_GRAY.png", "image/png", "PNG image data, grayscale,", "png"),
+        arguments("/various_types/File-PNG_8bpc_RGBA.png", "image/png", "PNG image data, \\b/color RGBA,", "png"),
+        arguments("/various_types/File-PNG_16bpc_RGBA.png", "image/png", "PNG image data, \\b/color RGBA,", "png"),
+        arguments("/various_types/sample-rtf-files-sample2.rtf", "text/rtf", "Rich Text Format data", "rtf")
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource("dataProviderVarious")
+  void testVariousTypesExplicitly(String resource, String expectedMimeType, String expectedDescription, String expectedExtension) throws Exception {
+    final URL url = getClass().getResource(resource);
+    assertNotNull(url);
+    final File file = new File(url.toURI());
+    final Map<String, Object> results = analyzer.analyze(file);
+    printResult(results);
+    assertNotNull(results, file + " could not be analyzed");
+    assertNotNull(results.get(MimeTypeAction.KEY), "mimeType missing");
+    assertEquals(expectedMimeType, results.get(MimeTypeAction.KEY), "wrong mimeType");
+    assertNotNull(results.get(DescriptionAction.KEY), "description missing");
+    assertEquals(expectedDescription, results.get(DescriptionAction.KEY), "wrong description");
+    assertNotNull(results.get(ExtensionAction.KEY), "could not be analyzed");
+    assertEquals(expectedExtension, results.get(ExtensionAction.KEY), "wrong extension");
+  }
+
+  public static Stream<Arguments> dataProviderXRechnung() {
     return Stream.of(
         arguments("/various_types/BASIC_Einfach.pdf", "application/pdf"),
         arguments("/various_types/EN16931_Einfach.pdf", "application/pdf"),
@@ -75,7 +102,7 @@ class TestVariousTypes {
   }
 
   @ParameterizedTest
-  @MethodSource("dataProvider")
+  @MethodSource("dataProviderXRechnung")
   void testXRechnung(String resource, String expectedMimeType) throws Exception {
     final URL url = getClass().getResource(resource);
     assertNotNull(url);
@@ -109,7 +136,7 @@ class TestVariousTypes {
   }
 
 
-  private static void printResult(final Map<String, Object> results) {
+  public static void printResult(final Map<String, Object> results) {
     for (final Map.Entry<String, Object> e : results.entrySet()) {
       LOGGER.info("   {}={}", e.getKey(), e.getValue());
     }
