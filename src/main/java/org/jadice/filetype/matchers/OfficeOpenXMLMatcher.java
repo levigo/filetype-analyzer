@@ -191,7 +191,10 @@ public class OfficeOpenXMLMatcher extends Matcher {
         "application/vnd.ms-visio.template.main+xml"),
     VISIO_TEMPLATE_MACRO_ENABLED("application/vnd.ms-visio.template.macroEnabled.12",
         "Microsoft Visio 2013 macro-enabled Template", "vstm",
-        "application/vnd.ms-visio.template.macroEnabled.main+xml");
+        "application/vnd.ms-visio.template.macroEnabled.main+xml"),
+    APPLE_KEYNOTE("application/vnd.apple.keynote","Apple Keynote Document", "key")    ,
+    APPLE_NUMBERS("application/vnd.apple.numbers", "Apple Numbers Document", "numbers"),
+    APPLE_PAGES("application/vnd.apple.pages", "Apple Pages Document", "pages"),;
 
 
     final String mimeType;
@@ -258,6 +261,12 @@ public class OfficeOpenXMLMatcher extends Matcher {
     final SortedSet<Relationship> rels = getRelationships(archive);
     final List<ContentType> contentTypes = getContentTypes(archive);
     if (rels.isEmpty() || contentTypes.isEmpty()) {
+      final OfficeOpenType type = findIWorkDocumentType(ctx, archive);
+      if (type != null) {
+        ctx.setProperty(MimeTypeAction.KEY, type.mimeType);
+        ctx.setProperty(DescriptionAction.KEY, type.description);
+        ctx.setProperty(ExtensionAction.KEY, type.extension);
+      }
       return;
     }
 
@@ -281,6 +290,27 @@ public class OfficeOpenXMLMatcher extends Matcher {
       ctx.error(this, "Exception parsing MetaData", e);
     }
 
+  }
+
+  private OfficeOpenType findIWorkDocumentType(final Context ctx, final ZipFile archive) throws IOException {
+    final InputStream indexDocument = getSafeInputStream("Index/Document.iwa", archive);
+    final InputStream metadataDocumentIdentifier = getSafeInputStream("Metadata/DocumentIdentifier", archive);
+    OfficeOpenType mimeType = null;
+    if (indexDocument != null && metadataDocumentIdentifier != null) {
+      switch (ctx.getStatedExtension()){
+        case "pages" :
+          mimeType = OfficeOpenType.APPLE_PAGES;
+          break;
+        case "key" :
+          mimeType = OfficeOpenType.APPLE_KEYNOTE;
+          break;
+        case "numbers" :
+          mimeType = OfficeOpenType.APPLE_NUMBERS;
+          break;
+        default:
+      }
+    }
+    return mimeType;
   }
 
   private OfficeOpenType findDocumentType(final SortedSet<Relationship> rels, final List<ContentType> contentTypes) {
@@ -354,7 +384,7 @@ public class OfficeOpenXMLMatcher extends Matcher {
       if (n instanceof Element) {
         String key = n.getNodeName();
         String val = DOMUtil.getNodeText(n);
-        if (val != null && val.length() > 0) {
+        if (val != null && !val.isEmpty()) {
           // Ignore empty information
           result.put(key, val);
         }
