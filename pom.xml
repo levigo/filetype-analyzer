@@ -52,29 +52,29 @@
     <zip4j.version>2.11.5</zip4j.version>
     <slf4j.version>1.7.36</slf4j.version>
 
-    <poi.version>5.2.5</poi.version>
+    <poi.version>5.3.0</poi.version>
     <rtfparserkit.version>1.16.0</rtfparserkit.version>
-    <commons.io.version>2.16.1</commons.io.version>
-    <commons-compress.version>1.27.0</commons-compress.version>
-    <opennlp-tools.version>1.9.3</opennlp-tools.version>
+    <commons.io.version>2.18.0</commons.io.version>
+    <commons-compress.version>1.27.1</commons-compress.version>
+    <opennlp-tools.version>1.9.4</opennlp-tools.version>
 
-    <pdfbox.version>2.0.31</pdfbox.version>
+    <pdfbox.version>2.0.32</pdfbox.version>
 
     <jaxb-api.version>2.3.1</jaxb-api.version>
-    <jaxb-runtime.version>2.3.6</jaxb-runtime.version>
+    <jaxb-runtime.version>2.3.9</jaxb-runtime.version>
 
     <!-- testing -->
-    <junit.version>5.11.0</junit.version>
+    <junit.version>5.11.3</junit.version>
     <hamcrest.version>3.0</hamcrest.version>
     <jmock-junit5.version>2.13.1</jmock-junit5.version>
-    <log4j.version>2.23.1</log4j.version>
+    <log4j.version>2.24.2</log4j.version>
 
     <!-- sonarcloud -->
     <sonar.projectKey>levigo_filetype-analyzer</sonar.projectKey>
     <sonar.organization>levigo</sonar.organization>
     <sonar.host.url>https://sonarcloud.io</sonar.host.url>
 
-    <bouncycastle.version>1.78.1</bouncycastle.version>
+    <bouncycastle.version>1.79</bouncycastle.version>
   </properties>
 
   <build>
