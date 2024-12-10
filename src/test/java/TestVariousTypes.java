@@ -64,7 +64,32 @@ class TestVariousTypes {
     assertEquals("Binary data, ASCII Text Document", results.get(DescriptionAction.KEY));
   }
 
-  public static Stream<Arguments> dataProvider() {
+  public static Stream<Arguments> dataProviderVarious() {
+    return Stream.of(
+        arguments("/various_types/iworks_pages_file.pages", "application/vnd.apple.pages", "Apple Pages Document", "pages"),
+        arguments("/various_types/iworks_numbers_file.numbers", "application/vnd.apple.numbers", "Apple Numbers Document", "numbers"),
+        arguments("/various_types/iworks_keynote_file.key", "application/vnd.apple.keynote", "Apple Keynote Document", "key")
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource("dataProviderVarious")
+  void testVariousTypesExplicitly(String resource, String expectedMimeType, String expectedDescription, String expectedExtension) throws Exception {
+    final URL url = getClass().getResource(resource);
+    assertNotNull(url);
+    final File file = new File(url.toURI());
+    final Map<String, Object> results = analyzer.analyze(file);
+    printResult(results);
+    assertNotNull(results, file + " could not be analyzed");
+    assertNotNull(results.get(MimeTypeAction.KEY), "mimeType missing");
+    assertEquals(expectedMimeType, results.get(MimeTypeAction.KEY), "wrong mimeType");
+    assertNotNull(results.get(DescriptionAction.KEY), "description missing");
+    assertEquals(expectedDescription, results.get(DescriptionAction.KEY), "wrong description");
+    assertNotNull(results.get(ExtensionAction.KEY), "could not be analyzed");
+    assertEquals(expectedExtension, results.get(ExtensionAction.KEY), "wrong extension");
+  }
+
+  public static Stream<Arguments> dataProviderXRechnung() {
     return Stream.of(
         arguments("/various_types/BASIC_Einfach.pdf", "application/pdf"),
         arguments("/various_types/EN16931_Einfach.pdf", "application/pdf"),
@@ -75,7 +100,7 @@ class TestVariousTypes {
   }
 
   @ParameterizedTest
-  @MethodSource("dataProvider")
+  @MethodSource("dataProviderXRechnung")
   void testXRechnung(String resource, String expectedMimeType) throws Exception {
     final URL url = getClass().getResource(resource);
     assertNotNull(url);
@@ -109,7 +134,7 @@ class TestVariousTypes {
   }
 
 
-  private static void printResult(final Map<String, Object> results) {
+  public static void printResult(final Map<String, Object> results) {
     for (final Map.Entry<String, Object> e : results.entrySet()) {
       LOGGER.info("   {}={}", e.getKey(), e.getValue());
     }
