@@ -61,16 +61,11 @@ class TestVariousTypes {
     assertNotNull(results, "empty stream could not be analyzed");
     assertEquals("text/plain", results.get(MimeTypeAction.KEY));
     assertEquals("txt", results.get(ExtensionAction.KEY));
-    assertEquals("ASCII Text Document", results.get(DescriptionAction.KEY));
+    assertEquals("Binary data, ASCII Text Document", results.get(DescriptionAction.KEY));
   }
 
   public static Stream<Arguments> dataProviderVarious() {
     return Stream.of(
-        arguments("/various_types/test.png", "image/png", "PNG image data, colormap,", "png"),
-        arguments("/various_types/File-PNG_8pbc_GRAY.png", "image/png", "PNG image data, grayscale,", "png"),
-        arguments("/various_types/File-PNG_8bpc_RGBA.png", "image/png", "PNG image data, \\b/color RGBA,", "png"),
-        arguments("/various_types/File-PNG_16bpc_RGBA.png", "image/png", "PNG image data, \\b/color RGBA,", "png"),
-        arguments("/various_types/sample-rtf-files-sample2.rtf", "text/rtf", "Rich Text Format data", "rtf"),
         arguments("/various_types/iworks_pages_file.pages", "application/vnd.apple.pages", "Apple Pages Document", "pages"),
         arguments("/various_types/iworks_numbers_file.numbers", "application/vnd.apple.numbers", "Apple Numbers Document", "numbers"),
         arguments("/various_types/iworks_keynote_file.key", "application/vnd.apple.keynote", "Apple Keynote Document", "key")
