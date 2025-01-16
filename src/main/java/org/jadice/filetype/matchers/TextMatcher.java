@@ -108,7 +108,8 @@ public class TextMatcher extends Matcher {
       boolean isCSV = false;
       String mimeType = "text/plain";
       final String statedExtension = context.getStatedExtension();
-      if(matches && statedExtension != null && statedExtension.equals("csv")) {
+      LOGGER.debug("stated extension: {}", statedExtension);
+      if (matches && statedExtension != null && statedExtension.equals("csv")) {
         isCSV = true;
         mimeType = "text/csv";
       }
@@ -117,7 +118,7 @@ public class TextMatcher extends Matcher {
         // Inject charset in MIME type for later usage
         context.setProperty(MimeTypeAction.KEY, mimeType + ";charset=" + bom.charset.name());
         context.info(this, String.format("Determined charset: %s", bom.charset.name()));
-        if(isCSV){
+        if (isCSV) {
           context.setProperty(ExtensionAction.KEY, "csv");
           context.setProperty(DescriptionAction.KEY, "Comma-separated values (CSV)");
         }
@@ -159,10 +160,10 @@ public class TextMatcher extends Matcher {
           || Character.isIdentifierIgnorable(c) //
           || Character.isSpaceChar(c) //
           || Character.isWhitespace(c)) {
-        LOGGER.debug("Recognized char '" + c + "' @ " + i);
+        LOGGER.debug("Recognized char '{}' @ {}", c, i);
         defined++;
       } else if (PUNCTUATION.contains(c)) {
-        LOGGER.debug("Ignoring punctuation char '" + c + "' @ " + i);
+        LOGGER.debug("Ignoring punctuation char '{}' @ {}", c, i);
         ignored++;
       }
     }

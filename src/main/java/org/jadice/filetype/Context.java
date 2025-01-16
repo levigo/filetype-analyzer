@@ -93,4 +93,9 @@ public class Context {
   public Locale getLocale() {
     return locale;
   }
+
+  @Override
+  public String toString() {
+    return "Context{" + "result=" + result + ", locale=" + locale + ", statedExtension='" + statedExtension + '\'' + '}';
+  }
 }
