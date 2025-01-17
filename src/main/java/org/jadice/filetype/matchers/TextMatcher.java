@@ -109,7 +109,7 @@ public class TextMatcher extends Matcher {
       String mimeType = "text/plain";
       final String statedExtension = context.getStatedExtension();
       LOGGER.debug("stated extension: {}", statedExtension);
-      if (matches && statedExtension != null && statedExtension.equals("csv")) {
+      if (matches && statedExtension != null && statedExtension.equalsIgnoreCase("csv")) {
         isCSV = true;
         mimeType = "text/csv";
       }
