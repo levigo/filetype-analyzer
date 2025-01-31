@@ -100,7 +100,8 @@ class TestVariousTypes {
         arguments("/various_types/EN16931_Einfach.pdf", "application/pdf"),
         arguments("/various_types/EN16931_Einfach.cii.xml", "application/xml;charset=UTF-8;x-rechnung=true"),
         arguments("/various_types/EN16931_Einfach.ubl.xml", "application/xml;charset=UTF-8;x-rechnung=true"),
-        arguments("/various_types/ZUGFeRD-invoice_rabatte_3_abschlag_duepayableamount.xml", "application/xml;charset=UTF-8;x-rechnung=true")
+        arguments("/various_types/ZUGFeRD-invoice_rabatte_3_abschlag_duepayableamount.xml", "application/xml;charset=UTF-8;x-rechnung=true"),
+        arguments("/various_types/ubl-creditNote-2.0-Example.xml", "application/xml;charset=UTF-8;x-rechnung=true")
     );
   }
 

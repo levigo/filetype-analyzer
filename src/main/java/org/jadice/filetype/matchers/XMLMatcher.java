@@ -108,8 +108,9 @@ public class XMLMatcher extends Matcher {
   private static final Map<String, String> X_RECHNUNG_ROOT_ELEMENT_XMLNS_PAIRS;
   static {
     X_RECHNUNG_ROOT_ELEMENT_XMLNS_PAIRS = new HashMap<>();
-    X_RECHNUNG_ROOT_ELEMENT_XMLNS_PAIRS.put("Invoice", "urn:oasis:names:specification:ubl:schema:xsd:Invoice-2");
+    X_RECHNUNG_ROOT_ELEMENT_XMLNS_PAIRS.put("Invoice", "urn:oasis:names:specification:ubl:schema:xsd:Invoice-");
     X_RECHNUNG_ROOT_ELEMENT_XMLNS_PAIRS.put("CrossIndustryInvoice", "urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:100");
+    X_RECHNUNG_ROOT_ELEMENT_XMLNS_PAIRS.put("CreditNote", "urn:oasis:names:specification:ubl:schema:xsd:CreditNote-");
   }
 
   @Override
@@ -399,6 +400,6 @@ public class XMLMatcher extends Matcher {
    * @return <code>true</code> if input matches X-Rechnung standard
    */
   public static boolean matchesXRechnung(String rootElement, String namespaceURI) {
-    return X_RECHNUNG_ROOT_ELEMENT_XMLNS_PAIRS.getOrDefault(rootElement, "").equals(namespaceURI);
+    return namespaceURI != null && X_RECHNUNG_ROOT_ELEMENT_XMLNS_PAIRS.get(rootElement) != null &&  namespaceURI.startsWith(X_RECHNUNG_ROOT_ELEMENT_XMLNS_PAIRS.get(rootElement));
   }
 }
