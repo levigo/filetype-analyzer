@@ -51,6 +51,7 @@ public class XMLMatcher extends Matcher {
   private static final Pattern PROLOG_PATTERN = Pattern.compile("<\\?(\\s*)xml");
 
   public static final String MIME_TYPE_XML = "application/xml";
+  public static final String MIME_TYPE_RDF = "application/rdf+xml";
 
   public static final String DETAILS_KEY = "XML_DETAILS";
 
@@ -139,6 +140,11 @@ public class XMLMatcher extends Matcher {
       context.setProperty(MimeTypeAction.KEY, mimeType);
       context.setProperty(ExtensionAction.KEY, "xml");
       context.setProperty(DescriptionAction.KEY, "Extensible Markup Language (XML)");
+
+      if ("rdf".equalsIgnoreCase(handler.getRootElementName())
+          && "http://www.w3.org/1999/02/22-rdf-syntax-ns#".equalsIgnoreCase(handler.getNamespaceURI())) {
+        context.setProperty(MimeTypeAction.KEY, MIME_TYPE_RDF);
+      }
 
       final Map<String, Object> xmlDetails = new HashMap<>();
       context.setProperty(DETAILS_KEY, xmlDetails);
