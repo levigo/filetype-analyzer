@@ -6,9 +6,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.xml.XMLConstants;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
@@ -18,6 +23,8 @@ import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
+import org.apache.pdfbox.Loader;
+import org.apache.pdfbox.io.IOUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentCatalog;
 import org.apache.pdfbox.pdmodel.PDDocumentInformation;
@@ -45,7 +52,7 @@ import org.slf4j.LoggerFactory;
  * A {@link Matcher} for PDF documents .
  * <p>
  * Caveat: for performance reasons, this should only be called from a context where the stream has
- * already be identified as a PDF file/stream.
+ * already been identified as a PDF file/stream.
  */
 public class PDFMatcher extends Matcher {
   private static final Logger LOGGER = LoggerFactory.getLogger(PDFMatcher.class);
@@ -78,7 +85,7 @@ public class PDFMatcher extends Matcher {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.levigo.jadice.filetype.database.Matcher#matches(com.levigo.jadice.filetype.Context)
    */
   @Override
@@ -86,13 +93,13 @@ public class PDFMatcher extends Matcher {
     SeekableInputStream sis = context.getStream();
     try {
       sis.seek(0);
-      try (PDDocument document = PDDocument.load(sis)) {
+      try (PDDocument document = Loader.loadPDF(IOUtils.toByteArray(sis))) {
         context.setProperty(MimeTypeAction.KEY, PDF_MIME_TYPE);
 
         Map<String, Object> pdfDetails = new HashMap<>();
         context.setProperty(DETAILS_KEY, pdfDetails);
 
-        pdfDetails.put(NUMBER_OF_PAGES_KEY, Integer.valueOf(document.getNumberOfPages()));
+        pdfDetails.put(NUMBER_OF_PAGES_KEY, document.getNumberOfPages());
 
         PDDocumentInformation info = document.getDocumentInformation();
         if (null != info) {
@@ -117,7 +124,7 @@ public class PDFMatcher extends Matcher {
           pdfDetails.put(IS_ENCRYPTED_KEY, false);
 
 
-        final List<String> filenames = new ArrayList<String>();
+        final List<String> filenames = new ArrayList<>();
 
         PDDocumentNameDictionary namesDictionary = new PDDocumentNameDictionary(document.getDocumentCatalog());
         PDEmbeddedFilesNameTreeNode efTree = namesDictionary.getEmbeddedFiles();
@@ -169,7 +176,10 @@ public class PDFMatcher extends Matcher {
       StreamResult xmlOutput = new StreamResult(new StringWriter());
 
       // Configure transformer
-      Transformer transformer = TransformerFactory.newInstance().newTransformer();
+      TransformerFactory tf = TransformerFactory.newInstance();
+      tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+      tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
+      Transformer transformer = tf.newTransformer();
       transformer.setOutputProperty(OutputKeys.INDENT, "yes");
       transformer.transform(xmlInput, xmlOutput);
 
@@ -188,7 +198,7 @@ public class PDFMatcher extends Matcher {
           PDComplexFileSpecification complexFileSpec = (PDComplexFileSpecification) fileSpec;
           PDEmbeddedFile embeddedFile = getEmbeddedFile(complexFileSpec);
           if (embeddedFile != null) {
-            extractFile(filenames, complexFileSpec.getFilename(), embeddedFile);
+            extractFile(filenames, complexFileSpec.getFilename());
           }
         }
       }
@@ -209,19 +219,17 @@ public class PDFMatcher extends Matcher {
     }
   }
 
-  private static void extractFiles(final Map<String, PDComplexFileSpecification> names, final List<String> filenames)
-      throws IOException {
+  private static void extractFiles(final Map<String, PDComplexFileSpecification> names, final List<String> filenames) {
     for (Entry<String, PDComplexFileSpecification> entry : names.entrySet()) {
       PDComplexFileSpecification fileSpec = entry.getValue();
       PDEmbeddedFile embeddedFile = getEmbeddedFile(fileSpec);
       if (embeddedFile != null) {
-        extractFile(filenames, fileSpec.getFilename(), embeddedFile);
+        extractFile(filenames, fileSpec.getFilename());
       }
     }
   }
 
-  private static void extractFile(final List<String> filenames, final String filename,
-                                  final PDEmbeddedFile embeddedFile) throws IOException {
+  private static void extractFile(final List<String> filenames, final String filename) {
     filenames.add(filename);
   }
 
@@ -266,7 +274,7 @@ public class PDFMatcher extends Matcher {
       reader.setEndPage(i);
       final String pdfText = reader.getText(doc).replaceAll("([\\r\\n])", "");
       textLengthPerPages.add(pdfText.length());
-      if (pdfText.length() > 0) {
+      if (!pdfText.isEmpty()) {
         containsText = true;
       }
     }
@@ -280,7 +288,7 @@ public class PDFMatcher extends Matcher {
 
   /**
    * Checks if the PDF is an electronic invoice.
-   * 
+   *
    * @param pdfDetails the map of PDF details with the metadata XML
    */
   private static void checkIfXRechnung(final Map<String, Object> pdfDetails) {
