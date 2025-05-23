@@ -58,7 +58,7 @@
     <commons-compress.version>1.27.1</commons-compress.version>
     <opennlp-tools.version>1.9.3</opennlp-tools.version>
 
-    <pdfbox.version>3.0.1</pdfbox.version>
+    <pdfbox.version>3.0.4</pdfbox.version>
 
     <jaxb-api.version>4.0.2</jaxb-api.version>
     <jaxb-core.version>4.0.5</jaxb-core.version>
