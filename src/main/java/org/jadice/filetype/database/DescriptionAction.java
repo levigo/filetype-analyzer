@@ -7,9 +7,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlValue;
+import jakarta.xml.bind.annotation.XmlAttribute;
+import jakarta.xml.bind.annotation.XmlRootElement;
+import jakarta.xml.bind.annotation.XmlValue;
 
 import org.jadice.filetype.Context;
 
@@ -28,7 +28,7 @@ public class DescriptionAction extends Action {
   public static class Description implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private List<Map<String, String>> content = new ArrayList<Map<String, String>>();
+    private final List<Map<String, String>> content = new ArrayList<>();
 
     private final Locale locale;
 
@@ -48,7 +48,7 @@ public class DescriptionAction extends Action {
       // default desc. ist der indikator für eine neue map,
       // alle lok. sprachen müssen danach in der xml datei definiert werden
       if (content.isEmpty() || lang.equalsIgnoreCase(DEFAULT_LANG)) {
-        content.add(new HashMap<String, String>());
+        content.add(new HashMap<>());
       }
 
       Map<String, String> map = content.get(content.size() - 1);
@@ -94,7 +94,14 @@ public class DescriptionAction extends Action {
 
   @Override
   public void perform(Context ctx) {
-    Description desc = (Description) ctx.getProperty(KEY);
+    Description desc = null;
+
+    if (ctx.getProperty(KEY) instanceof Description) {
+      desc = (Description) ctx.getProperty(KEY);
+    } else if (ctx.getProperty(KEY) instanceof String) {
+      desc = new Description(ctx.getLocale());
+      desc.append(null, (String) ctx.getProperty(KEY), replace);
+    }
 
     if (desc == null) {
       desc = new Description(ctx.getLocale());

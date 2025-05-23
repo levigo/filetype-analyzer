@@ -2,7 +2,7 @@ package org.jadice.filetype.matchers;
 
 import java.nio.ByteOrder;
 
-import javax.xml.bind.annotation.XmlTransient;
+import jakarta.xml.bind.annotation.XmlTransient;
 
 /**
  * Abstract base class for matchers based on simple numeric data matching.

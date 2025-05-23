@@ -60,6 +60,8 @@ public class XMLMatcher extends Matcher {
 
   public static final String DOCUMENT_XML_VERSION_KEY = "document_xml_version";
 
+  public static final String X_RECHNUNG_KEY = "x_rechnung";
+
   public static final int DEFAULT_MAX_ENTITY_EXPANSIONS = 20;
   private static final String JAXP_ENTITY_EXPANSION_LIMIT_KEY = "jdk.xml.entityExpansionLimit";
   private static volatile int MAX_ENTITY_EXPANSIONS = determineMaxEntityExpansions();
@@ -103,6 +105,14 @@ public class XMLMatcher extends Matcher {
 
   private static SoftReference<SAXParserFactory> saxFactoryReference = new SoftReference<>(null);
 
+  private static final Map<String, String> X_RECHNUNG_ROOT_ELEMENT_XMLNS_PAIRS;
+  static {
+    X_RECHNUNG_ROOT_ELEMENT_XMLNS_PAIRS = new HashMap<>();
+    X_RECHNUNG_ROOT_ELEMENT_XMLNS_PAIRS.put("Invoice", "urn:oasis:names:specification:ubl:schema:xsd:Invoice-");
+    X_RECHNUNG_ROOT_ELEMENT_XMLNS_PAIRS.put("CrossIndustryInvoice", "urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:100");
+    X_RECHNUNG_ROOT_ELEMENT_XMLNS_PAIRS.put("CreditNote", "urn:oasis:names:specification:ubl:schema:xsd:CreditNote-");
+  }
+
   @Override
   public boolean matches(final Context context) throws IOException {
     try {
@@ -121,6 +131,10 @@ public class XMLMatcher extends Matcher {
       if (handler.getEncoding() != null && !handler.getEncoding().isEmpty()) {
         mimeType += ";charset=" + handler.getEncoding();
       }
+      final boolean isXRechnung = matchesXRechnung(handler.getRootElementName(), handler.getNamespaceURI());
+      if (isXRechnung) {
+       mimeType += ";x-rechnung=true";
+      }
 
       context.setProperty(MimeTypeAction.KEY, mimeType);
       context.setProperty(ExtensionAction.KEY, "xml");
@@ -133,7 +147,10 @@ public class XMLMatcher extends Matcher {
       // xml version: see
       // http://sax.sourceforge.net/apidoc/org/xml/sax/package-summary.html#package_description
       putIfPresent(DOCUMENT_XML_VERSION_KEY, handler.getXmlVersion(), xmlDetails);
-
+      if (isXRechnung) {
+        xmlDetails.put(X_RECHNUNG_KEY, true);
+      }
+      
       // Parser would have thrown a SAXException is this is no proper XML
       return true;
     } catch (ParserConfigurationException | SAXException e) {
@@ -372,5 +389,17 @@ public class XMLMatcher extends Matcher {
       }
     }
     return DEFAULT_MAX_ENTITY_EXPANSIONS;
+  }
+
+  /**
+   * Returns <code>true</code> if the XML root element and namespace match with those of an X-Rechnung
+   * standard.
+   *
+   * @param rootElement an XML root element
+   * @param namespaceURI an XML namespace
+   * @return <code>true</code> if input matches X-Rechnung standard
+   */
+  public static boolean matchesXRechnung(String rootElement, String namespaceURI) {
+    return namespaceURI != null && X_RECHNUNG_ROOT_ELEMENT_XMLNS_PAIRS.get(rootElement) != null &&  namespaceURI.startsWith(X_RECHNUNG_ROOT_ELEMENT_XMLNS_PAIRS.get(rootElement));
   }
 }

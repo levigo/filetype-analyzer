@@ -1,6 +1,6 @@
 package org.jadice.filetype.database;
 
-import javax.xml.bind.annotation.XmlTransient;
+import jakarta.xml.bind.annotation.XmlTransient;
 
 import org.jadice.filetype.Context;
 

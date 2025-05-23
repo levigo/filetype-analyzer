@@ -1,8 +1,11 @@
 package org.jadice.filetype.matchers;
 
+import static org.jadice.filetype.matchers.XMLMatcher.X_RECHNUNG_KEY;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -38,6 +41,7 @@ import org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotationFileAttachme
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.jadice.filetype.Context;
 import org.jadice.filetype.database.MimeTypeAction;
+import org.jadice.filetype.io.MemoryInputStream;
 import org.jadice.filetype.io.SeekableInputStream;
 import org.jadice.filetype.pdfutil.PDFBoxSignatureUtil;
 import org.slf4j.Logger;
@@ -80,7 +84,7 @@ public class PDFMatcher extends Matcher {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.levigo.jadice.filetype.database.Matcher#matches(com.levigo.jadice.filetype.Context)
    */
   @Override
@@ -107,6 +111,7 @@ public class PDFMatcher extends Matcher {
         PDMetadata meta = catalog.getMetadata();
         if (null != meta) {
           provideXMPMetadata(pdfDetails, meta);
+          checkIfXRechnung(pdfDetails);
         }
 
         PDEncryption encryption = document.getEncryption();
@@ -280,4 +285,51 @@ public class PDFMatcher extends Matcher {
     }
   }
 
+  /**
+   * Checks if the PDF is an electronic invoice.
+   *
+   * @param pdfDetails the map of PDF details with the metadata XML
+   */
+  private static void checkIfXRechnung(final Map<String, Object> pdfDetails) {
+    final Object metadata = pdfDetails.get(METADATA_KEY);
+    if (metadata instanceof String) {
+      try {
+        final XMLMatcher xmlMatcher = new XMLMatcher();
+        final Context xmlContext = new Context(
+            new MemoryInputStream(((String) metadata).getBytes(StandardCharsets.UTF_8)),
+            new HashMap<>(), null, Locale.ENGLISH, "");
+        final boolean isXRechnung = xmlMatcher.matches(xmlContext);
+        if (isXRechnung) {
+          pdfDetails.put(X_RECHNUNG_KEY, true);
+        }
+      } catch (IOException e) {
+        LOGGER.error("Failed to parse metadata XML", e);
+      }
+    }
+  }
+
+  /**
+   * Reads the whole stream to determine the length of it.
+   *
+   * @param sis stream
+   * @return length of given stream or -1 if any error occurred
+   */
+  private static long getFileLength(final SeekableInputStream sis) {
+    try {
+      sis.seek(0);
+      int read = 0;
+      final byte[] buffer = new byte[4096];
+      do {
+        synchronized (sis) { // perform synchronization inside while loop! See DOCPV-932
+          read = sis.read(buffer);
+        }
+      } while (read != -1);
+
+      // whole sis is read now
+      return sis.length();
+    } catch (Exception e) {
+      LOGGER.warn("Failed to determine file length.", e);
+      return -1;
+    }
+  }
 }
