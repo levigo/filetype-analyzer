@@ -182,8 +182,10 @@ public class XMLMatcher extends Matcher {
    *         {@link ByteOrderMark BOM}
    */
   private InputStreamReader createReader(final SeekableInputStream sis) throws IOException {
-    final BOMInputStream bomIS = new BOMInputStream(sis, ByteOrderMark.UTF_8, ByteOrderMark.UTF_16LE,
-        ByteOrderMark.UTF_16BE, ByteOrderMark.UTF_32LE, ByteOrderMark.UTF_32BE);
+    final BOMInputStream bomIS = BOMInputStream.builder().setInputStream(sis)
+        .setByteOrderMarks(ByteOrderMark.UTF_8, ByteOrderMark.UTF_16LE,
+            ByteOrderMark.UTF_16BE, ByteOrderMark.UTF_32LE, ByteOrderMark.UTF_32BE)
+        .get();
 
     final Charset charset;
     if (bomIS.hasBOM()) {
@@ -323,7 +325,7 @@ public class XMLMatcher extends Matcher {
             //"com.sun.org.apache.xerces.internal.util.SecurityManager",
             XERCES_SECURITY_MANAGER}) {
       try {
-        Object mgr = Class.forName(securityManagerClassName).newInstance();
+        Object mgr = Class.forName(securityManagerClassName).getDeclaredConstructor().newInstance();
         Method setLimit = mgr.getClass().getMethod("setEntityExpansionLimit", Integer.TYPE);
         setLimit.invoke(mgr, MAX_ENTITY_EXPANSIONS);
 

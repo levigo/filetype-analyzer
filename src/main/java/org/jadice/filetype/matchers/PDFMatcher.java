@@ -189,11 +189,9 @@ public class PDFMatcher extends Matcher {
 
   private static void extractFilesFromPage(final PDPage page, final List<String> filenames) throws IOException {
     for (PDAnnotation annotation : page.getAnnotations()) {
-      if (annotation instanceof PDAnnotationFileAttachment) {
-        PDAnnotationFileAttachment annotationFileAttachment = (PDAnnotationFileAttachment) annotation;
+      if (annotation instanceof PDAnnotationFileAttachment annotationFileAttachment) {
         PDFileSpecification fileSpec = annotationFileAttachment.getFile();
-        if (fileSpec instanceof PDComplexFileSpecification) {
-          PDComplexFileSpecification complexFileSpec = (PDComplexFileSpecification) fileSpec;
+        if (fileSpec instanceof PDComplexFileSpecification complexFileSpec) {
           PDEmbeddedFile embeddedFile = getEmbeddedFile(complexFileSpec);
           if (embeddedFile != null) {
             extractFile(filenames, complexFileSpec.getFilename());
@@ -291,11 +289,11 @@ public class PDFMatcher extends Matcher {
    */
   private static void checkIfXRechnung(final Map<String, Object> pdfDetails) {
     final Object metadata = pdfDetails.get(METADATA_KEY);
-    if (metadata instanceof String) {
+    if (metadata instanceof String metadataString) {
       try {
         final XMLMatcher xmlMatcher = new XMLMatcher();
         final Context xmlContext = new Context(
-            new MemoryInputStream(((String) metadata).getBytes(StandardCharsets.UTF_8)),
+            new MemoryInputStream(metadataString.getBytes(StandardCharsets.UTF_8)),
             new HashMap<>(), null, Locale.ENGLISH, "");
         final boolean isXRechnung = xmlMatcher.matches(xmlContext);
         if (isXRechnung) {
