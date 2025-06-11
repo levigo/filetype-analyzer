@@ -1,7 +1,5 @@
 package org.jadice.filetype.matchers;
 
-import static org.jadice.filetype.matchers.XMLMatcher.X_RECHNUNG_KEY;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
@@ -301,7 +299,7 @@ public class PDFMatcher extends Matcher {
             new HashMap<>(), null, Locale.ENGLISH, "");
         final boolean isXRechnung = xmlMatcher.matches(xmlContext);
         if (isXRechnung) {
-          pdfDetails.put(X_RECHNUNG_KEY, true);
+          pdfDetails.put(XMLMetadataMatcher.X_RECHNUNG_KEY, true);
         }
       } catch (IOException e) {
         LOGGER.error("Failed to parse metadata XML", e);

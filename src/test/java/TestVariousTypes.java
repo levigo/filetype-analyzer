@@ -18,6 +18,7 @@ import org.jadice.filetype.database.MimeTypeAction;
 import org.jadice.filetype.io.MemoryInputStream;
 import org.jadice.filetype.matchers.PDFMatcher;
 import org.jadice.filetype.matchers.XMLMatcher;
+import org.jadice.filetype.matchers.XMLMetadataMatcher;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -33,7 +34,7 @@ class TestVariousTypes {
   private static Analyzer analyzer;
 
   @BeforeAll
-  public static void createAnalyzer() throws AnalyzerException {
+  static void createAnalyzer() throws AnalyzerException {
     analyzer = Analyzer.getInstance("/magic.xml");
   }
 
@@ -44,7 +45,7 @@ class TestVariousTypes {
     assert files != null;
 
     for (final File file : files) {
-      LOGGER.info("File: " + file);
+      LOGGER.info("File: {}", file);
       final Map<String, Object> results = analyzer.analyze(file);
       assertNotNull(results, file + " could not be analyzed");
       assertNotNull(results.get(MimeTypeAction.KEY), "mimeType missing for " + file);
@@ -135,7 +136,7 @@ class TestVariousTypes {
     final Object details = results.get(detailsKey);
     assertNotNull(details, "details are missing");
     final Map<String, Object> detailsMap = (Map<String, Object>) details;
-    final boolean isXRechnung = (Boolean)detailsMap.get(XMLMatcher.X_RECHNUNG_KEY);
+    final boolean isXRechnung = (Boolean)detailsMap.get(XMLMetadataMatcher.X_RECHNUNG_KEY);
     assertTrue(isXRechnung, "x_rechnung should be true");
   }
 
