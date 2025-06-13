@@ -8,3 +8,4 @@ StringMatcher
 RegexpMatcher
 LongMatcher
 DateMatcher
+XMLMetadataMatcher

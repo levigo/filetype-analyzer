@@ -747,7 +747,20 @@
   </type>
 
   <type>
+    <description>Extensible Markup Language (XML)</description>
     <match-custom>org.jadice.filetype.matchers.XMLMatcher</match-custom>
+    <type>
+      <description>X-Rechnung type Invoice</description>
+      <match-xml-metadata namespaceUri="urn:oasis:names:specification:ubl:schema:xsd:Invoice-" rootElementName="Invoice">x_rechnung</match-xml-metadata>
+    </type>
+    <type>
+      <description>X-Rechnung type CrossIndustryInvoice</description>
+      <match-xml-metadata namespaceUri="urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:100" rootElementName="CrossIndustryInvoice">x_rechnung</match-xml-metadata>
+    </type>
+    <type>
+      <description>X-Rechnung type CreditNote</description>
+      <match-xml-metadata namespaceUri="urn:oasis:names:specification:ubl:schema:xsd:CreditNote-" rootElementName="CreditNote">x_rechnung</match-xml-metadata>
+    </type>
   </type>
 
   <type>

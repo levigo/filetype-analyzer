@@ -1,7 +1,5 @@
 package org.jadice.filetype.matchers;
 
-import static org.jadice.filetype.matchers.XMLMatcher.X_RECHNUNG_KEY;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
@@ -191,11 +189,9 @@ public class PDFMatcher extends Matcher {
 
   private static void extractFilesFromPage(final PDPage page, final List<String> filenames) throws IOException {
     for (PDAnnotation annotation : page.getAnnotations()) {
-      if (annotation instanceof PDAnnotationFileAttachment) {
-        PDAnnotationFileAttachment annotationFileAttachment = (PDAnnotationFileAttachment) annotation;
+      if (annotation instanceof PDAnnotationFileAttachment annotationFileAttachment) {
         PDFileSpecification fileSpec = annotationFileAttachment.getFile();
-        if (fileSpec instanceof PDComplexFileSpecification) {
-          PDComplexFileSpecification complexFileSpec = (PDComplexFileSpecification) fileSpec;
+        if (fileSpec instanceof PDComplexFileSpecification complexFileSpec) {
           PDEmbeddedFile embeddedFile = getEmbeddedFile(complexFileSpec);
           if (embeddedFile != null) {
             extractFile(filenames, complexFileSpec.getFilename());
@@ -293,15 +289,15 @@ public class PDFMatcher extends Matcher {
    */
   private static void checkIfXRechnung(final Map<String, Object> pdfDetails) {
     final Object metadata = pdfDetails.get(METADATA_KEY);
-    if (metadata instanceof String) {
+    if (metadata instanceof String metadataString) {
       try {
         final XMLMatcher xmlMatcher = new XMLMatcher();
         final Context xmlContext = new Context(
-            new MemoryInputStream(((String) metadata).getBytes(StandardCharsets.UTF_8)),
+            new MemoryInputStream(metadataString.getBytes(StandardCharsets.UTF_8)),
             new HashMap<>(), null, Locale.ENGLISH, "");
         final boolean isXRechnung = xmlMatcher.matches(xmlContext);
         if (isXRechnung) {
-          pdfDetails.put(X_RECHNUNG_KEY, true);
+          pdfDetails.put(XMLMetadataMatcher.X_RECHNUNG_KEY, true);
         }
       } catch (IOException e) {
         LOGGER.error("Failed to parse metadata XML", e);
