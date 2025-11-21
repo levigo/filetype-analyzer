@@ -160,10 +160,10 @@ public class TextMatcher extends Matcher {
           || Character.isIdentifierIgnorable(c) //
           || Character.isSpaceChar(c) //
           || Character.isWhitespace(c)) {
-        LOGGER.debug("Recognized char '{}' @ {}", c, i);
+        LOGGER.trace("Recognized char '{}' @ {}", c, i);
         defined++;
       } else if (PUNCTUATION.contains(c)) {
-        LOGGER.debug("Ignoring punctuation char '{}' @ {}", c, i);
+        LOGGER.trace("Ignoring punctuation char '{}' @ {}", c, i);
         ignored++;
       }
     }
