@@ -87,6 +87,7 @@
         <configuration>
           <source>17</source>
           <target>17</target>
+          <release>17</release>
         </configuration>
       </plugin>
       <plugin>
@@ -154,7 +155,7 @@
                 </requireMavenVersion>
                 <requireJavaVersion>
                   <!-- http://maven.apache.org/enforcer/enforcer-rules/versionRanges.html -->
-                  <version>[17,21)</version>
+                  <version>[17,22)</version>
                 </requireJavaVersion>
                 <!-- <requirePluginVersions> <message>Best Practice is to
                   always define plugin versions!</message> <banLatest>true</banLatest> <banRelease>true</banRelease>
@@ -231,6 +232,11 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
           <version>3.12.0</version>
+        </plugin>
+        <plugin>
+          <groupId>org.sonarsource.scanner.maven</groupId>
+          <artifactId>sonar-maven-plugin</artifactId>
+          <version>5.3.0.6276</version>
         </plugin>
       </plugins>
     </pluginManagement>
