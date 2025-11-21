@@ -49,33 +49,23 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-    <zip4j.version>2.11.5</zip4j.version>
-    <slf4j.version>2.0.17</slf4j.version>
-
-    <poi.version>5.5.0</poi.version>
-    <rtfparserkit.version>1.16.0</rtfparserkit.version>
-    <commons.io.version>2.21.0</commons.io.version>
+    <bouncycastle.version>1.82</bouncycastle.version>
     <commons-compress.version>1.28.0</commons-compress.version>
-    <opennlp-tools.version>1.9.3</opennlp-tools.version>
-
-    <pdfbox.version>3.0.6</pdfbox.version>
-
+    <commons.io.version>2.21.0</commons.io.version>
     <jaxb-api.version>4.0.4</jaxb-api.version>
     <jaxb-core.version>4.0.6</jaxb-core.version>
     <jaxb-impl.version>4.0.6</jaxb-impl.version>
-
+    <opennlp-tools.version>1.9.3</opennlp-tools.version>
+    <pdfbox.version>3.0.6</pdfbox.version>
+    <poi.version>5.5.0</poi.version>
+    <rtfparserkit.version>1.16.0</rtfparserkit.version>
+    <slf4j.version>2.0.17</slf4j.version>
+    <zip4j.version>2.11.5</zip4j.version>
     <!-- testing -->
-    <junit.version>5.11.4</junit.version>
     <hamcrest.version>3.0</hamcrest.version>
     <jmock-junit5.version>2.13.1</jmock-junit5.version>
+    <junit.version>5.11.4</junit.version>
     <log4j.version>2.25.2</log4j.version>
-
-    <!-- sonarcloud -->
-    <sonar.projectKey>levigo_filetype-analyzer</sonar.projectKey>
-    <sonar.organization>levigo</sonar.organization>
-    <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-
-    <bouncycastle.version>1.82</bouncycastle.version>
   </properties>
 
   <build>
@@ -232,11 +222,6 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
           <version>3.12.0</version>
-        </plugin>
-        <plugin>
-          <groupId>org.sonarsource.scanner.maven</groupId>
-          <artifactId>sonar-maven-plugin</artifactId>
-          <version>5.3.0.6276</version>
         </plugin>
       </plugins>
     </pluginManagement>

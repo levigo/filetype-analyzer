@@ -41,14 +41,6 @@ jobs:
           exit -1
         fi
 
-    ## Enable Caching
-    - name: Cache SonarCloud packages
-      uses: actions/cache@v4
-      with:
-        path: ~/.sonar/cache
-        key: ${{ runner.os }}-sonar
-        restore-keys: ${{ runner.os }}-sonar
-
     - name: Set up JDK 21
       uses: actions/setup-java@v5
       with:
@@ -72,9 +64,8 @@ jobs:
 
     - name: Perform build and analysis
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      run: mvn $MAVEN_CLI_OPTS package org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: mvn $MAVEN_CLI_OPTS package
 
     ## Deploy
     - name: Deploy package
