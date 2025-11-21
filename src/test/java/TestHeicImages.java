@@ -30,7 +30,6 @@ class TestHeicImages {
       final Map<String, Object> result = analyzer.analyze(f);
       assertNotNull(result, f + " could not be analyzed");
       assertEquals("image/heic", result.get(MimeTypeAction.KEY), f + " is not recognized as heic");
-
     }
   }
 
@@ -40,7 +39,6 @@ class TestHeicImages {
       final Map<String, Object> result = analyzer.analyze(f);
       assertNotNull(result, f + " could not be analyzed");
       assertNotEquals("image/heic", result.get(MimeTypeAction.KEY), "false positive:  " + f + " is recognized as heic");
-
     }
   }
 
