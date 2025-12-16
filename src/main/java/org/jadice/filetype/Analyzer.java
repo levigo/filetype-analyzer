@@ -228,17 +228,22 @@ public class Analyzer {
   public Map<String, Object> analyze(final InputStream is, final AnalysisListener listener, final String fileName)
       throws IOException {
     Map<String, Object> result = new HashMap<>();
-
-
-    // POI (3.1-Final) closes the stream during analyszs of office files - use an uncloseable stream wrapper
-    final UncloseableInputStream uis = new UncloseableInputStream(is);
-    final UncloseableSeekableInputStreamWrapper usis = new UncloseableSeekableInputStreamWrapper(new MemoryInputStream(uis));
-    usis.lockClose(); // and don't unlock later as POI attempts to close asynchronously!
-
+    final AnalysisListener effectiveListener = listener != null ? listener : DEFAULT_LISTENER;
+    // POI may close streams during analysis; shield callers by using an uncloseable, seekable wrapper.
+    // If the input is already seekable, avoid buffering the full stream in memory.
+    final SeekableInputStream baseStream;
+    if (is instanceof SeekableInputStream) {
+      baseStream = (SeekableInputStream) is;
+    } else {
+      final UncloseableInputStream uis = new UncloseableInputStream(is);
+      baseStream = new MemoryInputStream(uis);
+    }
+    final UncloseableSeekableInputStreamWrapper usis = new UncloseableSeekableInputStreamWrapper(baseStream);
+    usis.lockClose(); // do not unlock later as POI may attempt to close asynchronously
     final String sanitizedFileName = fileName != null ? fileName.replaceAll("[:\\\\/*?|<>]", "_") : null;
     String extension = FilenameUtils.getExtension(sanitizedFileName);
 
-    Context ctx = new Context(usis, result, listener, locale, extension);
+    Context ctx = new Context(usis, result, effectiveListener, locale, extension);
 
     database.analyze(ctx);
 
@@ -267,12 +272,13 @@ public class Analyzer {
     SeekableInputStream sis = new RandomAccessFileInputStream(file);
     try {
       String fileName = file.getName();
-      return analyze(sis, null, fileName);
+      return analyze(sis, listener, fileName);
     } finally {
       try {
         sis.close();
       } catch (IOException e) {
-        listener.error(this, "Exception closing RandomAccessFileInputStream", e);
+        final AnalysisListener effectiveListener = listener != null ? listener : DEFAULT_LISTENER;
+        effectiveListener.error(this, "Exception closing RandomAccessFileInputStream", e);
       }
     }
   }
@@ -289,13 +295,13 @@ public class Analyzer {
   }
 
 
-  public Map<String, Object> analyzeWithFilename(final SeekableInputStream sis,final String fileName) throws IOException {
+  public Map<String, Object> analyzeWithFilename(final SeekableInputStream sis, final String fileName) throws IOException {
     return analyze(sis, DEFAULT_LISTENER, fileName);
   }
 
   /**
    * Analyze the stream supplied via an {@link InputStream}. <br>
-   * Caveat: the data will be buffered in memory. If you don't like this, supply a
+   * Caveat: non-seekable streams may be buffered in memory. If you don't like this, supply a
    * {@link SeekableInputStream} implementation or a {@link File} instead.
    * 
    * @param is
