@@ -237,19 +237,13 @@ public class OfficeOpenXMLMatcher extends Matcher {
     SeekableInputStream sis = context.getStream();
     try {
       sis.seek(0);
-
       ZipFile archive = ZipUtil.createZipFile(sis);
       try {
         detect(context, archive);
       } finally {
+        // Close releases file handles; any temp cleanup is handled by the ZipUtil ZipFile implementation.
         archive.close();
-        try {
-          Files.delete(archive.getFile().toPath());
-        } catch (IOException ioe) {
-          LOGGER.debug("failed to delete temporary zip file", ioe);
-        }
       }
-
       return context.getProperty(MimeTypeAction.KEY) != null;
     } catch (IOException e) {
       context.error(this, "Exception analyzing Office Open XML Container", e);
@@ -486,23 +480,39 @@ public class OfficeOpenXMLMatcher extends Matcher {
     if (fileName.startsWith("/")) {
       fileName = fileName.substring(1);
     }
+    // Support both entry layouts: root entries and entries prefixed with "<zipname>/".
+    final String prefixed = archive.getFile().getName() + File.separator + fileName;
+    InputStream direct = tryGetSingleEntry(fileName, archive);
+    if (direct != null) {
+      return direct;
+    }
+    InputStream prefixedDirect = tryGetSingleEntry(prefixed, archive);
+    if (prefixedDirect != null) {
+      return prefixedDirect;
+    }
+    InputStream pieces = tryGetPieceStream(fileName, archive);
+    if (pieces != null) {
+      return pieces;
+    }
+    return tryGetPieceStream(prefixed, archive);
+  }
 
-    // consider the uuid directory name
-    fileName = archive.getFile().getName() + File.separator + fileName;
-
-    final FileHeader entry = archive.getFileHeader(fileName);
+  private InputStream tryGetSingleEntry(final String name, final ZipFile archive) throws IOException {
+    final FileHeader entry = archive.getFileHeader(name);
     if (entry != null && !entry.isDirectory()) {
-      LOGGER.debug("Get '{}' from 1 piece", fileName);
+      LOGGER.debug("Get '{}' from 1 piece", name);
       return archive.getInputStream(entry);
     }
+    return null;
+  }
 
-    // try directory browsing:
+  private InputStream tryGetPieceStream(final String baseName, final ZipFile archive) throws IOException {
     // Assemble stream from "[0].piece"..."[$n].last.piece";
     // see Office Open XML, Part 2: Open Packaging Conventions, sec 9.1.3.1 Logical Item Names
     List<InputStream> streams = new LinkedList<>();
     int i = 0;
     FileHeader piece;
-    while ((piece = archive.getFileHeader(fileName + "/[" + i + "].piece")) != null) {
+    while ((piece = archive.getFileHeader(baseName + "/[" + i + "].piece")) != null) {
       final InputStream is = archive.getInputStream(piece);
       if (is == null) {
         break;
@@ -512,7 +522,7 @@ public class OfficeOpenXMLMatcher extends Matcher {
       i++;
     }
 
-    final FileHeader last = archive.getFileHeader(fileName + "/[" + i + "].last.piece");
+    final FileHeader last = archive.getFileHeader(baseName + "/[" + i + "].last.piece");
     if (last == null) {
       return null;
     }
@@ -523,7 +533,7 @@ public class OfficeOpenXMLMatcher extends Matcher {
     }
     streams.add(is);
 
-    LOGGER.debug("Get '{}' from {} pieces", fileName, streams.size());
+    LOGGER.debug("Get '{}' from {} pieces", baseName, streams.size());
     return new SequenceInputStream(Collections.enumeration(streams));
   }
 }

@@ -4,15 +4,12 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import org.jadice.filetype.io.SeekableInputStream;
 
 import net.lingala.zip4j.ZipFile;
-import net.lingala.zip4j.io.inputstream.ZipInputStream;
-import net.lingala.zip4j.model.LocalFileHeader;
 
 public class ZipUtil {
 
@@ -22,35 +19,41 @@ public class ZipUtil {
     // utility class
   }
 
+  /** Caller must close the returned {@link ZipFile} so the temporary ZIP file can be deleted. */
   public static ZipFile createZipFile(SeekableInputStream sis) throws IOException {
+    final long fp = sis.getStreamPosition();
+    final Path baseDir = TEMP_DIRECTORY.toPath();
+    final Path tmpZip = Files.createTempFile(baseDir, "jadice-filetype-", ".zip");
+    tmpZip.toFile().deleteOnExit();
+    try (OutputStream os = new FileOutputStream(tmpZip.toFile())) {
+      final byte[] buffer = new byte[128 * 1024];
+      int read;
+      while ((read = sis.read(buffer)) != -1) {
+        os.write(buffer, 0, read);
+      }
+    } finally {
+      sis.seek(fp);
+    }
+    return new AutoDeletingZipFile(tmpZip.toFile());
+  }
 
-    final UUID uuid = UUID.randomUUID();
-    final File tmpDir = new File(TEMP_DIRECTORY + File.separator + uuid);
-
-    long fp = sis.getStreamPosition();
-    LocalFileHeader localFileHeader;
-    int readLen;
-    byte[] readBuffer = new byte[4096];
-
-    try (ZipInputStream zipInputStream = new ZipInputStream(sis); ZipFile zipFile = new ZipFile(uuid.toString())) {
-      List<File> files = new ArrayList<>();
-      while ((localFileHeader = zipInputStream.getNextEntry()) != null) {
-        if (!localFileHeader.isDirectory()) {
-          final File extractedFile = new File(
-              tmpDir.getAbsolutePath() + File.separator + localFileHeader.getFileName());
-          File parentFolder = new File(extractedFile.getParent());
-          parentFolder.mkdirs();
-          try (OutputStream outputStream = new FileOutputStream(extractedFile)) {
-            while ((readLen = zipInputStream.read(readBuffer)) != -1) {
-              outputStream.write(readBuffer, 0, readLen);
-            }
-          }
-          files.add(extractedFile);
+  private static final class AutoDeletingZipFile extends ZipFile {
+    private final File tmpFile;
+    private AutoDeletingZipFile(File tmpFile) {
+      super(tmpFile);
+      this.tmpFile = tmpFile;
+    }
+    @Override
+    public void close() throws IOException {
+      try {
+        super.close();
+      } finally {
+        try {
+          Files.deleteIfExists(tmpFile.toPath());
+        } catch (IOException ignore) {
+          // best-effort cleanup
         }
       }
-      sis.seek(fp);
-      zipFile.addFolder(tmpDir);
-      return zipFile;
     }
   }
 }
