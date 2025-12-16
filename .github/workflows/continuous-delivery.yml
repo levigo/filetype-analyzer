@@ -7,6 +7,11 @@ on:
     paths-ignore:
       # - '.github/**'
       - '**/README.md'
+
+permissions:
+  contents: write
+  pull-requests: write
+
 env:
   # This will suppress any download for dependencies and plugins or upload messages which would clutter the console log.
   # `showDateTime` will show the passed time in milliseconds. You need to specify `--batch-mode` to make this work.
@@ -97,14 +102,18 @@ jobs:
         # extract list of mime-types from magic.xml and append to README.md
         grep -Po '(?<=<mime-type>)[^<]+' src/main/resources/magic.xml | sort | uniq | xargs printf "\t%s\n" >> README.md
 
-        git add README.md
-        git commit -m "Edit README.md to contain correct version"
-
-    - name: Push changes
-      uses: ad-m/github-push-action@master
+    - name: Create PR for README update
+      uses: peter-evans/create-pull-request@v8
       with:
-        branch: master
-        github_token: ${{ secrets.GITHUB_TOKEN }}
+        token: ${{ secrets.GITHUB_TOKEN }}
+        base: master
+        branch: ci/readme-update
+        delete-branch: true
+        add-paths: |
+          README.md
+        commit-message: "Edit README.md to contain correct version"
+        title: "docs: update README for ${{ steps.semanticversion.outputs.new_version }}"
+        body: "Automated README update after release."
 
     - name: Create release
       uses: softprops/action-gh-release@v2
