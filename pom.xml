@@ -65,7 +65,7 @@
     <hamcrest.version>3.0</hamcrest.version>
     <jmock-junit5.version>2.13.1</jmock-junit5.version>
     <junit.version>5.11.4</junit.version>
-    <log4j.version>2.25.2</log4j.version>
+    <log4j.version>2.25.3</log4j.version>
   </properties>
 
   <build>
