@@ -761,6 +761,28 @@
       <description>X-Rechnung type CreditNote</description>
       <match-xml-metadata namespaceUri="urn:oasis:names:specification:ubl:schema:xsd:CreditNote-" rootElementName="CreditNote">x_rechnung</match-xml-metadata>
     </type>
+    <type>
+      <description>E-Rezept</description>
+      <match-xml-metadata namespaceUri="http://hl7.org/fhir" rootElementName="Bundle">e_rezept</match-xml-metadata>
+    </type>
+  </type>
+
+  <type>
+    <mime-type>application/json</mime-type>
+    <extension>json</extension>
+    <description>JSON</description>
+    <match-regexp offset="0" range="1" >^(\{|\[)</match-regexp>
+    <type>
+      <description>E-Rezept</description>
+      <match-regexp offset="0" range="100" multiline="true">resourceType</match-regexp>
+    </type>
+  </type>
+
+  <type>
+    <mime-type>application/pkcs7-mime</mime-type>
+    <extension>p7s</extension>
+    <description>PKCS #7</description>
+    <match-custom>org.jadice.filetype.matchers.PKCS7Matcher</match-custom>
   </type>
 
   <type>
@@ -769,7 +791,6 @@
     <description>HEIF images</description>
     <match-regexp offset="4">ftypheif</match-regexp>
   </type>
-
 
   <type>
     <mime-type>image/heic</mime-type>
