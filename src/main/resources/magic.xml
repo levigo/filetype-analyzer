@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <magic>
+
+  <type>
+    <mime-type>application/e-rezept</mime-type>
+    <extension>er</extension>
+    <description>E-Rezept</description>
+    <match-custom>org.jadice.filetype.matchers.ERezeptMatcher</match-custom>
+  </type>
+
   <type>
     <mime-type>image/jpeg</mime-type>
     <extension>jpg</extension>
