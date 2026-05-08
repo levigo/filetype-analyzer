@@ -49,23 +49,23 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-    <bouncycastle.version>1.82</bouncycastle.version>
+    <bouncycastle.version>1.84</bouncycastle.version>
     <commons-compress.version>1.28.0</commons-compress.version>
-    <commons.io.version>2.21.0</commons.io.version>
+    <commons.io.version>2.22.0</commons.io.version>
     <jaxb-api.version>4.0.4</jaxb-api.version>
     <jaxb-core.version>4.0.6</jaxb-core.version>
     <jaxb-impl.version>4.0.6</jaxb-impl.version>
-    <opennlp-tools.version>1.9.3</opennlp-tools.version>
-    <pdfbox.version>3.0.6</pdfbox.version>
-    <poi.version>5.5.0</poi.version>
+    <opennlp-tools.version>2.5.9</opennlp-tools.version>
+    <pdfbox.version>3.0.7</pdfbox.version>
+    <poi.version>5.5.1</poi.version>
     <rtfparserkit.version>1.16.0</rtfparserkit.version>
     <slf4j.version>2.0.17</slf4j.version>
-    <zip4j.version>2.11.5</zip4j.version>
+    <zip4j.version>2.11.6</zip4j.version>
     <!-- testing -->
     <hamcrest.version>3.0</hamcrest.version>
     <jmock-junit5.version>2.13.1</jmock-junit5.version>
     <junit.version>5.11.4</junit.version>
-    <log4j.version>2.25.2</log4j.version>
+    <log4j.version>2.26.0</log4j.version>
   </properties>
 
   <build>
@@ -223,6 +223,42 @@
           <artifactId>maven-javadoc-plugin</artifactId>
           <version>3.12.0</version>
         </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>versions-maven-plugin</artifactId>
+        <version>2.21.0</version>
+        <configuration>
+          <ruleSet>
+            <ignoreVersions>
+              <ignoreVersion>
+                <!-- can be either: 'exact' (default) or 'regex' -->
+                <type>regex</type>
+                <version>(.+-SNAPSHOT|.+-M\d|.+-(rc|RC).*)</version>
+              </ignoreVersion>
+              <ignoreVersion>
+                <type>regex</type>
+                <version>.+-(alpha|beta).*</version>
+              </ignoreVersion>
+              <ignoreVersion>
+                <type>regex</type>
+                <version>.+does-not-exist.*</version>
+              </ignoreVersion>
+              <ignoreVersion>
+                <type>regex</type>
+                <version>.*-nx[0-9]+</version>
+              </ignoreVersion>
+              <ignoreVersion>
+                <type>regex</type>
+                <version>.*-atlassian.*</version>
+              </ignoreVersion>
+              <ignoreVersion>
+                <type>regex</type>
+                <version>.+-jdk5.*</version>
+              </ignoreVersion>
+            </ignoreVersions>
+          </ruleSet>
+        </configuration>
+      </plugin>
       </plugins>
     </pluginManagement>
   </build>
