@@ -54,7 +54,6 @@
     <commons.io.version>2.22.0</commons.io.version>
     <jaxb-api.version>2.3.1</jaxb-api.version>
     <jaxb-runtime.version>2.3.9</jaxb-runtime.version>
-    <opennlp-tools.version>1.9.4</opennlp-tools.version>
     <pdfbox.version>2.0.36</pdfbox.version>
     <poi.version>5.3.0</poi.version>
     <rtfparserkit.version>1.16.0</rtfparserkit.version>
@@ -406,12 +405,6 @@
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-compress</artifactId>
       <version>${commons-compress.version}</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.opennlp</groupId>
-      <artifactId>opennlp-tools</artifactId>
-      <version>${opennlp-tools.version}</version>
       <scope>compile</scope>
     </dependency>
   </dependencies>
