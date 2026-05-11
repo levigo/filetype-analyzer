@@ -19,9 +19,10 @@ import org.apache.commons.io.FilenameUtils;
 import org.jadice.filetype.database.Database;
 import org.jadice.filetype.database.DescriptionAction;
 import org.jadice.filetype.database.Type;
+import org.jadice.filetype.io.MemoryInputStream;
 import org.jadice.filetype.io.RandomAccessFileInputStream;
 import org.jadice.filetype.io.SeekableInputStream;
-import org.jadice.filetype.io.UncloseableMemoryInputStream;
+import org.jadice.filetype.io.UncloseableInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -234,7 +235,8 @@ public class Analyzer {
     if (is instanceof SeekableInputStream) {
       baseStream = (SeekableInputStream) is;
     } else {
-      baseStream = new UncloseableMemoryInputStream(is);
+      final UncloseableInputStream uis = new UncloseableInputStream(is);
+      baseStream = new MemoryInputStream(uis);
     }
     final UncloseableSeekableInputStreamWrapper usis = new UncloseableSeekableInputStreamWrapper(baseStream);
     usis.lockClose(); // do not unlock later as POI may attempt to close asynchronously
