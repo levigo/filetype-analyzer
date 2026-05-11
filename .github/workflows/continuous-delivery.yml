@@ -7,6 +7,11 @@ on:
     paths-ignore:
       # - '.github/**'
       - '**/README.md'
+
+permissions:
+  contents: write
+  pull-requests: write
+
 env:
   # This will suppress any download for dependencies and plugins or upload messages which would clutter the console log.
   # `showDateTime` will show the passed time in milliseconds. You need to specify `--batch-mode` to make this work.
@@ -18,13 +23,13 @@ env:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     env:
       FTA_TAG_PREFIX: 'maintenance-1-v'
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     - name: Bump version and create tag
       id: semanticversion
@@ -45,7 +50,7 @@ jobs:
         fi
 
     - name: Set up JDK 17
-      uses: actions/setup-java@v4
+      uses: actions/setup-java@v5
       with:
         distribution: 'temurin'
         java-version: '17'
@@ -100,14 +105,18 @@ jobs:
         # extract list of mime-types from magic.xml and append to README.md
         grep -Po '(?<=<mime-type>)[^<]+' src/main/resources/magic.xml | sort | uniq | xargs printf "\t%s\n" >> README.md
 
-        git add README.md
-        git commit -m "Edit README.md to contain correct version"
-
-    - name: Push changes
-      uses: ad-m/github-push-action@master
+    - name: Create PR for README update
+      uses: peter-evans/create-pull-request@v8
       with:
-        branch: maintenance-1
-        github_token: ${{ secrets.GITHUB_TOKEN }}
+        token: ${{ secrets.GITHUB_TOKEN }}
+        base: maintenance-1
+        branch: ci/readme-update_maintenance-1
+        delete-branch: true
+        add-paths: |
+          README.md
+        commit-message: "Edit README.md to contain correct version"
+        title: "docs: update README for ${{ steps.semanticversion.outputs.new_version }}"
+        body: "Automated README update after release."
 
     - name: Create release
       uses: softprops/action-gh-release@v2
