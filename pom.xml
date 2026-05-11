@@ -49,32 +49,22 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-    <zip4j.version>2.11.5</zip4j.version>
-    <slf4j.version>1.7.36</slf4j.version>
-
-    <poi.version>5.3.0</poi.version>
-    <rtfparserkit.version>1.16.0</rtfparserkit.version>
-    <commons.io.version>2.18.0</commons.io.version>
-    <commons-compress.version>1.27.1</commons-compress.version>
-    <opennlp-tools.version>1.9.4</opennlp-tools.version>
-
-    <pdfbox.version>2.0.32</pdfbox.version>
-
+    <bouncycastle.version>1.84</bouncycastle.version>
+    <commons-compress.version>1.28.0</commons-compress.version>
+    <commons.io.version>2.22.0</commons.io.version>
     <jaxb-api.version>2.3.1</jaxb-api.version>
     <jaxb-runtime.version>2.3.9</jaxb-runtime.version>
-
+    <opennlp-tools.version>1.9.4</opennlp-tools.version>
+    <pdfbox.version>2.0.36</pdfbox.version>
+    <poi.version>5.3.0</poi.version>
+    <rtfparserkit.version>1.16.0</rtfparserkit.version>
+    <slf4j.version>2.0.17</slf4j.version>
+    <zip4j.version>2.11.6</zip4j.version>
     <!-- testing -->
-    <junit.version>5.11.3</junit.version>
     <hamcrest.version>3.0</hamcrest.version>
     <jmock-junit5.version>2.13.1</jmock-junit5.version>
-    <log4j.version>2.24.2</log4j.version>
-
-    <!-- sonarcloud -->
-    <sonar.projectKey>levigo_filetype-analyzer</sonar.projectKey>
-    <sonar.organization>levigo</sonar.organization>
-    <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-
-    <bouncycastle.version>1.79</bouncycastle.version>
+    <junit.version>5.11.4</junit.version>
+    <log4j.version>2.26.0</log4j.version>
   </properties>
 
   <build>
@@ -82,7 +72,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.12.1</version>
+        <version>3.15.0</version>
         <configuration>
           <source>1.8</source>
           <target>1.8</target>
@@ -92,7 +82,7 @@
         <!-- Calculating the test coverage  -->
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
-        <version>0.8.11</version>
+        <version>0.8.14</version>
         <executions>
           <execution>
             <id>pre-unit-test</id>
@@ -116,7 +106,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>3.2.3</version>
+        <version>3.5.5</version>
         <configuration>
           <!-- Sets the VM argument line as defined by the JaCoCo plugin. -->
           <argLine>${jacocoAgentArgLine}</argLine>
@@ -132,12 +122,12 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
-        <version>3.5.0</version>
+        <version>3.6.2</version>
         <dependencies>
           <dependency>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>extra-enforcer-rules</artifactId>
-            <version>1.8.0</version>
+            <version>1.12.0</version>
           </dependency>
         </dependencies>
         <executions>
@@ -181,7 +171,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-release-plugin</artifactId>
-        <version>3.1.1</version>
+        <version>3.3.0</version>
         <configuration>
           <username>git</username>
           <password/>
@@ -199,38 +189,74 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-jar-plugin</artifactId>
-          <version>3.3.0</version>
+          <version>3.5.0</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-clean-plugin</artifactId>
-          <version>3.3.2</version>
+          <version>3.5.0</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-install-plugin</artifactId>
-          <version>3.1.1</version>
+          <version>3.1.4</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-site-plugin</artifactId>
-          <version>3.12.1</version>
+          <version>3.21.0</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-resources-plugin</artifactId>
-          <version>3.3.1</version>
+          <version>3.5.0</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-deploy-plugin</artifactId>
-          <version>3.1.2</version>
+          <version>3.1.4</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
-          <version>3.6.3</version>
+          <version>3.12.0</version>
         </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>versions-maven-plugin</artifactId>
+        <version>2.21.0</version>
+        <configuration>
+          <ruleSet>
+            <ignoreVersions>
+              <ignoreVersion>
+                <!-- can be either: 'exact' (default) or 'regex' -->
+                <type>regex</type>
+                <version>(.+-SNAPSHOT|.+-M\d|.+-(rc|RC).*)</version>
+              </ignoreVersion>
+              <ignoreVersion>
+                <type>regex</type>
+                <version>.+-(alpha|beta).*</version>
+              </ignoreVersion>
+              <ignoreVersion>
+                <type>regex</type>
+                <version>.+does-not-exist.*</version>
+              </ignoreVersion>
+              <ignoreVersion>
+                <type>regex</type>
+                <version>.*-nx[0-9]+</version>
+              </ignoreVersion>
+              <ignoreVersion>
+                <type>regex</type>
+                <version>.*-atlassian.*</version>
+              </ignoreVersion>
+              <ignoreVersion>
+                <type>regex</type>
+                <version>.+-jdk5.*</version>
+              </ignoreVersion>
+            </ignoreVersions>
+          </ruleSet>
+        </configuration>
+      </plugin>
       </plugins>
     </pluginManagement>
   </build>
@@ -293,7 +319,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-slf4j-impl</artifactId>
+      <artifactId>log4j-slf4j2-impl</artifactId>
       <version>${log4j.version}</version>
       <scope>test</scope>
     </dependency>
@@ -390,17 +416,6 @@
     </dependency>
   </dependencies>
 
-  <distributionManagement>
-    <repository>
-      <id>maven2.releases.levigo.de</id>
-      <url>https://levigo.de/maven2/content/repositories/levigo-releases/</url>
-    </repository>
-    <snapshotRepository>
-      <id>maven2.snapshots.levigo.de</id>
-      <url>https://levigo.de/maven2/content/repositories/levigo-snapshots/</url>
-    </snapshotRepository>
-  </distributionManagement>
-
   <profiles>
     <!-- Activate using the release property: mvn clean install -Prelease -->
     <profile>
@@ -415,14 +430,14 @@
         <plugins>
           <!-- To release to Maven central -->
           <plugin>
-            <groupId>org.sonatype.plugins</groupId>
-            <artifactId>nexus-staging-maven-plugin</artifactId>
-            <version>1.6.13</version>
+            <groupId>org.sonatype.central</groupId>
+            <artifactId>central-publishing-maven-plugin</artifactId>
+            <version>0.10.0</version>
             <extensions>true</extensions>
             <configuration>
-              <serverId>ossrh</serverId>
-              <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
-              <autoReleaseAfterClose>true</autoReleaseAfterClose>
+              <publishingServerId>central</publishingServerId>
+              <autoPublish>true</autoPublish>
+              <waitUntil>uploaded</waitUntil>
             </configuration>
           </plugin>
 
@@ -430,7 +445,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-source-plugin</artifactId>
-            <version>3.3.0</version>
+            <version>3.4.0</version>
             <executions>
               <execution>
                 <id>attach-sources</id>
@@ -462,7 +477,7 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-gpg-plugin</artifactId>
-            <version>3.0.1</version>
+            <version>3.1.0</version>
             <executions>
               <execution>
                 <id>sign-artifacts</id>
