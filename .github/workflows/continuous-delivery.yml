@@ -100,7 +100,7 @@ jobs:
         head -n $(( $(grep -n 'Recognized formats' README.md | cut -d ':' -f 1) + 1 )) README.md > README.md.new
         mv README.md.new README.md
         # extract list of mime-types from magic.xml and append to README.md
-        grep -Po '(?<=<mime-type>)[^<]+' src/main/resources/magic.xml | sort | uniq | xargs printf "\t%s\n" >> README.md
+        grep -Po '(?<=<mime-type>)[^<]+' analyzer/src/main/resources/magic.xml | sort | uniq | xargs printf "\t%s\n" >> README.md
 
     - name: Create PR for README update
       uses: peter-evans/create-pull-request@v8

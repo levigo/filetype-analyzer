@@ -2,6 +2,18 @@
 
 A library to identify file formats and to extract meta-data from those files.
 
+## Modules
+
+This project is split into two modules:
+
+- **analyzer-core** -- Core framework for file format identification with lightweight dependencies. Provides base
+  matchers for common formats (ZIP, XML, text, images, OOXML, ODF, MODCA, etc.).
+- **analyzer** -- Enhanced matchers for PDF (via PDFBox), MS Office (via POI), and RTF, including PDF signature
+  validation. Contains more details about the detected format.
+
+Use `analyzer-core` if you only need basic format detection. Use `analyzer` if you need deep extraction of PDF metadata,
+Office document properties, or RTF analysis.
+
 ## Features
 
 - recognize common formats based on an XML-based matching description
@@ -12,10 +24,20 @@ A library to identify file formats and to extract meta-data from those files.
 
 ### Maven dependency
 
+For full functionality (includes core transitively):
+
     <dependency>
         <groupId>org.jadice.filetype</groupId>
         <artifactId>analyzer</artifactId>
-        <version>2.9.3</version>
+        <version>2.10.0</version>
+    </dependency>
+
+For lightweight format detection only:
+
+    <dependency>
+        <groupId>org.jadice.filetype</groupId>
+        <artifactId>analyzer-core</artifactId>
+        <version>2.10.0</version>
     </dependency>
 
 ### Minimal usage
@@ -27,7 +49,7 @@ A library to identify file formats and to extract meta-data from those files.
     System.out.println("Extension: " + results.get(ExtensionAction.KEY));
     System.out.println("Mime-Type: " + results.get(MimeTypeAction.KEY));
 
-    // some types have specialized matchers providing extra info
+    // some types have specialized matchers providing extra info (analyzer module)
     System.out.println("Details: " + results.get(PDFMatcher.DETAILS_KEY));
 
 ### Recognized formats

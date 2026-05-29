@@ -1,0 +1,13 @@
+<Configuration status="info" name="filetypeanalyzer" packages="">
+    <Appenders>
+        <Console name="STDOUT" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{ABSOLUTE} %-5p [%c{1}] %m%n"/>
+        </Console>
+    </Appenders>
+    <Loggers>
+        <Logger name="org.jadice.filetype.matchers" level="DEBUG"/>
+        <Root level="INFO">
+            <AppenderRef ref="STDOUT"/>
+        </Root>
+    </Loggers>
+</Configuration>
