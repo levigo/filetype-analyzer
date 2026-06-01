@@ -37,6 +37,15 @@
     </license>
   </licenses>
 
+  <!-- Required, otherwise it can't be published to maven central -->
+  <developers>
+    <developer>
+      <name>Jane Jadice</name>
+      <email>jadice-support@levigo.de</email>
+      <organizationUrl>https://levigo.de</organizationUrl>
+    </developer>
+  </developers>
+
   <modules>
     <module>analyzer-core</module>
     <module>analyzer</module>
