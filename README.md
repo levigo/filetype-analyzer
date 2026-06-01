@@ -29,7 +29,7 @@ For full functionality (includes core transitively):
     <dependency>
         <groupId>org.jadice.filetype</groupId>
         <artifactId>analyzer</artifactId>
-        <version>2.9.5</version>
+        <version>2.9.6</version>
     </dependency>
 
 For lightweight format detection only:
@@ -37,7 +37,7 @@ For lightweight format detection only:
     <dependency>
         <groupId>org.jadice.filetype</groupId>
         <artifactId>analyzer-core</artifactId>
-        <version>2.9.5</version>
+        <version>2.9.6</version>
     </dependency>
 
 ### Minimal usage
