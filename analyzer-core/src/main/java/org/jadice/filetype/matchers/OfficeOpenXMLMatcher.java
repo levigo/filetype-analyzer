@@ -169,6 +169,8 @@ public class OfficeOpenXMLMatcher extends Matcher {
         "Microsoft Excel 2007 Template", "xltx"),
     EXCEL_WORKSHEET_MACRO("application/vnd.ms-excel.sheet.macroEnabled", "Microsoft Excel 2007 Worksheet with macros",
         "xlsm"),
+    EXCEL_WORKSHEET_BINARY_MACRO("application/vnd.ms-excel.sheet.binary.macroEnabled.12", "Microsoft Excel 2007 Binary Worksheet with macros",
+        "xlsb", "application/vnd.ms-excel.sheet.binary.macroEnabled.main"),
     POWERPOINT_PRESENTATION("application/vnd.openxmlformats-officedocument.presentationml.presentation",
         "Microsoft PowerPoint 2007 Presentation", "pptx"),
     POWERPOINT_TEMPLATE("application/vnd.openxmlformats-officedocument.presentationml.template",
