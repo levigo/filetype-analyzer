@@ -72,7 +72,7 @@
     <hamcrest.version>3.0</hamcrest.version>
     <jmock-junit5.version>2.13.1</jmock-junit5.version>
     <junit.version>5.11.4</junit.version>
-    <log4j.version>2.26.0</log4j.version>
+    <log4j.version>2.26.1</log4j.version>
 
     <!-- plugins -->
     <maven-compiler-plugin.version>3.15.0</maven-compiler-plugin.version>
