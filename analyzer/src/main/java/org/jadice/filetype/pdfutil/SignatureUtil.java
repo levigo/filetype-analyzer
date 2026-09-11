@@ -128,17 +128,15 @@ public abstract class SignatureUtil {
     try {
       if (subFilter == null) return SIGNATURE_NOT_VALID + " Missing subfilter.";
       switch (subFilter) {
-        case "adbe.pkcs7.detached":
-        case "ETSI.CAdES.detached":
+        case "adbe.pkcs7.detached", "ETSI.CAdES.detached":
           return verifyPKCS7(contents, signedContent, signDate);
         case "adbe.pkcs7.sha1":
-          @SuppressWarnings({"squid:S5542", "lgtm [java/weak-cryptographic-algorithm]"})
+          @SuppressWarnings({"squid:S5542", "lgtm [java/weak-cryptographic-algorithm]", "java:S4790"})
           final MessageDigest md = MessageDigest.getInstance("SHA1");
           md.update(signedContent.readAllBytes());
           final byte[] hash = md.digest();
           return verifyPKCS7(contents, new ByteArrayInputStream(hash), signDate);
-        case "adbe.x509.rsa.sha1":
-        case "adbe.x509.rsa_sha1":
+        case "adbe.x509.rsa.sha1", "adbe.x509.rsa_sha1":
           return verifyAdbeX509RsaSha1(contents, signedContent, certData);
         case "ETSI.RFC3161":
           return verifyETSIdotRFC3161(signedContent, contents);
