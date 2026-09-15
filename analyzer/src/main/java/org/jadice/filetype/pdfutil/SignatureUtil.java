@@ -162,7 +162,7 @@ public abstract class SignatureUtil {
    */
   public static String verifyPKCS7(final byte[] contents, final InputStream signedContent, final Calendar signDate) {
     try {
-      final CMSSignedData cms = new CMSSignedData(new CMSProcessableInputStream(signedContent), contents);
+      final CMSSignedData cms = new CMSSignedData(new CMSProcessableInputStream(signedContent), trimToDerLength(contents));
       final SignerInformation signerInfo = cms.getSignerInfos().getSigners().iterator().next();
       X509CertificateHolder certHolder = (X509CertificateHolder) cms.getCertificates().getMatches(signerInfo.getSID())
           .iterator().next();
@@ -176,6 +176,44 @@ public abstract class SignatureUtil {
   }
 
   /**
+   * The PDF's /Contents byte string is a fixed-size placeholder that is typically
+   * zero-padded beyond the actual DER-encoded CMS structure (the signature is
+   * embedded before the exact byte count is known). BouncyCastle rejects any
+   * trailing bytes after the top-level ASN.1 structure ("Extra data detected in
+   * stream"), so the array needs to be trimmed to the structure's real length
+   * before it is handed to {@link CMSSignedData}.
+   *
+   * @param contents raw /Contents bytes, possibly zero-padded
+   * @return contents trimmed to the length of the top-level DER structure it encodes,
+   * or the original array if that length cannot be determined
+   */
+  private static byte[] trimToDerLength(final byte[] contents) {
+    if (contents.length < 2 || (contents[1] & 0xFF) == 0x80) {
+      // too short to hold a header, or indefinite-length (BER) encoding: leave as is
+      return contents;
+    }
+    final int lengthOctet = contents[1] & 0xFF;
+    final int lengthFieldSize;
+    final int contentLength;
+    if (lengthOctet < 0x80) {
+      lengthFieldSize = 1;
+      contentLength = lengthOctet;
+    } else {
+      lengthFieldSize = 1 + (lengthOctet & 0x7F);
+      if (contents.length < 1 + lengthFieldSize) {
+        return contents;
+      }
+      int len = 0;
+      for (int i = 0; i < lengthFieldSize - 1; i++) {
+        len = (len << 8) | (contents[2 + i] & 0xFF);
+      }
+      contentLength = len;
+    }
+    final int totalLength = 1 + lengthFieldSize + contentLength;
+    return totalLength > 0 && totalLength <= contents.length ? Arrays.copyOf(contents, totalLength) : contents;
+  }
+
+  /**
    * Verify ETSI.RFC3161 TimeStampToken
    * Copied from: <a href="https://github.com/apache/pdfbox/blob/trunk/examples/src/main/java/org/apache/pdfbox/examples/signature/ShowSignature.java">...</a>
    *
@@ -185,7 +223,7 @@ public abstract class SignatureUtil {
    */
   public static String verifyETSIdotRFC3161(InputStream signedContent, byte[] contents)
       throws CMSException, NoSuchAlgorithmException, IOException, TSPException {
-    final TimeStampToken timeStampToken = new TimeStampToken(new CMSSignedData(contents));
+    final TimeStampToken timeStampToken = new TimeStampToken(new CMSSignedData(trimToDerLength(contents)));
     final TimeStampTokenInfo timeStampInfo = timeStampToken.getTimeStampInfo();
 
     final String hashAlgorithm = timeStampInfo.getMessageImprintAlgOID().getId();
