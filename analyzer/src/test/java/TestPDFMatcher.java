@@ -51,6 +51,7 @@ class TestPDFMatcher {
       assertValidDetails(result);
       assertFalse(isEncrypted(result), f + " is not recognized as unencrypted PDF");
       assertFalse(hasEmbeddedDocuments(result), f + " has no embedded documents");
+      assertValidPermissions(result);
     }
   }
 
@@ -80,6 +81,7 @@ class TestPDFMatcher {
       assertValidDetails(result);
       assertFalse(isEncrypted(result), f + " is not recognized as unencrypted PDF");
       assertTrue(hasEmbeddedDocuments(result), f + " has embedded documents, but none were found");
+      assertValidPermissions(result);
     }
   }
 
@@ -94,6 +96,7 @@ class TestPDFMatcher {
       assertValidDetails(result);
       assertTrue(isEncrypted(result),f + " is not recognized as encrypted PDF");
       assertFalse(hasEmbeddedDocuments(result), f + " has no embedded documents");
+      assertValidPermissions(result);
     }
   }
 
@@ -203,6 +206,27 @@ class TestPDFMatcher {
     assertTrue(result.containsKey(PDFMatcher.DETAILS_KEY), "No PDF details were found");
     final Object object = result.get(PDFMatcher.DETAILS_KEY);
     assertTrue(object instanceof Map, "PDF details are not a map, but " + object.getClass());
+  }
+
+  @SuppressWarnings("unchecked")
+  private static void assertValidPermissions(final Map<String, Object> result) {
+    final Map<String, Object> details = (Map<String, Object>) result.get(PDFMatcher.DETAILS_KEY);
+    assertThat(details, hasKey(PDFMatcher.PERMISSIONS_KEY));
+    final Object permissionsObject = details.get(PDFMatcher.PERMISSIONS_KEY);
+    assertTrue(permissionsObject instanceof Map, "PDF permissions are not a map, but " + permissionsObject.getClass());
+    final Map<String, Object> permissions = (Map<String, Object>) permissionsObject;
+    assertThat(permissions, hasKey(PDFMatcher.CAN_PRINT_KEY));
+    assertThat(permissions, hasKey(PDFMatcher.CAN_PRINT_FAITHFUL_KEY));
+    assertThat(permissions, hasKey(PDFMatcher.CAN_MODIFY_KEY));
+    assertThat(permissions, hasKey(PDFMatcher.CAN_MODIFY_ANNOTATIONS_KEY));
+    assertThat(permissions, hasKey(PDFMatcher.CAN_FILL_IN_FORM_KEY));
+    assertThat(permissions, hasKey(PDFMatcher.CAN_EXTRACT_CONTENT_KEY));
+    assertThat(permissions, hasKey(PDFMatcher.CAN_EXTRACT_FOR_ACCESSIBILITY_KEY));
+    assertThat(permissions, hasKey(PDFMatcher.CAN_ASSEMBLE_DOCUMENT_KEY));
+    assertThat(permissions, hasKey(PDFMatcher.IS_OWNER_PERMISSION_KEY));
+    for (Object value : permissions.values()) {
+      assertTrue(value instanceof Boolean, "Permission value is not a boolean, but " + value.getClass());
+    }
   }
 
   @SuppressWarnings("unchecked")
