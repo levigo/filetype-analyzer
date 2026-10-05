@@ -34,6 +34,7 @@ import org.apache.pdfbox.pdmodel.common.PDNameTreeNode;
 import org.apache.pdfbox.pdmodel.common.filespecification.PDComplexFileSpecification;
 import org.apache.pdfbox.pdmodel.common.filespecification.PDEmbeddedFile;
 import org.apache.pdfbox.pdmodel.common.filespecification.PDFileSpecification;
+import org.apache.pdfbox.pdmodel.encryption.AccessPermission;
 import org.apache.pdfbox.pdmodel.encryption.PDEncryption;
 import org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotation;
 import org.apache.pdfbox.pdmodel.interactive.annotation.PDAnnotationFileAttachment;
@@ -66,6 +67,26 @@ public class PDFMatcher extends Matcher {
   public static final String SECURITY_HANDLER_KEY = "security-handler";
 
   public static final String IS_ENCRYPTED_KEY = "is-encrypted";
+
+  public static final String PERMISSIONS_KEY = "permissions";
+
+  public static final String CAN_PRINT_KEY = "can-print";
+
+  public static final String CAN_PRINT_FAITHFUL_KEY = "can-print-faithful";
+
+  public static final String CAN_MODIFY_KEY = "can-modify";
+
+  public static final String CAN_MODIFY_ANNOTATIONS_KEY = "can-modify-annotations";
+
+  public static final String CAN_FILL_IN_FORM_KEY = "can-fill-in-form";
+
+  public static final String CAN_EXTRACT_CONTENT_KEY = "can-extract-content";
+
+  public static final String CAN_EXTRACT_FOR_ACCESSIBILITY_KEY = "can-extract-for-accessibility";
+
+  public static final String CAN_ASSEMBLE_DOCUMENT_KEY = "can-assemble-document";
+
+  public static final String IS_OWNER_PERMISSION_KEY = "is-owner-permission";
 
   public static final String METADATA_KEY = "metadata";
 
@@ -121,6 +142,7 @@ public class PDFMatcher extends Matcher {
         } else
           pdfDetails.put(IS_ENCRYPTED_KEY, false);
 
+        providePermissionInfo(pdfDetails, document.getCurrentAccessPermission());
 
         final List<String> filenames = new ArrayList<>();
 
@@ -163,6 +185,28 @@ public class PDFMatcher extends Matcher {
     pdfDetails.put("subject", info.getSubject());
     pdfDetails.put("title", info.getTitle());
     pdfDetails.put("trapped", info.getTrapped());
+  }
+
+  /**
+   * Adds the PDF's access permissions (print, copy, modify, fill-in-form, etc.) to the result map.
+   * These are available regardless of whether the document is encrypted: for unencrypted
+   * documents PDFBox reports the permissions the owner would have (i.e. everything allowed).
+   *
+   * @param pdfDetails map to which the results get added
+   * @param permission the document's current access permission
+   */
+  private void providePermissionInfo(final Map<String, Object> pdfDetails, final AccessPermission permission) {
+    Map<String, Object> permissions = new HashMap<>();
+    permissions.put(CAN_PRINT_KEY, permission.canPrint());
+    permissions.put(CAN_PRINT_FAITHFUL_KEY, permission.canPrintFaithful());
+    permissions.put(CAN_MODIFY_KEY, permission.canModify());
+    permissions.put(CAN_MODIFY_ANNOTATIONS_KEY, permission.canModifyAnnotations());
+    permissions.put(CAN_FILL_IN_FORM_KEY, permission.canFillInForm());
+    permissions.put(CAN_EXTRACT_CONTENT_KEY, permission.canExtractContent());
+    permissions.put(CAN_EXTRACT_FOR_ACCESSIBILITY_KEY, permission.canExtractForAccessibility());
+    permissions.put(CAN_ASSEMBLE_DOCUMENT_KEY, permission.canAssembleDocument());
+    permissions.put(IS_OWNER_PERMISSION_KEY, permission.isOwnerPermission());
+    pdfDetails.put(PERMISSIONS_KEY, permissions);
   }
 
   private void provideXMPMetadata(final Map<String, Object> pdfDetails, final PDMetadata meta) throws IOException {
