@@ -29,7 +29,7 @@ For full functionality (includes core transitively):
     <dependency>
         <groupId>org.jadice.filetype</groupId>
         <artifactId>analyzer</artifactId>
-        <version>2.10.0</version>
+        <version>2.12.0</version>
     </dependency>
 
 For lightweight format detection only:
@@ -37,7 +37,7 @@ For lightweight format detection only:
     <dependency>
         <groupId>org.jadice.filetype</groupId>
         <artifactId>analyzer-core</artifactId>
-        <version>2.10.0</version>
+        <version>2.12.0</version>
     </dependency>
 
 ### Minimal usage
@@ -83,6 +83,7 @@ For lightweight format detection only:
 	image/png
 	image/tiff
 	image/vnd.djvu
+	image/webp
 	image/x-emf
 	image/x-ms-bmp
 	image/x-portable-bitmap
