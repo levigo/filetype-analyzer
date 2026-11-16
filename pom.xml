@@ -57,7 +57,7 @@
     <java.version>17</java.version>
 
     <!-- dependencies -->
-    <bouncycastle.version>1.86</bouncycastle.version>
+    <bouncycastle.version>1.87</bouncycastle.version>
     <commons-compress.version>1.28.0</commons-compress.version>
     <jaxb-api.version>4.0.5</jaxb-api.version>
     <jaxb-core.version>4.0.9</jaxb-core.version>
@@ -65,7 +65,7 @@
     <pdfbox.version>3.0.8</pdfbox.version>
     <poi.version>5.5.1</poi.version>
     <rtfparserkit.version>1.16.0</rtfparserkit.version>
-    <slf4j.version>2.0.19</slf4j.version>
+    <slf4j.version>2.0.20</slf4j.version>
     <zip4j.version>2.11.6</zip4j.version>
 
     <!-- testing -->
@@ -76,9 +76,9 @@
 
     <!-- plugins -->
     <maven-compiler-plugin.version>3.16.0</maven-compiler-plugin.version>
-    <jacoco-maven-plugin.version>0.8.15</jacoco-maven-plugin.version>
-    <maven-surefire-plugin.version>3.6.0</maven-surefire-plugin.version>
-    <maven-enforcer-plugin.version>3.6.3</maven-enforcer-plugin.version>
+    <jacoco-maven-plugin.version>0.8.16</jacoco-maven-plugin.version>
+    <maven-surefire-plugin.version>3.6.1</maven-surefire-plugin.version>
+    <maven-enforcer-plugin.version>3.7.0</maven-enforcer-plugin.version>
     <extra-enforcer-rules.version>1.12.1</extra-enforcer-rules.version>
     <maven-release-plugin.version>3.3.1</maven-release-plugin.version>
     <maven-jar-plugin.version>3.5.1</maven-jar-plugin.version>
@@ -91,7 +91,7 @@
     <central-publishing-maven-plugin.version>0.11.0</central-publishing-maven-plugin.version>
     <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
     <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
-    <versions-maven-plugin.version>2.22.0</versions-maven-plugin.version>
+    <versions-maven-plugin.version>2.25.2</versions-maven-plugin.version>
   </properties>
 
   <dependencyManagement>
