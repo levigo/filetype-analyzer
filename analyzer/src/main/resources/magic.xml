@@ -45,6 +45,13 @@
   </type>
 
   <type>
+    <mime-type>image/webp</mime-type>
+    <extension>webp</extension>
+    <description>WebP image</description>
+    <match-regexp offset="0" range="20">^RIFF.+WEBP</match-regexp>
+  </type>
+
+  <type>
     <mime-type>image/vnd.djvu</mime-type>
     <extension>djvu</extension>
     <description>DjVu document</description>
