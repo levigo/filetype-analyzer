@@ -76,7 +76,8 @@ class TestVariousTypes {
         arguments("/various_types/sample-rtf-files-sample2.rtf", "text/rtf", "Rich Text Format data", "rtf"),
         arguments("/various_types/iworks_pages_file.pages", "application/vnd.apple.pages", "Apple Pages Document", "pages"),
         arguments("/various_types/iworks_numbers_file.numbers", "application/vnd.apple.numbers", "Apple Numbers Document", "numbers"),
-        arguments("/various_types/iworks_keynote_file.key", "application/vnd.apple.keynote", "Apple Keynote Document", "key")
+        arguments("/various_types/iworks_keynote_file.key", "application/vnd.apple.keynote", "Apple Keynote Document", "key"),
+        arguments("/various_types/WebP-Gradient.webp", "image/webp", "WebP image", "webp")
     );
   }
 
